@@ -1,0 +1,21 @@
+<ng-container *ngIf="playlists | async as playlists;">
+    <ng-container *ngIf="display.isMd$ | async; else notMd">
+        <div class="row playlist-displayer">
+            <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="dialog.openSettingsDialog(playlist)">
+                  <img class="cover" [src]="playlist.images[0]?.url"/>
+                  <figcaption>{{ playlist.name }}</figcaption>
+              </button>
+        </div>
+    </ng-container>
+
+    <ng-template #notMd>
+        <div class="playlist-displayer">
+            <button *ngFor="let playlist of playlists" class="pl-button-sm" (click)="dialog.openSettingsDialog(playlist)">
+                  <img class="cover-sm" [src]="playlist.images[0]?.url"/>
+                  <div class="caption ps-2">{{ playlist.name }}</div>
+              </button>
+        </div>
+    </ng-template>
+
+    
+</ng-container>    

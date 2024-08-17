@@ -1,0 +1,62 @@
+<ng-container *ngIf="form">
+    <div class="d-flex flex-column rr-card dark top-div h-auto">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="title-div">GAME SETTINGS</div>
+            <button class="back-button" (click)="dialogRef.close()">
+                <mat-icon>cancel</mat-icon>
+            </button>
+        </div>
+        <div class="details mb-3">
+            <img [src]="data.images[0].url" class="cover">
+            <div class="w-auto">
+                <p class="playlist-title">{{data.name}}</p>
+                <p>{{tracks.length}} tracks</p>
+            </div>
+        </div>
+        <div [formGroup]="form" class="settings-options w-100">
+            <div class="setting-row">
+                <h2>Number of rounds:</h2>
+                <div class="rounds-buttons h-50">
+                    <button class="round" (click)="minusRounds()">
+                        <img class="h-100" src="assets/minus.svg">
+                    </button>
+                    <div class="px-3">{{form.get('rounds')!.value }}</div>
+                    <button class="round" (click)="plusRounds()">
+                        <img class="h-100" src="assets/plus.svg">
+                    </button>
+                </div>
+            </div>
+            <div class="setting-row">
+                <h2>Game Mode:</h2>
+                <div class="mode-buttons button-group row">
+                    <button [class.selected]="isModeSelected(gameModes.title)" (click)="setMode(gameModes.title)" class="col-6 setting-button">Title</button>
+                    <button [class.selected]="isModeSelected(gameModes.artist)" 
+                            (click)="setMode(gameModes.artist)"
+                            class="col-6 setting-button"
+                            [class.disabled]="!enoughArtist">Artist</button>
+                </div>
+            </div>
+            <div class="setting-row">
+                <h2>Speed:</h2>
+                <div class="button-group speed-buttons row">
+                    <button [class.selected]="isSpeedSelected(gameSpeeds.slow)" (click)="setSpeed(gameSpeeds.slow)" class="setting-button col">Slow</button>
+                    <button [class.selected]="isSpeedSelected(gameSpeeds.normal)" (click)="setSpeed(gameSpeeds.normal)" class="setting-button col">Normal</button>
+                    <button [class.selected]="isSpeedSelected(gameSpeeds.fast)" (click)="setSpeed(gameSpeeds.fast)" class="setting-button col">Fast</button>
+                </div>
+            </div>
+            <div class="setting-row">
+                <h2>Max health:</h2>
+                <div class="row health-buttons">
+                    <button *ngFor="let heart of [1, 2, 3]" (click)="setLives(heart)" class="heart col-4">
+                        <img src="{{ heart <= lives ? 'assets/heart-filled.svg' : 'assets/heart.svg' }}" class="h-100 w-100">
+                    </button>
+                </div>
+            </div>    
+        </div>
+        <div class="d-flex justify-content-evenly mt-3">
+            <rr-button text="Start" color="blue" icon="play_arrow" (click)="start()"></rr-button>
+        </div>
+        
+
+    </div>
+</ng-container>

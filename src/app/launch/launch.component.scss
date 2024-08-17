@@ -1,0 +1,54 @@
+@import '../../styles/colors.scss';
+
+.player-icon {
+    margin: 5px;
+    border: solid 3px $text;
+    border-radius: 1000px;
+
+    &.selected {
+        border: solid 5px $red;
+      }
+}
+
+h1 {
+    font-size: large;
+    font-weight: bold;
+    margin-left: 5px;
+}
+h2 {
+    font-size: small;
+    font-weight: bold;
+}
+
+input {
+    padding: 10px;
+    border: 3px solid $text;
+    border-radius: 75px;
+    outline: none;
+    width: 100%;
+    color: $text;
+  
+    &:focus {
+      border-color: $red;
+      color: $text;
+    }
+}
+
+.or {
+    padding-bottom: 2vh;
+    color: $white;
+    font-size: xx-large;
+    text-align: center;
+    font-weight: bold;
+    align-self: center;
+}
+
+@media screen and (orientation:portrait) {
+    .join-card {
+      width: 86vw;
+  }}
+
+  @media screen and (orientation:landscape) {
+    .join-card {
+      width: 35vw;
+  }}  

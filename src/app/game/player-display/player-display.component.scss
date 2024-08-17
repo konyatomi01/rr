@@ -1,0 +1,15 @@
+@import '../../../styles/colors.scss';
+
+.main-player {
+    border-radius: 25px;
+    display: flex;
+    width: 100%;
+    height: 40%;
+    background: linear-gradient(to top left, #00005d, #00003a);
+    color: $white;
+}
+.main-pfp {
+    border: solid 3px $white;
+    border-radius: 1000px;
+    
+}

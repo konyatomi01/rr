@@ -1,0 +1,25 @@
+<div class="d-flex flex-column rr-card dark h-auto align-items-center">
+    <div class="text-center mb-1">{{data.player}} wants to play:</div>
+    <div class="mb-1">Guess the {{data.settings.gameMode}} on:</div>
+    <img class="w-50 mb-2" [src]="data.settings.playlist.cover">
+    <div class="mb-2">{{data.settings.playlist.title}}</div>
+    <div class="row mb-5">
+        <div class="col-4 d-flex flex-column align-items-center">
+            <img class="w-75" src="assets/rounds.svg">
+            <div class="text-center">{{data.settings.rounds}} rounds</div>
+        </div>
+        <div class="col-4 d-flex flex-column align-items-center">
+            <img class="w-75" src="assets/lives.svg">
+            <div class="text-center">{{data.settings.health}} health</div>
+        </div>
+        <div class="col-4 d-flex flex-column align-items-center">
+            <img class="w-75" src="assets/speed.svg">
+            <div class="text-center">{{data.settings.speed}} sec</div>
+        </div>
+    </div>
+    <div class="d-flex gap-3">
+        <rr-button text="Decline" color="red" (click)="decline()"></rr-button>
+        <rr-button text="Accept" color="green" (click)="accept()"></rr-button>
+    </div>
+    
+</div>

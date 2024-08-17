@@ -1,0 +1,91 @@
+@import '../../styles/colors.scss';
+
+.select-card {
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.rr-card {
+    padding: 5%;
+}
+
+h1 {
+    font-size: large;
+    font-weight: bold;
+    margin-top: 5px;
+}
+h2 {
+    font-size: small;
+    font-weight: bold;
+    margin: 0%;
+}
+
+.button-container {
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-end;
+}
+
+app-categories {
+    height: 60%;
+    width: 100%;
+}
+app-search {
+    height: 60%;
+    width: 100%;
+}
+app-party {
+    height: 20%;
+    width: 100%;
+}
+.waiting {
+    height: 60%;
+    width: 100%;
+    font-size: large;
+    font-weight: bold;
+}
+
+.input-field {
+    padding: 5px 10px;
+    border: 3px solid $spotify-green;
+    border-radius: 75px;
+    outline: none;
+    width: 85%;
+    height: 7%;
+    color: $text;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    margin-bottom: 3%;
+
+}
+
+input {
+    background: none;
+    border: none;
+
+    &:focus {
+        outline: none;
+        background: none;
+        box-shadow: none;
+    }
+}
+
+.clear-button {
+    width: max-content;
+    height: max-content;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    padding: 0;
+    background-color: $text;
+    border-radius: 1000px;
+    border: solid 4px $text;
+    color: $white;
+
+    &.inactive {
+        opacity: 0.5;
+    }
+}

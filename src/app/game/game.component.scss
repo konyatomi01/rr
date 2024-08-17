@@ -1,0 +1,108 @@
+@import '../../styles/colors.scss';
+
+.game-full {
+    height: 80vh;
+    color: $white;
+}
+
+.lowTime {
+    color: #EA4462;
+}
+
+app-player-display {
+    width: 100%;
+    height: 20%;
+    display: block;
+}
+
+.main-div {
+    height: 75%;
+    width: 100%;
+}
+
+app-game-party {
+    width: 100%;
+    max-height: 40%;
+
+    @media (min-width: 1200px) {
+        width: 40%;
+        max-height: none;
+        
+    }
+}
+.singleplayer {
+    width: 100%;
+    max-height: 40%;
+    background: linear-gradient(to top left, #00005d, #00003a);
+    color: $white;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+
+    @media (min-width: 1200px) {
+        width: 40%;
+        max-height: none;
+        flex-direction: column;
+        
+    }
+}
+
+.game {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 60%;
+    background: linear-gradient(to top left, #00005d, #00003a);
+    border-radius: 25px;
+
+    @media (min-width: 1200px) {
+        width: 60%;
+        height: 100%;
+      }
+}
+.countdown {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: xx-large;
+}
+
+button {
+    width: 80%;
+    text-wrap: nowrap;
+    overflow: hidden;
+    border-radius: 25px;
+    background: none;
+    padding: 10px;
+    color: $white;
+    border: solid 3px $white;
+
+    @media (min-width: 1200px) {
+        width: 75%;
+        height: 20%;
+    }
+
+    &.disabled {
+        opacity: 50%;
+    }
+    &.right {
+        background: linear-gradient(to bottom, $green-shadow, $green);
+        border: none;
+        color: $text;
+    }
+    &.wrong {
+        background: linear-gradient(to bottom, $red-shadow, $red);
+        border: none;
+        color: $text;
+    }
+    
+}
+
+
+

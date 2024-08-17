@@ -1,0 +1,24 @@
+@import '../../styles/colors.scss';
+    
+button {
+    color: $white;
+    font-weight: bold;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 1.1);
+    border-radius: 45px;
+    padding: 5px 25px;
+    font-size: medium;
+    display: flex;
+
+    &.red {
+        background: linear-gradient(to bottom, $red-shadow, $red);
+    }
+    &.orange {
+        background: linear-gradient(to bottom, $orange-shadow, $orange);
+    }
+    &.green {
+        background: linear-gradient(to bottom, $green-shadow, $green);
+    }
+    &.blue {
+        background: linear-gradient(to bottom, $blue-shadow, $blue);
+    }
+}

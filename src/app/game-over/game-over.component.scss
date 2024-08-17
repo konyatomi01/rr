@@ -1,0 +1,46 @@
+@import '../../styles/colors.scss';
+
+.main-div {
+    height: 80%;
+    overflow: scroll;
+
+    > div:first-child {
+        background: linear-gradient(to right, #D4AF37, transparent);
+    }
+    > div:nth-child(2) {
+        background: linear-gradient(to right, #C0C0C0, transparent);
+    }
+    > div:nth-child(3) {
+        background: linear-gradient(to right, #A05822, transparent);
+    }
+}
+
+.rr-card {
+    width: 100%;
+
+    @media (min-width: 1200px) {
+        width: 50%;
+        
+    }
+}
+
+.player-row {
+    width: 100%;
+    height: 75px;
+    display: flex;
+    align-items: center;
+
+    .name {
+        width: -webkit-fill-available;
+        overflow: hidden;
+    }
+
+    img {
+        border: solid 3px $white;
+        border-radius: 10000px;
+    }
+}
+
+$gold: #D4AF37;
+$silver: #C0C0C0;
+$bronze: #A05822;

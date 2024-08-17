@@ -1,0 +1,27 @@
+@import '../../../styles/colors.scss';
+
+.players {
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+}
+
+.player {
+    border-radius: 25px;
+    display: flex;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to top left, #00005d, #00003a);
+    color: $white;
+    align-items: center;
+}
+.details {
+    width: calc(100% - 50px);
+}
+.pfp {
+    height: 85%;
+}
+
+.evalPoints {
+    color: $yellow;
+}

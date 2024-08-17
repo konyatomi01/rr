@@ -1,0 +1,9 @@
+
+<div class="upper-row">
+    <h2>Joined players:</h2>
+    <rr-button text="Leave Party" color="orange" (click)="leaveParty()"></rr-button>
+
+</div>
+<div *ngIf="party.party" class="player-displayer">
+    <img *ngFor="let player of party.party" class="pfp" [src]="player.pfp" [ngClass]="{'accepted': player.accepted}">
+</div>

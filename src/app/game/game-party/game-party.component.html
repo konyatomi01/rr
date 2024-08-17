@@ -1,0 +1,28 @@
+<div class="players">
+    <div *ngFor="let player of party.party" class="player mb-1 ps-1">
+        <img [src]="player.pfp" class="pfp">
+        <div class="d-flex h-100 details justify-content-between px-1">
+            <div>
+                <div>
+                    {{player.name}}
+                </div>
+                <div>
+                    {{player.points}}p
+                </div>
+            </div>    
+                <div class="d-flex align-items-center h-100">
+                    <img *ngFor="let index of [0, 1, 2]" 
+                     [src]="index < player.lives ? 'assets/heart-filled.svg' : 'assets/heart.svg'" 
+                     class="h-50">
+                </div>
+        </div>   
+    </div>
+</div>
+
+<div [hidden]="party.party.length > 1" class="singleplayer p-3">
+    <img src="assets/group.svg" class="h-75 m-2">
+    <div>
+        <div class="text-center">Don't miss out on the real fun!</div>
+        <div class="text-center">Invite your friends and play together!</div>
+    </div>
+</div>

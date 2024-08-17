@@ -1,0 +1,9 @@
+<div class="logo-div">
+  <img src="assets/logo.svg" class="logo">
+</div>
+
+<ng-container *ngIf="route.state === 'launch'"><app-launch></app-launch></ng-container>
+<ng-container *ngIf="route.state === 'select'"><app-playlist-select></app-playlist-select></ng-container>
+<ng-container *ngIf="route.state === 'game'"><app-game></app-game></ng-container>
+<ng-container *ngIf="route.state === 'gameover'"><app-game-over></app-game-over></ng-container>
+<ng-container *ngIf="route.state === 'roundover'"><app-round-over></app-round-over></ng-container>

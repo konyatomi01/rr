@@ -1,0 +1,16 @@
+<div class="w-100 h-100 d-flex justify-content-center"> 
+    <div class="main-div mb-3">
+        <div *ngFor="let player of party.partyEval" class="player-row mb-3">
+            <img [src]="player.pfp" class="pfp mx-2">
+            <div class="d-flex h-100 details justify-content-between px-1 align-items-center">
+                <div>
+                    {{player.name}}
+                </div>
+                <div class="evalPoints me-3">
+                    +{{player.points}}p
+                </div>   
+            </div>  
+        </div>
+    </div>
+</div>
+
