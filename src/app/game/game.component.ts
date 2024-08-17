@@ -26,9 +26,11 @@ export class GameComponent {
     const button = event.target as HTMLButtonElement;
     if(this.party.player.lives > 0 && this.gameService.remainingTime > 0 && !this.gameService.answered) {
       this.gameService.answered = true;
-      const answerTime = performance.now() - this.gameService.startTime;
-      const points = Math.round(answerTime * this.party.player.streak);
-      if(button.innerText === this.gameService.rightAnswer) this.server.answerRight(points);
+      if(button.innerText === this.gameService.rightAnswer) {
+        const answerTime = performance.now() - this.gameService.startTime;
+        const points = Math.round((this.gameService.maxTime * 1000 - answerTime) * this.party.player.streak);
+        this.server.answerRight(points);
+      }
       else this.server.answerWrong();
     }
     this.updateButtonClasses();
