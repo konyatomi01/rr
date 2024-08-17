@@ -34,7 +34,7 @@ import { GameOverComponent } from './game-over/game-over.component';
 import { RoundOverComponent } from './round-over/round-over.component';
 
 
-const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
+const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
 
 
 @NgModule({
