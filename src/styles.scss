@@ -36,7 +36,7 @@ body {
     background: linear-gradient(to bottom right, #00005d, #018681);
     background-repeat: no-repeat;
     background-size: cover;
-    height: 100vh;
+    height: 100dvh;
     font-family: "Concert One", sans-serif !important;
     padding-left: 7vw;
     padding-right: 7vw;
@@ -48,7 +48,7 @@ body {
     border-radius: 45px;
     padding: 30px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 4.1);
-    margin-bottom: 2vh;
+    margin-bottom: 2dvh;
 
     &.dark {
         background: linear-gradient(to top, $text, $text-shadow);
@@ -73,7 +73,7 @@ html, body { height: 100%; }
     overflow: hidden;
     --mdc-dialog-container-color: rgba(0, 0, 0, 0.404);
     --mdc-dialog-container-elevation: none;
-    height: 100vh !important;
+    height: 100dvh !important;
     width: 100vw !important;
     display: flex !important;
     justify-content: center;
