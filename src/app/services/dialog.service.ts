@@ -1,41 +1,22 @@
 import { Injectable } from '@angular/core';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { Observable } from 'rxjs';
-import { SettingsComponent } from '../popups/settings/settings.component';
-import { AcceptComponent } from '../popups/accept/accept.component';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DialogService {
+  public settingsState$ = new BehaviorSubject<{ visible: boolean; data?: any }>({
+    visible: false,
+  });
+  public acceptState$ = new BehaviorSubject<{ visible: boolean; data?: any }>({
+    visible: false,
+  });
 
-  constructor(private dialog: MatDialog) { }
-
-  openSettingsDialog(data: any): Observable<any> {
-    const config: MatDialogConfig = {
-        data: data,
-        position: {top: '0px'},
-        hasBackdrop: true,
-    };
-      
-    const dialogRef = this.dialog.open(SettingsComponent, config);
-
-    return dialogRef.afterClosed();
+  openSettingsDialog(data: any): void {
+    this.settingsState$.next({ visible: true, data });
   }
 
-  openAcceptDialog(data: any): Observable<any> {
-    const config: MatDialogConfig = {
-      data: data,
-      position: {top: '0px'},
-      hasBackdrop: true,
-  };
-    
-  const dialogRef = this.dialog.open(AcceptComponent, config);
-
-  return dialogRef.afterClosed();
-  }
-
-  closeDialog() {
-    this.dialog.closeAll();
+  openAcceptDialog(data: any): void {
+    this.acceptState$.next({ visible: true, data });
   }
 }

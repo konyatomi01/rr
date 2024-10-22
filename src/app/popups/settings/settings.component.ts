@@ -1,10 +1,11 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ServerService } from '../../services/server.sevice';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SpotifyService } from '../../services/spotify.service';
 import { MatTooltip } from '@angular/material/tooltip';
 import { SnackbarService } from '../../services/snackbar.service';
+import { Subscription } from 'rxjs';
+import { DialogService } from '../../services/dialog.service';
 
 interface AnyObject {
   [key: string]: any;
@@ -53,22 +54,27 @@ export class SettingsComponent implements OnInit {
   selectedMode: GameModes = GameModes.title;
   selectedSpeed: GameSpeeds = GameSpeeds.slow;
   lives: number = 3;
+  data: any;
+  display: boolean = false;
+  dialogSubscription: Subscription | null = null;
 
   constructor(
-    public dialogRef: MatDialogRef<SettingsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
     readonly server: ServerService,
     readonly spotify: SpotifyService,
     private fb: FormBuilder,
-    private snackBar: SnackbarService
+    private snackBar: SnackbarService,
+    private dialogService: DialogService
   ) {}
 
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
 
-  ngOnInit(): void {  
-    this.loadData(this.data.id);
+  ngOnInit(): void {
+    this.dialogSubscription = this.dialogService.settingsState$.subscribe((state) => {
+      this.display = state.visible;
+      if(state.data) {
+        this.data = state.data;
+        this.loadData(this.data.id);
+      }
+    });
   }
 
   loadData(playlistId: string) {
@@ -177,7 +183,7 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
       playlist: playlist
     }
     this.server.startGame(settings);
-    this.dialogRef.close();
+    this.display = false;
   }
  
 }

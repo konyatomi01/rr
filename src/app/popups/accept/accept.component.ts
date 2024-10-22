@@ -1,6 +1,7 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { ServerService } from '../../services/server.sevice';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Subscription } from 'rxjs';
+import { DialogService } from '../../services/dialog.service';
 
 @Component({
   selector: 'app-accept',
@@ -8,19 +9,30 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   styleUrl: './accept.component.scss'
 })
 export class AcceptComponent {
+  data: any;
+  display: boolean = false;
+  dialogSubscription: Subscription | null = null;
 
   constructor(
-    public dialogRef: MatDialogRef<AcceptComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    private dialogService: DialogService,
     readonly server: ServerService
   ) {}
 
+  ngOnInit(): void {
+    this.dialogSubscription = this.dialogService.acceptState$.subscribe((state) => {
+      this.display = state.visible;
+      if(state.data) {
+        this.data = state.data;
+      }
+    });
+  }
+
   accept() {
     this.server.acceptProposal();
-    this.dialogRef.close();
+    this.display = false;
   }
   decline() {
     this.server.declineProposal();
-    this.dialogRef.close();
+    this.display = false;
   }  
 }

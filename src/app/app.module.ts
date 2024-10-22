@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppComponent } from './app.component';
@@ -32,6 +31,8 @@ import { SnackbarService } from './services/snackbar.service';
 import { GameService } from './services/game.service';
 import { GameOverComponent } from './game-over/game-over.component';
 import { RoundOverComponent } from './round-over/round-over.component';
+import { DialogModule } from 'primeng/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
@@ -60,11 +61,12 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     MatIconModule,
     MatFormFieldModule,
     MatTooltip,
-    MatDialogModule,
     MatSnackBarModule,
     ReactiveFormsModule,
     CommonModule,
     HttpClientModule,
+    BrowserAnimationsModule,
+    DialogModule,
     SocketIoModule.forRoot(config)
   ],
   providers: [

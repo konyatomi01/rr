@@ -58,39 +58,6 @@ body {
 
 html, body { height: 100%; }
 
-
-.cdk-overlay-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  width: 100vw !important;
-  --mat-dialog-container-max-width: 100vw;
-}
-
-.mat-mdc-dialog-container .mdc-dialog__surface {
-    padding: 4px;
-    overflow: hidden;
-    --mdc-dialog-container-color: rgba(0, 0, 0, 0.404);
-    --mdc-dialog-container-elevation: none;
-    height: 100dvh !important;
-    width: 100vw !important;
-    display: flex !important;
-    justify-content: center;
-    padding: 5%;
-    align-items: center;
-}
-.cdk-overlay-pane.mat-mdc-dialog-panel {
-  --mat-dialog-container-max-width: 100vw;
-}
-.cdk-overlay-pane.mat-mdc-dialog-panel {
-  --mat-dialog-container-small-max-width: 100vw;
-}
-
-.mat-mdc-snack-bar-container {
-  position: absolute !important;
-  margin: 0;
-  background-color: $text;
-  color: $white;
-  text-align: center;
+.p-dialog-mask {
+  background-color: rgba(0, 0, 0, 0.5);
 }
