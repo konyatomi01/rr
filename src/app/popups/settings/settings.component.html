@@ -21,7 +21,7 @@
                         <button class="round" (click)="minusRounds()">
                             <img class="h-100" src="assets/minus.svg">
                         </button>
-                        <div class="px-3">{{form.get('rounds')!.value }}</div>
+                        <div class="px-3">{{form.controls.rounds.value }}</div>
                         <button class="round" (click)="plusRounds()">
                             <img class="h-100" src="assets/plus.svg">
                         </button>
@@ -29,7 +29,7 @@
                 </div>
                 <div class="setting-row">
                     <h2>Game Mode:</h2>
-                    <div class="mode-buttons button-group row">
+                    <div class="mode-buttons button-group d-flex">
                         <button [class.selected]="isModeSelected(gameModes.title)" (click)="setMode(gameModes.title)" class="col-6 setting-button">Title</button>
                         <button [class.selected]="isModeSelected(gameModes.artist)" 
                                 (click)="setMode(gameModes.artist)"
@@ -39,7 +39,7 @@
                 </div>
                 <div class="setting-row">
                     <h2>Speed:</h2>
-                    <div class="button-group speed-buttons row">
+                    <div class="button-group speed-buttons d-flex">
                         <button [class.selected]="isSpeedSelected(gameSpeeds.slow)" (click)="setSpeed(gameSpeeds.slow)" class="setting-button col">Slow</button>
                         <button [class.selected]="isSpeedSelected(gameSpeeds.normal)" (click)="setSpeed(gameSpeeds.normal)" class="setting-button col">Normal</button>
                         <button [class.selected]="isSpeedSelected(gameSpeeds.fast)" (click)="setSpeed(gameSpeeds.fast)" class="setting-button col">Fast</button>

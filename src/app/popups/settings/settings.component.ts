@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ServerService } from '../../services/server.sevice';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { SpotifyService } from '../../services/spotify.service';
 import { MatTooltip } from '@angular/material/tooltip';
 import { SnackbarService } from '../../services/snackbar.service';
@@ -48,7 +48,12 @@ export interface Settings {
 export class SettingsComponent implements OnInit {
   @ViewChild('artistModeTooltip') artistModeTooltip!: MatTooltip;
 
-  form!: FormGroup;
+  form = new FormGroup({
+    rounds: new FormControl<number>(3, [Validators.required, Validators.min(1), Validators.max(30)]),
+    mode: new FormControl<GameModes>(GameModes.title, Validators.required),
+    speed: new FormControl<GameSpeeds>(GameSpeeds.slow, Validators.required),
+    lives: new FormControl<number>(3, Validators.required),
+  });
   tracks: Track[] = [];
   enoughArtist: boolean = true;
   selectedMode: GameModes = GameModes.title;
@@ -61,7 +66,6 @@ export class SettingsComponent implements OnInit {
   constructor(
     readonly server: ServerService,
     readonly spotify: SpotifyService,
-    private fb: FormBuilder,
     private snackBar: SnackbarService,
     private dialogService: DialogService
   ) {}
@@ -87,21 +91,11 @@ export class SettingsComponent implements OnInit {
           artist: item.artists[0].name
         }));
         this.enoughArtist = (this.countDistinctPropertyValues(this.tracks, "artist") > 3)
-        this.form = this.fb.group({
-          mode: [GameModes.title, Validators.required],
-          rounds: [this.half(), Validators.required],
-          lives: [3, Validators.required],
-          speed: [GameSpeeds.slow, Validators.required]
-        })
       },
       (error) => {
         console.error('Error loading playlist tracks:', error);
       }
     );
-  }
-
-  half(): number {
-    return Math.floor(this.tracks.length / 2);
   }
 
 countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
@@ -122,7 +116,7 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
       this.selectedMode = GameModes.title
     }
     else this.selectedMode = mode;
-    this.form.get('mode')?.setValue(mode);
+    this.form.controls.mode.setValue(mode);
     
   }
 
@@ -131,19 +125,17 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
   }
 
   plusRounds(): void {
-    if (this.form && this.form.get('rounds')) {
-      const currentRounds = this.form.get('rounds')!.value;
-      if (currentRounds + 1 <= this.tracks.length) {
-        this.form.get('rounds')!.setValue(currentRounds + 1);
+    if (this.form && this.form.controls.rounds.value) {
+      if (this.form.controls.rounds.value + 1 <= this.tracks.length) {
+        this.form.controls.rounds.setValue(this.form.controls.rounds.value + 1);
       }
     }
   }
 
   minusRounds(): void {
-    if (this.form && this.form.get('rounds')) {
-      let currentRounds = this.form.get('rounds')!.value;
-      if (currentRounds - 1 >= 1) {
-        this.form.get('rounds')!.setValue(currentRounds - 1);
+    if (this.form && this.form.controls.rounds.value) {
+      if (this.form.controls.rounds.value - 1 >= 1) {
+        this.form.controls.rounds.setValue(this.form.controls.rounds.value - 1);
       }
     }
   }
@@ -176,10 +168,10 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
       tracks: this.tracks };
 
     const settings: Settings = { 
-      rounds: this.form.get('rounds')?.value,
-      gameMode: this.form.get('mode')?.value,
-      speed: this.form.get('speed')?.value,
-      health: this.form.get('lives')?.value,
+      rounds: this.form.controls.rounds.value!,
+      gameMode: this.form.controls.mode.value!,
+      speed: this.form.controls.speed.value!,
+      health: this.form.controls.lives.value!,
       playlist: playlist
     }
     this.server.startGame(settings);

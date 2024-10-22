@@ -32,6 +32,7 @@ import { GameOverComponent } from './game-over/game-over.component';
 import { RoundOverComponent } from './round-over/round-over.component';
 import { DialogModule } from 'primeng/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
 
 
 const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
@@ -56,6 +57,7 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
 
   ],
   imports: [
+    FormsModule,
     BrowserModule,
     MatIconModule,
     MatFormFieldModule,
