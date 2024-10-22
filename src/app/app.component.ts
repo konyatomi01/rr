@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RoutingService } from './services/routing.service';
+import { SnackbarService } from './services/snackbar.service';
 
 @Component({
   selector: 'app-root',
@@ -7,5 +8,8 @@ import { RoutingService } from './services/routing.service';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  constructor(readonly route: RoutingService) {}
+  constructor(
+    readonly route: RoutingService,
+    readonly snackBar: SnackbarService
+  ) {}
 }

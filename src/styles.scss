@@ -61,3 +61,14 @@ html, body { height: 100%; }
 .p-dialog-mask {
   background-color: rgba(0, 0, 0, 0.5);
 }
+
+.snackbar {
+  position: fixed;
+  bottom: 15px;
+  width: 86dvw;
+  background: $text-shadow;
+  color: $white;
+  padding: 10px;
+  text-align: center;
+  border-radius: 15px;
+}

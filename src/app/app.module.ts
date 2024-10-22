@@ -3,7 +3,6 @@ import { BrowserModule, provideClientHydration } from '@angular/platform-browser
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltip } from '@angular/material/tooltip';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppComponent } from './app.component';
 import { LaunchComponent } from './launch/launch.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -61,7 +60,6 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     MatIconModule,
     MatFormFieldModule,
     MatTooltip,
-    MatSnackBarModule,
     ReactiveFormsModule,
     CommonModule,
     HttpClientModule,
