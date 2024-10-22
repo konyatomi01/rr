@@ -27,12 +27,18 @@ export class AcceptComponent {
     });
   }
 
-  accept() {
+  accept(): void {
     this.server.acceptProposal();
-    this.display = false;
+    this.close();
   }
-  decline() {
+
+  decline(): void {
     this.server.declineProposal();
-    this.display = false;
+    this.close();
   }  
+
+  close(): void {
+    this.display = false;
+    this.data = undefined;
+  }
 }

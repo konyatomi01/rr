@@ -183,7 +183,12 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
       playlist: playlist
     }
     this.server.startGame(settings);
+    this.close();
+  }
+
+  close(): void {
     this.display = false;
+    this.data = undefined;
   }
  
 }
