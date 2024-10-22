@@ -23,7 +23,7 @@ export class SearchComponent implements OnInit{
 
 
   ngOnInit() {
-    this.searchService.form.get('search')?.valueChanges.subscribe(value => {
+    this.searchService.form.controls['search']?.valueChanges.subscribe(value => {
       if(value) this.playlists = this.spotify.getPlaylistBySearch(value);
     });
   }
