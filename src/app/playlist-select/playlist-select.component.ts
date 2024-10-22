@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { SpotifyService } from '../services/spotify.service';
 import { ServerService } from '../services/server.sevice';
 import { SearchService } from './search/search.service';
@@ -9,7 +9,7 @@ import { SnackbarService } from '../services/snackbar.service';
   templateUrl: './playlist-select.component.html',
   styleUrl: './playlist-select.component.scss'
 })
-export class PlaylistSelectComponent implements OnInit {
+export class PlaylistSelectComponent {
 
   constructor(
     
@@ -17,11 +17,8 @@ export class PlaylistSelectComponent implements OnInit {
     readonly server: ServerService,
     readonly search: SearchService,
     private snackBar: SnackbarService
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     this.spotify.authenticate();
-    
   }
 
   copyCode(): void {

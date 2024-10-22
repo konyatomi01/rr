@@ -16,9 +16,7 @@ export class AcceptComponent {
   constructor(
     private dialogService: DialogService,
     readonly server: ServerService
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     this.dialogSubscription = this.dialogService.acceptState$.subscribe((state) => {
       this.display = state.visible;
       if(state.data) {

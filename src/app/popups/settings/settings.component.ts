@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { ServerService } from '../../services/server.sevice';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { SpotifyService } from '../../services/spotify.service';
@@ -45,7 +45,7 @@ export interface Settings {
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent {
   @ViewChild('artistModeTooltip') artistModeTooltip!: MatTooltip;
 
   form = new FormGroup({
@@ -68,10 +68,7 @@ export class SettingsComponent implements OnInit {
     readonly spotify: SpotifyService,
     private snackBar: SnackbarService,
     private dialogService: DialogService
-  ) {}
-
-
-  ngOnInit(): void {
+  ) {
     this.dialogSubscription = this.dialogService.settingsState$.subscribe((state) => {
       this.display = state.visible;
       if(state.data) {

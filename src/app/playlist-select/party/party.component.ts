@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ServerService } from '../../services/server.sevice';
-import { Observable, of } from 'rxjs';
 import { PartyService } from '../../services/party.service';
 
 @Component({

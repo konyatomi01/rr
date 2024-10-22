@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SpotifyService } from '../../services/spotify.service';
 import { ServerService } from '../../services/server.sevice';
@@ -14,7 +14,7 @@ interface Category {
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
 })
-export class CategoriesComponent implements OnInit {
+export class CategoriesComponent {
   @ViewChild('category_bar') categoryBar!: ElementRef;
 
   playlists!: Observable<any[]>;
@@ -36,9 +36,6 @@ export class CategoriesComponent implements OnInit {
     readonly server: ServerService,
     readonly dialog: DialogService
   ) {
-
-  }
-  ngOnInit(): void {
     this.categoryChanged();
   }
   

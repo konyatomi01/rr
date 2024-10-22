@@ -1,4 +1,4 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Page, PlaylistedTrack, SpotifyApi, Track } from '@spotify/web-api-ts-sdk';
 import { Observable, catchError, from, map } from 'rxjs';
@@ -6,22 +6,16 @@ import { Observable, catchError, from, map } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class SpotifyService implements OnInit {
+export class SpotifyService {
   spotifyApi: SpotifyApi;
   accessToken: string = '';
 
   constructor(private http: HttpClient) {
     const clientId = "8c97d7c973eb4679b84a4fbf8c16b75d"
     const clientSecret = "bf6d83b77d104c9fa89a6a1273e5593d";
-
     this.spotifyApi = SpotifyApi.withClientCredentials(clientId, clientSecret);
-    }
-    
-  
-
-  ngOnInit(): void {
     this.authenticate();
-  }
+    }
 
   public async authenticate(): Promise<void> {
     try {

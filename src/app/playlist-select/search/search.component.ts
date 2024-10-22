@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { SearchService } from './search.service';
 import { SpotifyService } from '../../services/spotify.service';
 import { Observable } from 'rxjs';
@@ -10,7 +10,7 @@ import { DialogService } from '../../services/dialog.service';
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss'
 })
-export class SearchComponent implements OnInit{
+export class SearchComponent {
 
   playlists!: Observable<any[]>;
 
@@ -19,10 +19,7 @@ export class SearchComponent implements OnInit{
     private spotify: SpotifyService,
     readonly display: DisplayService,
     readonly dialog: DialogService
-  ) {}
-
-
-  ngOnInit() {
+  ) {
     this.searchService.form.controls['search']?.valueChanges.subscribe(value => {
       if(value) this.playlists = this.spotify.getPlaylistBySearch(value);
     });
