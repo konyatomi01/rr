@@ -35,7 +35,6 @@ input {
 }
 
 .or {
-    padding-bottom: 2dvh;
     color: $white;
     font-size: xx-large;
     text-align: center;
@@ -43,12 +42,6 @@ input {
     align-self: center;
 }
 
-@media screen and (orientation:portrait) {
-    .join-card {
-      width: 86vw;
-  }}
-
-  @media screen and (orientation:landscape) {
-    .join-card {
-      width: 35vw;
-  }}  
+.join-card {
+    max-width: 350px;
+}
