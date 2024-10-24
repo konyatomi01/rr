@@ -14,7 +14,7 @@ h2 {
 
 .player-displayer {
     display: flex;
-    overflow-y: scroll;
+    overflow-y: auto;
     width: 100%;
     align-items: end;
 }

@@ -1,7 +1,7 @@
 @import '../../styles/colors.scss';
 
 .main-div {
-    overflow: scroll;
+    overflow: auto;
     width: 100%;
 
     @media (min-width: 1200px) {

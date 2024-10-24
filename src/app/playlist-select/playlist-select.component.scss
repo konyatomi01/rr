@@ -22,12 +22,6 @@ h2 {
     margin: 0%;
 }
 
-.button-container {
-    margin-top: auto;
-    display: flex;
-    justify-content: flex-end;
-}
-
 app-categories {
     height: 60%;
     width: 100%;
@@ -52,7 +46,6 @@ app-party {
     border-radius: 75px;
     outline: none;
     width: 85%;
-    height: 7%;
     color: $text;
     display: flex;
     align-items: center;

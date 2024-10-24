@@ -6,7 +6,7 @@
   <ng-container *ngIf="!server.waitingToAccept">
     <div [formGroup]="search.form" class="input-field my-2 d-flex justify-content-center">
       <input id="search" formControlName="search" type="text" class="form-control" placeholder="Search for any playlist!">
-      <button class="clear-button"  [ngClass]="{'inactive': !search.form.dirty}" (click)="search.form.reset()">
+      <button class="clear-button" matSuffix [ngClass]="{'inactive': !search.form.dirty}" (click)="search.form.reset()">
         <mat-icon>clear</mat-icon>
       </button>
     </div>
@@ -19,7 +19,5 @@
     Waiting for other players!
   </div>
 
-  <div class="button-container">
-    <rr-button color="orange" text="Join code:" (click)="copyCode()">{{server.party_id}}</rr-button>
-  </div>
+  <rr-button color="orange" text="Join code:" (click)="copyCode()">{{server.party_id}}</rr-button>
 </div>

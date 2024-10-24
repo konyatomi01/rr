@@ -14,7 +14,7 @@
             </div>
             <h1>YOUR NAME:</h1>
             <input id="name" formControlName="name" type="text" class="form-control" placeholder="Enter your name">
-            <div *ngIf="form.get('name')!.invalid && form.get('name')!.touched" class="text-danger d-flex">
+            <div *ngIf="form.controls.name.invalid && form.controls.name.touched" class="text-danger d-flex">
             <mat-icon class="me-1">error_outline</mat-icon>
             Name is required.
         </div>
@@ -42,7 +42,7 @@
         <h2>Join an existing party with the join code!</h2>
         <h2>Paste the join code here:</h2>
         <div [formGroup]="code">
-            <input id="code" formControlName="code" type="text" class="form-control" placeholder="Join code">
+            <input id="code" [formControl]="code.controls.code" type="text" class="form-control" placeholder="Join code">
         </div>
         <div class="d-flex justify-content-center mt-2">
             <rr-button text="JOIN" icon="meeting_room" color="orange" (click)="joinGame()"></rr-button>

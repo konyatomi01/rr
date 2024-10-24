@@ -2,7 +2,7 @@
 
 .main-div {
     height: 80%;
-    overflow: scroll;
+    overflow: auto;
 
     > div:first-child {
         background: linear-gradient(to right, #D4AF37, transparent);

@@ -1,15 +1,19 @@
 @import '../../../styles/colors.scss';
 
+:host {
+    display: contents;
+}
+
 .playlist-displayer {
-    height: 85%;
-    overflow: scroll;
+    flex-grow: 1;
+    overflow: auto;
 }
 
 .category-list {
     display: flex;
     align-items: center;
     list-style-type: none;
-    overflow-x: scroll;
+    overflow-x: auto;
     width: 90%;
     margin: 0%;
     padding: 0%;
