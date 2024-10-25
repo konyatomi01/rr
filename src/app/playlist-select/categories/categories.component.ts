@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { SpotifyService } from '../../services/spotify.service';
 import { ServerService } from '../../services/server.sevice';
 import { DialogService } from '../../services/dialog.service';
@@ -17,7 +17,8 @@ interface Category {
 export class CategoriesComponent {
   @ViewChild('category_bar') categoryBar!: ElementRef;
 
-  playlists!: Observable<any[]>;
+  playlists: any[] = [];
+  selectedIndex: number = 0;
 
   categories: Category[] = [
     {display_name: "Pop", api_name: "pop"},
@@ -36,20 +37,22 @@ export class CategoriesComponent {
     readonly server: ServerService,
     readonly dialog: DialogService
   ) {
-    this.categoryChanged();
+    this.getPlaylists();
   }
-  
-  categoryChanged(): void {
-    this.playlists = this.spotify.getPlaylistByCategory(this.selectedCategory.api_name);
-  }
-
-  selectCategory(category: Category): void {
-    this.selectedCategory = category;
-    this.categoryChanged();
-
+  async getPlaylists() {
+    for(let c of this.categories) {
+      const lists = await lastValueFrom(this.spotify.getPlaylistByCategory(c.api_name));
+      this.playlists.push(lists);
+    }
   }
 
-  scroll(x: number): void {
-    this.categoryBar.nativeElement.scrollLeft += x;
+  categoryPlus() {
+    if(this.selectedIndex === this.categories.length -1 ) this.selectedIndex = 0;
+    else this.selectedIndex += 1;
+  }
+
+  categoryMinus() {
+    if(this.selectedIndex ===  0) this.selectedIndex = this.categories.length -1;
+    else this.selectedIndex -= 1;
   }
 }

@@ -1,17 +1,18 @@
-<ng-container *ngIf="playlists | async as playlists;">
+<ng-container *ngIf="playlists">
+    <h2>Playlists by categories:</h2>
+    <div class="d-flex justify-content-center align-items-center mb-2 gap-3 category-select">
+        <mat-icon (click)="categoryMinus()">arrow_circle_left</mat-icon>
+        <div class="category">
+        {{ categories[selectedIndex].display_name }}
+        </div>
+        <mat-icon (click)="categoryPlus()">arrow_circle_right</mat-icon>
+    </div>
     <div class="row playlist-displayer">
-        <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="dialog.openSettingsDialog(playlist)">
+        <button *ngFor="let playlist of playlists[selectedIndex]" class="col-3 col-lg-2 pl-button" (click)="dialog.openSettingsDialog(playlist)">
               <img class="cover" [src]="playlist.images[0]?.url"/>
               <figcaption class="caption">{{ playlist.name }}</figcaption>
           </button>
     </div>
 
-    <div #category_bar class="category-list">
-        <button class="category-button"
-        *ngFor="let category of categories" 
-        (click)="selectCategory(category)" 
-        [class.selected]="category === selectedCategory">
-        {{ category.display_name }}
-        </button>
-    </div>
+    
 </ng-container>
