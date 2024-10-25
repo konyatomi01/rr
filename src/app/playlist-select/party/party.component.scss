@@ -1,5 +1,9 @@
 @import '../../../styles/colors.scss';
 
+:host {
+    width: 100%;
+}
+
 .upper-row {
     width: 100%;
     display: flex;
@@ -19,29 +23,8 @@ h2 {
     align-items: end;
 }
 
-.leave-button-div {
-    width: 20%;
-}
-
-.leave-button {
-    width: max-content;
-    height: max-content;
-    padding: 0;
-    background: linear-gradient(to bottom, $red-shadow, $red);
-    border-radius: 45px;
-    font-weight: bold;
-    font-size: small;
-    color: $white;
-    padding: 3px 5px;
-}
-
-.party-text {
-    align-self: center;
-    font-weight: bold;
-    font-size: medium;
-}
-
 .player {
+    color: $text;
     display: flex;
     align-items: center;
     border-radius: 25px;

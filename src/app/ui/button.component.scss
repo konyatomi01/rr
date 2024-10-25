@@ -8,17 +8,18 @@ button {
     padding: 5px 25px;
     font-size: medium;
     display: flex;
+    border: none;
 
     &.red {
-        background: linear-gradient(to bottom, $red-shadow, $red);
+        background: $red;
     }
     &.orange {
-        background: linear-gradient(to bottom, $orange-shadow, $orange);
+        background: $orange;
     }
     &.green {
-        background: linear-gradient(to bottom, $green-shadow, $green);
+        background: $green;
     }
     &.blue {
-        background: linear-gradient(to bottom, $blue-shadow, $blue);
+        background: $blue;
     }
 }

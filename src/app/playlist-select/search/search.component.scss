@@ -1,5 +1,9 @@
 @import '../../../styles/colors.scss';
 
+:host {
+    display: contents;
+}
+
 .cover {
     width: 95%;
 }
@@ -13,28 +17,9 @@
     color: $white;
 }
 
-.pl-button-sm {
-    background: none;
-    border: none;
-    display: flex;
-    padding: 0;
-    height: 15%;
-    margin: 3px;
-    width: 100%;
-    color: $white;
-    align-items: center;
-    justify-content: start;
-    padding-right: 5%;
-}
-
-.cover-sm {
-    height: 100%;
-    border-radius: 10px 0 0 10px;
-}
-
 .playlist-displayer {
-    height: 100%;
-    overflow: auto;
+    flex-grow: 1;
+    overflow-y: auto;
 }
 .caption {
     font-size: small;

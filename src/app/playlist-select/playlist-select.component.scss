@@ -13,8 +13,10 @@
 }
 
 .rr-card {
-    padding: 5%;
+    padding: 25px;
+    width: 100%;
     max-width: 800px;
+    width: 800px;
 }
 
 h1 {
@@ -28,17 +30,6 @@ h2 {
     margin: 0%;
 }
 
-app-categories {
-    height: 60%;
-    width: 100%;
-}
-app-search {
-    height: 60%;
-    width: 100%;
-}
-app-party {
-    width: 100%;
-}
 .waiting {
     height: 60%;
     width: 100%;
@@ -51,12 +42,12 @@ app-party {
     border: 3px solid $spotify-green;
     border-radius: 75px;
     outline: none;
-    width: 85%;
     color: $text;
     display: flex;
     align-items: center;
     background-color: white;
     margin-bottom: 3%;
+    width: 85%;
 
 }
 
