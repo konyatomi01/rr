@@ -28,7 +28,9 @@ export class CategoriesComponent {
     {display_name: "Country", api_name: "country"},
     {display_name: "R&B", api_name: "rnb"},
     {display_name: "Alternative", api_name: "alternative"},
-    {display_name: "Latin", api_name: "latin"}
+    {display_name: "Latin", api_name: "latin"},
+    {display_name: "Party", api_name: "party"},
+    {display_name: "Toplists", api_name: "toplists"}, 
   ];
   selectedCategory: Category = this.categories[0];
 
