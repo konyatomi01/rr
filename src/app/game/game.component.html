@@ -8,10 +8,10 @@
         
         <div class="game mb-2 me-xl-2">
             <ng-container *ngIf="!gameService.showCountDown">
-                <button #answerButton class="answerButton" (click)="answer($event)">{{gameService.answers[0]}}</button>
-                <button #answerButton class="answerButton" (click)="answer($event)">{{gameService.answers[1]}}</button>
-                <button #answerButton class="answerButton" (click)="answer($event)">{{gameService.answers[2]}}</button>
-                <button #answerButton class="answerButton" (click)="answer($event)">{{gameService.answers[3]}}</button>
+                <button #answerButton class="answerButton" [disabled]="party.player.lives === 0" (click)="answer($event)">{{gameService.answers[0]}}</button>
+                <button #answerButton class="answerButton" [disabled]="party.player.lives === 0" (click)="answer($event)">{{gameService.answers[1]}}</button>
+                <button #answerButton class="answerButton" [disabled]="party.player.lives === 0" (click)="answer($event)">{{gameService.answers[2]}}</button>
+                <button #answerButton class="answerButton" [disabled]="party.player.lives === 0" (click)="answer($event)">{{gameService.answers[3]}}</button>
             </ng-container>
 
             <ng-container *ngIf="gameService.showCountDown">

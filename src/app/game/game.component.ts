@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { GameService } from '../services/game.service';
 import { PartyService } from '../services/party.service';
 import { ServerService } from '../services/server.sevice';
@@ -14,7 +14,6 @@ export class GameComponent {
   constructor(
     readonly gameService: GameService,
     readonly party: PartyService,
-    private cdr: ChangeDetectorRef,
     private server: ServerService
   ) {}
 
@@ -42,6 +41,13 @@ export class GameComponent {
 
   private updateButtonClasses() {
     this.answerButtons.forEach(button => {
+      if (this.party.player.health === 0) {
+        button.nativeElement.classList.add('disabled');
+        button.nativeElement.setAttribute('disabled', 'true');
+      } else {
+        button.nativeElement.classList.remove('disabled');
+        button.nativeElement.removeAttribute('disabled');
+      }
       if (this.buttonColor()) {
         if (button.nativeElement.innerText === this.gameService.rightAnswer) {
           button.nativeElement.classList.add('right');
@@ -53,15 +59,7 @@ export class GameComponent {
       } else {
         button.nativeElement.classList.remove('right', 'wrong');
       }
-      if (this.party.player.health > 0) {
-        button.nativeElement.classList.add('disabled');
-        button.nativeElement.setAttribute('disabled', 'true');
-      } else {
-        button.nativeElement.classList.remove('disabled');
-        button.nativeElement.removeAttribute('disabled');
-      }
     });
-      this.cdr.detectChanges();
   }
 }
 

@@ -36,7 +36,7 @@ export class AcceptComponent {
   }  
 
   close(): void {
-    this.display = false;
+    this.dialogService.settingsState$.next({ visible: false });
     this.data = undefined;
   }
 }

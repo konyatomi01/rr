@@ -88,16 +88,17 @@ button {
         height: 20%;
     }
 
-    &.disabled {
-        opacity: 50%;
+    &:disabled {
+        border-color: $white-shadow;
+        color: $white-shadow;
     }
     &.right {
-        background: linear-gradient(to bottom, $green-shadow, $green);
+        background: $green;
         border: none;
         color: $text;
     }
     &.wrong {
-        background: linear-gradient(to bottom, $red-shadow, $red);
+        background: $red;
         border: none;
         color: $text;
     }

@@ -69,7 +69,7 @@ p {
 
     &.selected {
         color: $text;
-        background: linear-gradient(to bottom, $orange-shadow, $orange);
+        background: $orange;
     }
     &.disabled {
         color: #{$orange}a6;

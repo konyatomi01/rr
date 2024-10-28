@@ -33,6 +33,7 @@ import { RoundOverComponent } from './round-over/round-over.component';
 import { DialogModule } from 'primeng/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
+import { GameButtonComponent } from './ui/game-button/game-button.component';
 
 
 const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
@@ -43,6 +44,7 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     AppComponent,
     LaunchComponent,
     ButtonComponent,
+    GameButtonComponent,
     PlaylistSelectComponent,
     CategoriesComponent,
     SearchComponent,

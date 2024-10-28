@@ -1,0 +1,37 @@
+@import '../../../styles/colors.scss';
+
+:host {
+    display: contents;
+}
+
+button {
+    width: 80%;
+    text-wrap: nowrap;
+    overflow: hidden;
+    border-radius: 25px;
+    background: none;
+    padding: 10px;
+    color: $white;
+    border: solid 3px $white;
+
+    @media (min-width: 1200px) {
+        width: 75%;
+        height: 20%;
+    }
+
+    &:disabled {
+        border-color: $white-shadow;
+        color: $white-shadow;
+    }
+    &.right {
+        background: $green;
+        border: none;
+        color: $text;
+    }
+    &.wrong {
+        background: $red;
+        border: none;
+        color: $text;
+    }
+    
+}
