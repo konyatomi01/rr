@@ -78,7 +78,7 @@ export class ServerService {
       this.game.nextRound(answers, url, currentRound);
     });
     this.socket.on('countdown', (remainingTime: number) => {
-      this.game.remainingTime = remainingTime;
+      this.game.remainingTime.next(remainingTime);
     });
     this.socket.on('gameOver', ()=> {
       this.game.gameOver();

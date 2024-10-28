@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { PartyService } from '../../services/party.service';
-import { ServerService } from '../../services/server.sevice';
+import { ServerService } from '../../services/server.service';
 
 
 @Component({

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PartyService } from './party.service';
 import { RoutingService } from './routing.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -17,13 +18,14 @@ export class GameService {
     maxTime: number = 0;
     currentRound: number = 0;
     maxRounds: number = 0;
-    remainingTime = 6;
     rightAnswer: string = '';
     answers: string[] = [];
-    answered: boolean = false;
     startTime: number = Date.now();
     showCountDown: boolean = true;
     url: string = '';
+
+    answered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    remainingTime = new BehaviorSubject<number>(6);
 
     private handleVisibilityChange() {
         if (document.visibilityState === 'visible' && this.url) {
@@ -47,19 +49,19 @@ export class GameService {
         this.maxTime = speed;
         this.currentRound = 0;
         this.maxRounds = maxRounds;
-        this.remainingTime = this.maxTime;
+        this.remainingTime.next(this.maxTime);
         this.showCountDown = true;
         this.router.game();
     }
 
     nextRound(answers: string[], url: string, currentRound: number) {
-        this.remainingTime = this.maxTime;
+        this.remainingTime.next(this.maxTime);
         this.audio.pause();
         this.showCountDown = false;
         this.currentRound = currentRound;
         this.rightAnswer = answers[0];
         this.answers = this.shuffleAnswers(answers);
-        this.answered = false;
+        this.answered.next(false);
         this.router.game();
 
         this.url = url;

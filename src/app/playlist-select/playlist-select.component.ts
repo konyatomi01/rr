@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { SpotifyService } from '../services/spotify.service';
-import { ServerService } from '../services/server.sevice';
+import { ServerService } from '../services/server.service';
 import { SearchService } from './search/search.service';
 import { SnackbarService } from '../services/snackbar.service';
 

@@ -12,7 +12,7 @@ import { ButtonComponent } from './ui/button.component';
 import { PlaylistSelectComponent } from './playlist-select/playlist-select.component';
 import { HttpClientModule } from '@angular/common/http';
 import { SpotifyService } from './services/spotify.service';
-import { ServerService } from './services/server.sevice';
+import { ServerService } from './services/server.service';
 import { CategoriesComponent } from './playlist-select/categories/categories.component';
 import { SearchComponent } from './playlist-select/search/search.component';
 import { SearchService } from './playlist-select/search/search.service';

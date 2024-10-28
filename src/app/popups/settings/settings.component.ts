@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { ServerService } from '../../services/server.sevice';
+import { ServerService } from '../../services/server.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { SpotifyService } from '../../services/spotify.service';
 import { MatTooltip } from '@angular/material/tooltip';

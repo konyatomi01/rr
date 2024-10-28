@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { SpotifyService } from '../../services/spotify.service';
-import { ServerService } from '../../services/server.sevice';
+import { ServerService } from '../../services/server.service';
 import { DialogService } from '../../services/dialog.service';
 
 interface Category {

@@ -1,23 +1,25 @@
 <div class="game-full">
     <div class="d-flex justify-content-between w-100 mb-2">
         <div class="bold">Rounds: {{gameService.currentRound}}/{{gameService.maxRounds}}</div>
-        <div class="bold" [ngClass]="{'lowTime': gameService.remainingTime < 6}">Remaining: {{gameService.remainingTime}}s</div>
+        <div class="bold" [ngClass]="{'lowTime': isLowTime}">Remaining: {{gameService.remainingTime | async}}s</div>
     </div>
     <app-player-display class="mb-2"></app-player-display>
     <div class="w-100 main-div d-flex flex-column flex-xl-row">
         
         <div class="game mb-2 me-xl-2">
-            <ng-container *ngIf="!gameService.showCountDown">
-                <button #answerButton class="answerButton" [disabled]="party.player.lives === 0" (click)="answer($event)">{{gameService.answers[0]}}</button>
-                <button #answerButton class="answerButton" [disabled]="party.player.lives === 0" (click)="answer($event)">{{gameService.answers[1]}}</button>
-                <button #answerButton class="answerButton" [disabled]="party.player.lives === 0" (click)="answer($event)">{{gameService.answers[2]}}</button>
-                <button #answerButton class="answerButton" [disabled]="party.player.lives === 0" (click)="answer($event)">{{gameService.answers[3]}}</button>
-            </ng-container>
-
-            <ng-container *ngIf="gameService.showCountDown">
-                <div class="countdown">
-                  {{gameService.remainingTime}} 
-                </div>
+            <ng-container *ngIf="gameService.currentRound > 0">
+                <ng-container *ngIf="!gameService.showCountDown">
+                    <game-button [id]="0"></game-button>
+                    <game-button [id]="1"></game-button>
+                    <game-button [id]="2"></game-button>
+                    <game-button [id]="3"></game-button>
+                </ng-container>
+    
+                <ng-container *ngIf="gameService.showCountDown">
+                    <div class="countdown">
+                      {{gameService.remainingTime}} 
+                    </div>
+                </ng-container>
             </ng-container>
         </div>
         <app-game-party *ngIf="party.party.length > 1"></app-game-party> 

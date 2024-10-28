@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ServerService } from '../services/server.sevice';
+import { ServerService } from '../services/server.service';
 
 @Component({
   selector: 'app-launch',
