@@ -18,18 +18,20 @@ h2 {
 
 .player-displayer {
     display: flex;
-    overflow-y: auto;
+    overflow-x: auto;
     width: 100%;
     align-items: end;
 }
 
 .player {
+    overflow: hidden;
     color: $text;
     display: flex;
     align-items: center;
     border-radius: 25px;
     background-color: $red;
     height: 45px;
+    flex: 0 0 auto;
 
     &.accepted {
         background-color: $green;
@@ -41,5 +43,8 @@ h2 {
         border: solid 1px $white;
         
         
+    }
+    .name {
+        text-wrap: nowrap;
     }
 }

@@ -26,7 +26,7 @@ export class LaunchComponent {
   });
 
   code = new FormGroup({
-    code: new FormControl('', [Validators.required])
+    code: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(6)])
   });
 
   constructor(
@@ -51,9 +51,11 @@ export class LaunchComponent {
     this.server.hostGame(this.form.controls.name.value!, this.form.controls.icon.value!);
   }
   joinGame(): void {
-    if (this.code.valid) this.server.joinGame(this.form.controls.name.value!, this.form.controls.icon.value!, this.code.controls.code.value!);
-    else this.code.get('code')!.markAsTouched();
-    
+    if (this.code.valid) {
+      this.server.joinGame(this.form.controls.name.value!, this.form.controls.icon.value!, this.code.controls.code.value!);
+    } else {
+      this.code.get('code')!.markAsTouched();
+    }
   }
 }
 
