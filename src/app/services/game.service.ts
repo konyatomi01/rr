@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { PartyService } from './party.service';
 import { RoutingService } from './routing.service';
 import { BehaviorSubject } from 'rxjs';
+import { DialogService } from './dialog.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,7 @@ export class GameService {
     constructor(
         readonly party: PartyService,
         private router: RoutingService,
+        readonly dialog: DialogService
     ) {
         document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
     }
@@ -46,6 +48,8 @@ export class GameService {
     }
 
     gameStarts(speed: number, maxRounds: number) {
+        this.dialog.closeAcceptDialog();
+        this.dialog.closeSettingDialog();
         this.maxTime = speed;
         this.currentRound = 0;
         this.maxRounds = maxRounds;

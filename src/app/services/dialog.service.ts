@@ -15,8 +15,14 @@ export class DialogService {
   openSettingsDialog(data: any): void {
     this.settingsState$.next({ visible: true, data });
   }
-
   openAcceptDialog(data: any): void {
     this.acceptState$.next({ visible: true, data });
+  }
+
+  closeSettingDialog(): void {
+    this.settingsState$.next({ visible: false });
+  }
+  closeAcceptDialog(): void {
+    this.acceptState$.next({ visible: false });
   }
 }

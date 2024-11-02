@@ -176,7 +176,7 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
   }
 
   close(): void {
-    this.dialogService.settingsState$.next({ visible: false });
+    this.dialogService.closeSettingDialog();
     this.data = undefined;
   }
  

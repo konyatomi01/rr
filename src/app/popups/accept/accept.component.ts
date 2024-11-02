@@ -36,7 +36,7 @@ export class AcceptComponent {
   }  
 
   close(): void {
-    this.dialogService.settingsState$.next({ visible: false });
+    this.dialogService.closeAcceptDialog();
     this.data = undefined;
   }
 }
