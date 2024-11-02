@@ -9,19 +9,24 @@ import { ServerService } from '../services/server.service';
 })
 export class LaunchComponent {
   icons: string[] = [
-    'assets/player-icons/player-icon-1.svg',
-    'assets/player-icons/player-icon-2.svg',
-    'assets/player-icons/player-icon-3.svg',
-    'assets/player-icons/player-icon-4.svg',
-    'assets/player-icons/player-icon-5.svg',
-    'assets/player-icons/player-icon-6.svg',
-    'assets/player-icons/player-icon-7.svg',
+    'assets/player-icons/1.png',
+    'assets/player-icons/2.png',
+    'assets/player-icons/13.png',
+    'assets/player-icons/4.png',
+    'assets/player-icons/5.png',
+    'assets/player-icons/6.png',
+    'assets/player-icons/7.png',
+    'assets/player-icons/8.png',
+    'assets/player-icons/9.png',
+    'assets/player-icons/10.png',
+    'assets/player-icons/11.png',
+    'assets/player-icons/12.png',
   ];
-  selectedIcon: string = 'assets/player-icons/player-icon-1.svg';
+  selectedIcon: string = 'assets/player-icons/1.png';
   accountCreated: boolean = false;
 
   form = new FormGroup({
-    icon: new FormControl('assets/player-icons/player-icon-1.svg'),
+    icon: new FormControl('assets/player-icons/1.png'),
     name: new FormControl('', [Validators.required, Validators.maxLength(16)])
   });
 

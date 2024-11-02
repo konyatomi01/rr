@@ -1,14 +1,30 @@
 @import '../../styles/colors.scss';
 
-.player-icon {
-    margin: 5px;
-    border: solid 3px $text;
-    border-radius: 1000px;
+.icon-div {
+    position: relative;
+    mat-icon {
+        position: absolute;
+        bottom: 0px;
+        right: 0px;
+        display: none;
+    }
+
+    .player-icon {
+        margin: 5px;
+        border: solid 5px $text;
+        border-radius: 1000px;
+    }
 
     &.selected {
-        border: solid 5px $red;
+        .player-icon {
+            border: solid 5px $white;
+        }
+        mat-icon {
+            display: flex;
+        }
       }
 }
+
 
 h1 {
     font-size: large;
@@ -44,4 +60,10 @@ input {
 
 .join-card {
     max-width: 350px;
+    &.icons {
+        max-height: 80dvh;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
 }

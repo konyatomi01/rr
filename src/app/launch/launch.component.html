@@ -1,15 +1,15 @@
 <div class="d-flex justify-content-center">
 
-    <div class="rr-card join-card" *ngIf="!accountCreated">
-        <div [formGroup]="form">
+    <div class="rr-card join-card icons" *ngIf="!accountCreated" [formGroup]="form">
+        
             <h1>SELECT YOUR AVATAR:</h1>
-            <div class="mb-4 row">
-                <div *ngFor="let icon of icons" class="col-4">
+            <div class="mb-4 row flex-grow-1 overflow-y-auto">
+                <div *ngFor="let icon of icons" class="col-4 icon-div" [class.selected]="icon === selectedIcon">
                     <img
                         class="player-icon img-fluid"
-                        [class.selected]="icon === selectedIcon"
                         (click)="selectIcon(icon)"
                         [src]="icon" alt="icon">
+                    <mat-icon>check_circle</mat-icon>
                 </div>
             </div>
             <h1>YOUR NAME:</h1>
@@ -23,7 +23,7 @@
                     Name cannot exceed 16 characters.
                 </ng-container>
             </div>
-        </div>
+        
         <div class="d-flex justify-content-center mt-4" (click)="next()">
             <rr-button text="PLAY" icon="play_arrow" color="red"></rr-button>
         </div>
