@@ -12,9 +12,9 @@
                     <mat-icon>check_circle</mat-icon>
                 </div>
             </div>
-            <h1>YOUR NAME:</h1>
+            <h1 class="w-100">YOUR NAME:</h1>
             <input id="name" formControlName="name" type="text" class="form-control" placeholder="Enter your name">
-            <div *ngIf="form.controls.name.invalid" class="text-danger d-flex">
+            <div *ngIf="form.controls.name.invalid" class="w-100 text-danger d-flex">
                 <mat-icon class="me-1">error_outline</mat-icon>
                 <ng-container *ngIf="form.controls.name.errors?.['required']">
                     Name is required.
