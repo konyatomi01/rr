@@ -53,7 +53,7 @@ export class Party {
 
     findPlayerById(id: string): Player | undefined {
         return this.players.find(p => p.id === id);
-    }
+    } 
 
     sendUpdateParty() {
         this.players = this.players.sort((a, b) => b.points - a.points);

@@ -12,7 +12,7 @@ export class Player {
     currentPoints: number = 0
     rightRounds: number = 0
     answered: boolean = false
-    accepted: boolean = false
+    accepted: boolean = false 
 
     constructor(_id: string, _name: string, _pfp: string, _socket: any) {
         this.id = _id;
