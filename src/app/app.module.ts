@@ -36,7 +36,7 @@ import { FormsModule } from '@angular/forms';
 import { GameButtonComponent } from './ui/game-button/game-button.component';
 
 
-const config: SocketIoConfig = { url: 'http://localhost:3000/', options: {} };
+const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
 
 
 @NgModule({

@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { ServerService } from '../../services/server.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MusicService } from '../../services/music.service';
@@ -40,12 +40,18 @@ export interface Settings {
 
 }
 
+export interface SettingsDialogData {
+  id: string;
+  name: string;
+  image: string;
+}
+
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnDestroy {
   @ViewChild('artistModeTooltip') artistModeTooltip!: MatTooltip;
 
   form = new FormGroup({
@@ -55,13 +61,9 @@ export class SettingsComponent {
     lives: new FormControl<number>(3, Validators.required),
   });
   tracks: Track[] = [];
-  enoughArtist: boolean = true;
-  selectedMode: GameModes = GameModes.title;
-  selectedSpeed: GameSpeeds = GameSpeeds.slow;
-  lives: number = 3;
-  data: any;
+  data?: SettingsDialogData;
   display: boolean = false;
-  dialogSubscription: Subscription | null = null;
+  dialogSubscription?: Subscription;
 
   constructor(
     readonly server: ServerService,
@@ -69,31 +71,18 @@ export class SettingsComponent {
     private snackBar: SnackbarService,
     private dialogService: DialogService
   ) {
-    this.dialogSubscription = this.dialogService.settingsState$.subscribe((state) => {
+    this.dialogSubscription = this.dialogService.settingsState$.subscribe(async state => {
       this.display = state.visible;
       if(state.data) {
         this.data = state.data;
-        //this.loadData(this.data.id);
+        this.tracks = await this.music.getTracksFromPlaylist(this.data.id);
       }
     });
   }
 
-  /*loadData(playlistId: string) {
-    this.music.getTracksFromPlaylist(playlistId).subscribe(
-      (tracks: any[]) => {
-        this.tracks = tracks.filter((item: any) => item.preview_url !== null)
-        .map(item => ({
-          url: item.preview_url,
-          title: item.name,
-          artist: item.artists[0].name
-        }));
-        this.enoughArtist = (this.countDistinctPropertyValues(this.tracks, "artist") > 3)
-      },
-      (error: any) => {
-        console.error('Error loading playlist tracks:', error);
-      }
-    );
-  }*/
+  get enoughArtist(): boolean {
+    return this.countDistinctPropertyValues(this.tracks, "artist") > 3;
+  }
 
 countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
     const distinctValues = new Set<any>();
@@ -110,15 +99,9 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
   setMode(mode: GameModes): void {
     if(mode === GameModes.artist && !this.enoughArtist) {
       this.snackBar.notEnoughArtist();
-      this.selectedMode = GameModes.title
     }
-    else this.selectedMode = mode;
     this.form.controls.mode.setValue(mode);
     
-  }
-
-  isModeSelected(mode: GameModes): boolean {
-    return this.selectedMode === mode;
   }
 
   plusRounds(): void {
@@ -140,28 +123,17 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
   public gameSpeeds = GameSpeeds;
 
   setSpeed(speed: GameSpeeds): void {
-    this.selectedSpeed = speed;
-    this.form.get('speed')?.setValue(speed);
+    this.form.controls.speed.setValue(speed);
     
     if (this.artistModeTooltip) {
       this.artistModeTooltip.hide();
     }
   }
 
-  isSpeedSelected(speed: GameSpeeds): boolean {
-    return this.selectedSpeed === speed;
-  }
-
-  setLives(value: number): void {
-    this.lives = value;
-    this.form.get('lives')?.setValue(value);
-  }
-
-
   start(): void {
     const playlist: Playlist = { 
-      title: this.data.name,
-      cover: this.data.images[0].url,
+      title: this.data!.name,
+      cover: this.data!.image,
       tracks: this.tracks };
 
     const settings: Settings = { 
@@ -178,6 +150,10 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
   close(): void {
     this.dialogService.closeSettingDialog();
     this.data = undefined;
+  }
+
+  ngOnDestroy() {
+    this.dialogSubscription?.unsubscribe();
   }
  
 }

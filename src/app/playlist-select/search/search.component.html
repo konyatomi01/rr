@@ -1,8 +1,8 @@
-<ng-container *ngIf="playlists | async as playlists;">
+<ng-container *ngIf="playlists">
     <div class="row playlist-displayer">
-        <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="dialog.openSettingsDialog(playlist)">
-              <img class="cover" [src]="playlist.images[0]?.url"/>
-              <figcaption>{{ playlist.name }}</figcaption>
+        <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
+              <img class="cover" [src]="getArtworkUrl(playlist.attributes.artwork.url)"/>
+              <figcaption>{{ playlist.attributes.name }}</figcaption>
           </button>
     </div>
 

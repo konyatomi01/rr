@@ -7,6 +7,7 @@ import { SnackbarService } from './snackbar.service';
 import { GameService } from './game.service';
 import { RoutingService } from './routing.service';
 import { MusicService } from './music.service';
+import { AcceptDialogData } from '../popups/accept/accept.component';
 
 
 @Injectable({
@@ -64,7 +65,7 @@ export class ServerService {
     this.socket.on('updatePlayer', (player: any) => {
       this.party.player = player;
     });
-    this.socket.on('incomingProposal', (proposal: any) => {
+    this.socket.on('incomingProposal', (proposal: AcceptDialogData) => {
       this.dialog.openAcceptDialog(proposal);
     });
     this.socket.on('proposalDeclined', (player_name: string) => {

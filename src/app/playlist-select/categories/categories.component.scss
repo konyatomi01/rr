@@ -48,4 +48,9 @@ h2 {
     height: 32px;
     font-size: 32px;
     cursor: pointer;
+
+    &.disabled {
+        pointer-events: none;
+        opacity: 0.5;
+    }
 }

@@ -1,17 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { ServerService } from '../../services/server.service';
 import { Subscription } from 'rxjs';
 import { DialogService } from '../../services/dialog.service';
+import { Settings } from '../settings/settings.component';
+
+export interface AcceptDialogData {
+  player: string;
+  settings: Settings;
+}
 
 @Component({
   selector: 'app-accept',
   templateUrl: './accept.component.html',
   styleUrl: './accept.component.scss'
 })
-export class AcceptComponent {
-  data: any;
+export class AcceptComponent implements OnDestroy {
+  data?: AcceptDialogData;
   display: boolean = false;
-  dialogSubscription: Subscription | null = null;
+  dialogSubscription?: Subscription;
 
   constructor(
     private dialogService: DialogService,
@@ -38,5 +44,9 @@ export class AcceptComponent {
   close(): void {
     this.dialogService.closeAcceptDialog();
     this.data = undefined;
+  }
+
+  ngOnDestroy() {
+    this.dialogSubscription?.unsubscribe();
   }
 }
