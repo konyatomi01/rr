@@ -47,7 +47,7 @@ export class Party {
             this.removalTimer = setTimeout(() => {
                 GameServer.getInstance().removeParty(this);
                 console.log(`Party ${this.id} removed due to no players`);
-            }, 60000); // 60 seconds
+            }, 60000);
         }
     }
 

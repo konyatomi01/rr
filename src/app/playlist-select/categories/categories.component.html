@@ -8,9 +8,9 @@
         <mat-icon (click)="categoryPlus()">arrow_circle_right</mat-icon>
     </div>
     <div class="row playlist-displayer">
-        <button *ngFor="let playlist of playlists[selectedIndex]" class="col-3 col-lg-2 pl-button" (click)="dialog.openSettingsDialog(playlist)">
-              <img class="cover" [src]="playlist.images[0]?.url"/>
-              <figcaption class="caption">{{ playlist.name }}</figcaption>
+        <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="dialog.openSettingsDialog(playlist)">
+              <img class="cover" [src]="getArtworkUrl(playlist.attributes.artwork.url)"/>
+              <figcaption class="caption">{{ playlist.attributes.name }}</figcaption>
           </button>
     </div>
 

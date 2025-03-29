@@ -6,6 +6,7 @@ import cors from 'cors';
 import { Player } from './player';
 import { Party } from './party';
 import { Settings } from '../app/popups/settings/settings.component';
+import * as dotenv from 'dotenv';
 
 
 export class GameServer {
@@ -53,6 +54,7 @@ export class GameServer {
     }
 
     run() {
+        dotenv.config();
         const app = express();
 
         app.use(cors());
@@ -109,6 +111,9 @@ export class GameServer {
                     socket.emit('reconnectFailed');
                     console.log(player_id, 'can not reconnect', party_id, 'party not found!');
                 }
+            });
+            socket.on('getToken', () => {
+                socket.emit('token', process.env['API_KEY']);
             });
             //hostGame
             socket.on('hostGame', (name: string, pfp: string) => {

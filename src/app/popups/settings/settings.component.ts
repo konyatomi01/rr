@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { ServerService } from '../../services/server.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { SpotifyService } from '../../services/spotify.service';
+import { MusicService } from '../../services/music.service';
 import { MatTooltip } from '@angular/material/tooltip';
 import { SnackbarService } from '../../services/snackbar.service';
 import { Subscription } from 'rxjs';
@@ -65,7 +65,7 @@ export class SettingsComponent {
 
   constructor(
     readonly server: ServerService,
-    readonly spotify: SpotifyService,
+    readonly music: MusicService,
     private snackBar: SnackbarService,
     private dialogService: DialogService
   ) {
@@ -73,13 +73,13 @@ export class SettingsComponent {
       this.display = state.visible;
       if(state.data) {
         this.data = state.data;
-        this.loadData(this.data.id);
+        //this.loadData(this.data.id);
       }
     });
   }
 
-  loadData(playlistId: string) {
-    this.spotify.getTracksFromPlaylist(playlistId).subscribe(
+  /*loadData(playlistId: string) {
+    this.music.getTracksFromPlaylist(playlistId).subscribe(
       (tracks: any[]) => {
         this.tracks = tracks.filter((item: any) => item.preview_url !== null)
         .map(item => ({
@@ -89,11 +89,11 @@ export class SettingsComponent {
         }));
         this.enoughArtist = (this.countDistinctPropertyValues(this.tracks, "artist") > 3)
       },
-      (error) => {
+      (error: any) => {
         console.error('Error loading playlist tracks:', error);
       }
     );
-  }
+  }*/
 
 countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
     const distinctValues = new Set<any>();

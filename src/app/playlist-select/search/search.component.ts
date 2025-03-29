@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { SearchService } from './search.service';
-import { SpotifyService } from '../../services/spotify.service';
+import { MusicService } from '../../services/music.service';
 import { Observable } from 'rxjs';
 import { DisplayService } from '../../services/display.service';
 import { DialogService } from '../../services/dialog.service';
@@ -16,12 +16,12 @@ export class SearchComponent {
 
   constructor(
     private searchService: SearchService,
-    private spotify: SpotifyService,
+    private music: MusicService,
     readonly display: DisplayService,
     readonly dialog: DialogService
   ) {
     this.searchService.form.controls['search']?.valueChanges.subscribe(value => {
-      if(value) this.playlists = this.spotify.getPlaylistBySearch(value);
+      //if(value) this.playlists = this.music.getPlaylistBySearch(value);
     });
   }
 }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SpotifyService } from '../services/spotify.service';
+import { MusicService } from '../services/music.service';
 import { ServerService } from '../services/server.service';
 import { SearchService } from './search/search.service';
 import { SnackbarService } from '../services/snackbar.service';
@@ -13,13 +13,11 @@ export class PlaylistSelectComponent {
 
   constructor(
     
-    private spotify: SpotifyService,
+    private music: MusicService,
     readonly server: ServerService,
     readonly search: SearchService,
     private snackBar: SnackbarService
-  ) {
-    this.spotify.authenticate();
-  }
+  ) {}
 
   copyCode(): void {
     navigator.clipboard.writeText(this.server.party_id);

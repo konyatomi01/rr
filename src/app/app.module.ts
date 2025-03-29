@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonComponent } from './ui/button.component';
 import { PlaylistSelectComponent } from './playlist-select/playlist-select.component';
 import { HttpClientModule } from '@angular/common/http';
-import { SpotifyService } from './services/spotify.service';
+import { MusicService } from './services/music.service';
 import { ServerService } from './services/server.service';
 import { CategoriesComponent } from './playlist-select/categories/categories.component';
 import { SearchComponent } from './playlist-select/search/search.component';
@@ -36,7 +36,7 @@ import { FormsModule } from '@angular/forms';
 import { GameButtonComponent } from './ui/game-button/game-button.component';
 
 
-const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
+const config: SocketIoConfig = { url: 'http://localhost:3000/', options: {} };
 
 
 @NgModule({
@@ -72,7 +72,7 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     SocketIoModule.forRoot(config)
   ],
   providers: [
-    SpotifyService,
+    MusicService,
     ServerService,
     SearchService,
     DisplayService,

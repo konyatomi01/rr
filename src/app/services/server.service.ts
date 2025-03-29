@@ -6,6 +6,7 @@ import { DialogService } from './dialog.service';
 import { SnackbarService } from './snackbar.service';
 import { GameService } from './game.service';
 import { RoutingService } from './routing.service';
+import { MusicService } from './music.service';
 
 
 @Injectable({
@@ -22,7 +23,8 @@ export class ServerService {
     readonly party: PartyService,
     private dialog: DialogService,
     private snackBar: SnackbarService,
-    readonly game: GameService
+    readonly game: GameService,
+    public music: MusicService
   ) {
     if(sessionStorage.getItem('player_id') && sessionStorage.getItem('party_id')) {
       this.socket.emit('reconnect', sessionStorage.getItem('player_id'), sessionStorage.getItem('party_id'));
@@ -82,7 +84,11 @@ export class ServerService {
     });
     this.socket.on('gameOver', ()=> {
       this.game.gameOver();
-    })
+    });
+    this.socket.on('token', (token: string) => {
+      sessionStorage.setItem('token', token);
+    });
+    this.socket.emit('getToken');
    }
 
   hostGame(name: string, pfp: string) {

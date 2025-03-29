@@ -1,12 +1,12 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
-import { SpotifyService } from '../../services/spotify.service';
+import { MusicService } from '../../services/music.service';
 import { ServerService } from '../../services/server.service';
 import { DialogService } from '../../services/dialog.service';
 
 interface Category {
   display_name: string,
-  api_name: string
+  api_id: string
 }
 
 @Component({
@@ -20,32 +20,36 @@ export class CategoriesComponent {
   playlists: any[] = [];
   selectedIndex: number = 0;
 
-  categories: Category[] = [
-    {display_name: "Pop", api_name: "pop"},
-    {display_name: "Rock", api_name: "rock"},
-    {display_name: "HIP-HOP", api_name: "hiphop"},
-    {display_name: "Decades", api_name: "decades"},
-    {display_name: "Country", api_name: "country"},
-    {display_name: "R&B", api_name: "rnb"},
-    {display_name: "Alternative", api_name: "alternative"},
-    {display_name: "Latin", api_name: "latin"},
-    {display_name: "Party", api_name: "party"},
-    {display_name: "Toplists", api_name: "toplists"}, 
+  categories: Category[] = 
+  [
+      {api_id: "14", display_name: "Pop"},
+      {api_id: "18", display_name: "Hip-Hop"},
+      {api_id: "21", display_name: "Rock"},
+      {api_id: "7", display_name: "Electronic"},
+      {api_id: "15", display_name: "R&B"},
+      {api_id: "12", display_name: "Latin"},
+      {api_id: "20", display_name: "Alternative"},
+      {api_id: "6", display_name: "Country"},
+      {api_id: "17", display_name: "Dance"},
+      {api_id: "8", display_name: "Holiday"},
   ];
   selectedCategory: Category = this.categories[0];
 
   constructor(
-    private spotify: SpotifyService,
+    private music: MusicService,
     readonly server: ServerService,
     readonly dialog: DialogService
   ) {
-    this.getPlaylists();
+    this.fetchPlaylists();
   }
-  async getPlaylists() {
-    for(let c of this.categories) {
-      const lists = await lastValueFrom(this.spotify.getPlaylistByCategory(c.api_name));
-      this.playlists.push(lists);
-    }
+  async fetchPlaylists() {
+    const lists = await lastValueFrom(this.music.getChartsPlaylists());
+    this.playlists = lists.results.playlists[0].data;
+    console.log(this.playlists);
+  }
+
+  getArtworkUrl(link: string): string {
+    return link.replace('{w}', '300').replace('{h}', '300');
   }
 
   categoryPlus() {
