@@ -1,38 +1,36 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatTooltip } from '@angular/material/tooltip';
-import { AppComponent } from './app.component';
-import { LaunchComponent } from './launch/launch.component';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ButtonComponent } from './ui/button.component';
-import { PlaylistSelectComponent } from './playlist-select/playlist-select.component';
 import { HttpClientModule } from '@angular/common/http';
-import { MusicService } from './services/music.service';
-import { ServerService } from './services/server.service';
-import { CategoriesComponent } from './playlist-select/categories/categories.component';
-import { SearchComponent } from './playlist-select/search/search.component';
-import { SearchService } from './playlist-select/search/search.service';
-import { DisplayService } from './services/display.service';
-import { PartyComponent } from './playlist-select/party/party.component';
-import { SettingsComponent } from './popups/settings/settings.component';
-import { DialogService } from './services/dialog.service';
-import { AcceptComponent } from './popups/accept/accept.component';
-import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
-import { PartyService } from './services/party.service';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
+import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
+import { DialogModule } from 'primeng/dialog';
+import { AppComponent } from './app.component';
+import { GameOverComponent } from './game-over/game-over.component';
+import { GamePartyComponent } from './game/game-party/game-party.component';
 import { GameComponent } from './game/game.component';
 import { PlayerDisplayComponent } from './game/player-display/player-display.component';
-import { GamePartyComponent } from './game/game-party/game-party.component';
-import { SnackbarService } from './services/snackbar.service';
-import { GameService } from './services/game.service';
-import { GameOverComponent } from './game-over/game-over.component';
+import { LaunchComponent } from './launch/launch.component';
+import { CategoriesComponent } from './playlist-select/categories/categories.component';
+import { PartyComponent } from './playlist-select/party/party.component';
+import { PlaylistSelectComponent } from './playlist-select/playlist-select.component';
+import { SearchComponent } from './playlist-select/search/search.component';
+import { AcceptComponent } from './popups/accept/accept.component';
+import { SettingsComponent } from './popups/settings/settings.component';
 import { RoundOverComponent } from './round-over/round-over.component';
-import { DialogModule } from 'primeng/dialog';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
+import { DialogService } from './services/dialog.service';
+import { DisplayService } from './services/display.service';
+import { GameService } from './services/game.service';
+import { MusicService } from './services/music.service';
+import { PartyService } from './services/party.service';
+import { ServerService } from './services/server.service';
+import { SnackbarService } from './services/snackbar.service';
+import { ButtonComponent } from './ui/button.component';
 import { GameButtonComponent } from './ui/game-button/game-button.component';
 import { ProgressSpinnerComponent } from './ui/spinner/spinner.component';
 
@@ -76,7 +74,6 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
   providers: [
     MusicService,
     ServerService,
-    SearchService,
     DisplayService,
     DialogService,
     PartyService,

@@ -1,19 +1,18 @@
 import { Component } from '@angular/core';
-import { MusicService } from '../services/music.service';
 import { ServerService } from '../services/server.service';
-import { SearchService } from './search/search.service';
 import { SnackbarService } from '../services/snackbar.service';
+import { SearchService } from './search/search.service';
 
 @Component({
   selector: 'app-playlist-select',
   templateUrl: './playlist-select.component.html',
-  styleUrl: './playlist-select.component.scss'
+  styleUrl: './playlist-select.component.scss',
+  providers: [SearchService]
 })
 export class PlaylistSelectComponent {
 
   constructor(
     
-    private music: MusicService,
     readonly server: ServerService,
     readonly search: SearchService,
     private snackBar: SnackbarService

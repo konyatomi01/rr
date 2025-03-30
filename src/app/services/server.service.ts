@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Settings } from '../popups/settings/settings.component';
 import { Socket } from 'ngx-socket-io';
-import { PartyService } from './party.service';
-import { DialogService } from './dialog.service';
-import { SnackbarService } from './snackbar.service';
-import { GameService } from './game.service';
-import { RoutingService } from './routing.service';
-import { MusicService } from './music.service';
 import { AcceptDialogData } from '../popups/accept/accept.component';
+import { Settings } from '../popups/settings/settings.component';
+import { DialogService } from './dialog.service';
+import { GameService } from './game.service';
+import { PartyService } from './party.service';
+import { RoutingService } from './routing.service';
+import { SnackbarService } from './snackbar.service';
 
 
 @Injectable({
@@ -25,7 +24,6 @@ export class ServerService {
     private dialog: DialogService,
     private snackBar: SnackbarService,
     readonly game: GameService,
-    public music: MusicService
   ) {
     if(sessionStorage.getItem('player_id') && sessionStorage.getItem('party_id')) {
       this.socket.emit('reconnect', sessionStorage.getItem('player_id'), sessionStorage.getItem('party_id'));
