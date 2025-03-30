@@ -36,7 +36,7 @@ export class ServerService {
       this.gameJoined(party_id, player_id);
     });
     this.socket.on('joinFailed', () => {
-      confirm('Invalid join code!');
+      this.snackBar.invalidCode();
     });
     this.socket.on('partyLeft', () => {
       sessionStorage.removeItem('player_id');

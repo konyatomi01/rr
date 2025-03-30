@@ -22,25 +22,21 @@ export class LaunchComponent {
     'assets/player-icons/11.png',
     'assets/player-icons/12.png',
   ];
-  selectedIcon: string = 'assets/player-icons/1.png';
   accountCreated: boolean = false;
 
   form = new FormGroup({
     icon: new FormControl('assets/player-icons/1.png'),
-    name: new FormControl('', [Validators.required, Validators.maxLength(16)])
+    name: new FormControl('', [Validators.maxLength(16)])
   });
 
-  code = new FormGroup({
-    code: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(6)])
-  });
+  code = new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]);
 
   constructor(
     private server: ServerService
   ) {}
 
-  selectIcon(icon: string): void {
-    this.selectedIcon = icon;
-    this.form.get('icon')?.setValue(icon);
+  private get name(): string {
+    return this.form.controls.name.value || this.generatePlayerName();
   }
 
   next(): void {
@@ -51,15 +47,19 @@ export class LaunchComponent {
     }
   }
 
+  generatePlayerName(): string {
+    const number = Math.floor(Math.random() * 999);
+    return `Player#${number.toString()}`;
+  }
 
   hostGame(): void {
-    this.server.hostGame(this.form.controls.name.value!, this.form.controls.icon.value!);
+    this.server.hostGame(this.name, this.form.controls.icon.value!);
   }
   joinGame(): void {
     if (this.code.valid) {
-      this.server.joinGame(this.form.controls.name.value!, this.form.controls.icon.value!, this.code.controls.code.value!);
+      this.server.joinGame(this.name, this.form.controls.icon.value!, this.code.value!);
     } else {
-      this.code.get('code')!.markAsTouched();
+      this.code.markAsTouched();
     }
   }
 }

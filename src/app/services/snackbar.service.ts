@@ -16,6 +16,15 @@ export class SnackbarService {
     }, 3000);
   }
 
+  invalidCode(): void {
+    this.text = `Invalid join code!`;
+    this.show = true;
+
+    setTimeout(() => {
+      this.show = false;
+    }, 3000);
+  }
+
   notEnoughArtist(): void {
     this.text = "Only available when there are at least 4 different artists in the playlist!";
     this.show = true;
