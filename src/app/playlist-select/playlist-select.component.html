@@ -11,8 +11,8 @@
       </button>
     </div>
 
-    <app-search class="px-3" *ngIf="search.search.dirty"></app-search>
-    <app-categories class="px-3" [hidden]="search.search.dirty"></app-categories>
+    <app-search class="px-3" *ngIf="search.search.valid"></app-search>
+    <app-categories class="px-3" [hidden]="search.search.valid"></app-categories>
     <h1>SELECT A PLAYLIST TO START!</h1>
   </ng-container>
   <div *ngIf="server.waitingToAccept" class="waiting d-flex justify-content-center align-items-center">

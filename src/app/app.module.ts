@@ -34,6 +34,7 @@ import { DialogModule } from 'primeng/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { GameButtonComponent } from './ui/game-button/game-button.component';
+import { ProgressSpinnerComponent } from './ui/spinner/spinner.component';
 
 
 const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
@@ -56,6 +57,7 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     GamePartyComponent,
     GameOverComponent,
     RoundOverComponent,
+    ProgressSpinnerComponent
 
   ],
   imports: [

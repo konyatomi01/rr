@@ -1,9 +1,14 @@
 <ng-container *ngIf="playlists">
     <div class="row playlist-displayer">
-        <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
-              <img class="cover" [src]="getArtworkUrl(playlist.attributes.artwork.url)"/>
-              <figcaption>{{ playlist.attributes.name }}</figcaption>
-          </button>
+        <ng-container *ngIf="!isLoading">
+            <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
+                <img class="cover" [src]="getArtworkUrl(playlist.attributes.artwork.url)"/>
+                <figcaption class="caption">{{ playlist.attributes.name }}</figcaption>
+            </button>
+        </ng-container>
+        <ng-container *ngIf="isLoading">
+            <rr-spinner></rr-spinner>
+        </ng-container>
     </div>
 
     

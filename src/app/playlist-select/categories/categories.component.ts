@@ -12,7 +12,8 @@ import { PlaylistSelectComponentBase } from '../playlist-select-base.component';
 })
 export class CategoriesComponent extends PlaylistSelectComponentBase {
 
-  page: BehaviorSubject<number> = new BehaviorSubject(1);
+  page: number = 1;
+  dataCache: any[][] = Array.from({ length: 10 }, () => []);
 
   constructor(
     private music: MusicService,
@@ -21,18 +22,29 @@ export class CategoriesComponent extends PlaylistSelectComponentBase {
   ) {
     super(dialog);
     this.fetchPlaylists();
-    this.subscription = this.page.subscribe(page => this.fetchPlaylists(page * 20));
   }
   async fetchPlaylists(offset: number = 20) {
-    const lists = await lastValueFrom(this.music.getChartsPlaylists(offset));
-    this.playlists = lists.results.playlists[0].data;
+    if (this.dataCache[this.page - 1].length) {
+      this.playlists = this.dataCache[this.page - 1];
+      return;
+    }
+    else {
+      this.isLoading = true;
+      const lists = await lastValueFrom(this.music.getChartsPlaylists(offset));
+      this.isLoading = false;
+      this.playlists = lists.results.playlists[0].data;
+      this.dataCache[this.page - 1] = this.playlists;
+      return;
+    }
   }
 
   categoryPlus() {
-    this.page.next(this.page.value + 1);
+    this.page++;
+    this.fetchPlaylists(this.page * 20);
   }
 
   categoryMinus() {
-    this.page.next(this.page.value - 1);
+    this.page--;
+    this.fetchPlaylists(this.page * 20);
   }
 }

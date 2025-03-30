@@ -1,16 +1,21 @@
 <ng-container *ngIf="playlists">
     <h2 class="text-start">Top playlists:</h2>
     <div class="d-flex justify-content-center align-items-center mb-2 gap-3 category-select">
-        <mat-icon [class.disabled]="(page.asObservable() | async) === 1" (click)="categoryMinus()">arrow_circle_left</mat-icon>
+        <mat-icon [class.disabled]="page === 1" (click)="categoryMinus()">arrow_circle_left</mat-icon>
         <div class="category">
-        {{ page.asObservable() | async }} / 10
+        {{ page }} / 10
         </div>
-        <mat-icon [class.disabled]="(page.asObservable() | async) === 10" (click)="categoryPlus()">arrow_circle_right</mat-icon>
+        <mat-icon [class.disabled]="page === 10" (click)="categoryPlus()">arrow_circle_right</mat-icon>
     </div>
     <div class="row playlist-displayer">
-        <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
-              <img class="cover" [src]="getArtworkUrl(playlist.attributes.artwork.url)"/>
-              <figcaption class="caption">{{ playlist.attributes.name }}</figcaption>
-          </button>
+        <ng-container *ngIf="!isLoading">
+            <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
+                <img class="cover" [src]="getArtworkUrl(playlist.attributes.artwork.url)"/>
+                <figcaption class="caption">{{ playlist.attributes.name }}</figcaption>
+            </button>
+        </ng-container>
+        <ng-container *ngIf="isLoading">
+            <rr-spinner></rr-spinner>
+        </ng-container>
     </div>
 </ng-container>

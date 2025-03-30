@@ -10,6 +10,7 @@ export abstract class PlaylistSelectComponentBase implements OnDestroy {
 
   playlists: any[] = [];
   subscription?: Subscription;
+  isLoading: boolean = false;
 
   constructor(
     private dialog: DialogService

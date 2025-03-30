@@ -24,7 +24,9 @@ export class SearchComponent extends PlaylistSelectComponentBase {
     });
   }
   async fetchPlaylists(term: string) {
+    this.isLoading = true;
     const lists = await lastValueFrom(this.music.getPlaylistBySearch(term));
-    this.playlists = lists.results.playlists.data;
+    if (lists.results.playlists) this.playlists = lists.results.playlists.data;
+    this.isLoading = false;
   }
 }
