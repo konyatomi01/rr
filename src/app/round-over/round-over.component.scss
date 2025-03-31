@@ -33,6 +33,12 @@
     color: $yellow;
 }
 
+.evalStreak {
+    display: flex;
+    color: $orange;
+    justify-content: end;
+}
+
 .details {
     width: calc(100% - 50px);
 }

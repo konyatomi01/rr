@@ -188,7 +188,8 @@ startTimer() {
           this.players.map(player => ({
               name: player.name,
               pfp: player.pfp,
-              points: player.currentPoints
+              points: player.currentPoints,
+              streak: player.streak,
           }))
       );
     });

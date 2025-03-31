@@ -4,7 +4,7 @@ import { AcceptDialogData } from '../popups/accept/accept.component';
 import { Settings } from '../popups/settings/settings.component';
 import { DialogService } from './dialog.service';
 import { GameService } from './game.service';
-import { PartyService } from './party.service';
+import { PartyService, PlayerEval } from './party.service';
 import { RoutingService } from './routing.service';
 import { SnackbarService } from './snackbar.service';
 
@@ -56,7 +56,7 @@ export class ServerService {
     this.socket.on('updateParty', (players: any[]) => {
       this.party.party = players;
     });
-    this.socket.on('evalParty', (players: any[]) => {
+    this.socket.on('evalParty', (players: PlayerEval[]) => {
       this.party.partyEval = players;
       this.game.roundOver();
     });

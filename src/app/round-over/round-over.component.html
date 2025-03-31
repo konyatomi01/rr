@@ -6,9 +6,15 @@
                 <div>
                     {{player.name}}
                 </div>
-                <div class="evalPoints me-3">
-                    +{{player.points}}p
-                </div>   
+                <div>
+                    <div class="evalPoints me-3">
+                        +{{player.points}}p
+                    </div>
+                    <div class="evalStreak me-3">
+                        <mat-icon>local_fire_department</mat-icon>
+                        {{player.streak.toFixed(1)}}x
+                    </div>  
+                </div> 
             </div>  
         </div>
     </div>
