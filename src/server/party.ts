@@ -1,4 +1,4 @@
-import { Playlist, Settings, Track } from "../app/popups/settings/settings.component"
+import { PlaylistToPlay, Settings, Track } from "../app/popups/settings/settings.component"
 import { Player } from "./player"
 import { GameServer } from "./server"
 import { popRandomElement } from "./util"
@@ -11,7 +11,7 @@ export interface GameProposal {
 export class Party {
     id: string
     players: Player[] = []
-    playlist: Playlist = { title: '', cover: '', tracks: []}
+    playlist: PlaylistToPlay = { title: '', cover: '', tracks: []}
     answers: string[] = []
     gameMode: 'artist' | 'title' = 'title'
     maxRounds: number = 10
@@ -92,7 +92,7 @@ export class Party {
     this.countdown(3);
     console.log(this.id, 'game starts with settings: \n', 
         this.maxLives, 'lives\n', this.speed, 'speed\n', 
-        this.maxRounds, 'rounds\n', this.gameMode, 'gamemode\n');
+        this.maxRounds, 'rounds\n', this.gameMode, 'gamemode\n', 'on:', this.playlist.title);
   }
 
   nextRound() {
@@ -116,7 +116,7 @@ export class Party {
     this.sendUpdateParty();
     this.remainingTime = this.speed;
     
-    this.currentSong = popRandomElement(this.playlist.tracks);
+    this.currentSong = popRandomElement(this.playlist.tracks)!;
     let answers: string[] = [];
     if(this.gameMode === 'artist') {
         const wrongAnswers = this.getWrongAnswers(this.currentSong.artist);

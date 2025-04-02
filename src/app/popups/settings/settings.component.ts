@@ -1,7 +1,7 @@
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { ServerService } from '../../services/server.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MusicService } from '../../services/music.service';
+import { MusicService, Playlist } from '../../services/music.service';
 import { MatTooltip } from '@angular/material/tooltip';
 import { SnackbarService } from '../../services/snackbar.service';
 import { Subscription } from 'rxjs';
@@ -20,10 +20,10 @@ export enum GameSpeeds {
   normal = 10,
   fast = 5
 }
-export interface Playlist {
+export interface PlaylistToPlay {
   title: string,
   cover: string,
-  tracks: any[]
+  tracks: Track[]
 }
 export interface Track {
   url: string,
@@ -36,14 +36,8 @@ export interface Settings {
   gameMode: GameModes,
   speed: GameSpeeds,
   health: number,
-  playlist: Playlist
+  playlist: PlaylistToPlay
 
-}
-
-export interface SettingsDialogData {
-  id: string;
-  name: string;
-  image: string;
 }
 
 @Component({
@@ -61,7 +55,7 @@ export class SettingsComponent implements OnDestroy {
     lives: new FormControl<number>(3, Validators.required),
   });
   tracks: Track[] = [];
-  data?: SettingsDialogData;
+  data?: Playlist;
   display: boolean = false;
   dialogSubscription?: Subscription;
 
@@ -131,7 +125,7 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
   }
 
   start(): void {
-    const playlist: Playlist = { 
+    const playlist: PlaylistToPlay = { 
       title: this.data!.name,
       cover: this.data!.image,
       tracks: this.tracks };

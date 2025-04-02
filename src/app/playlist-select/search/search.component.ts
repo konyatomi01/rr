@@ -25,8 +25,8 @@ export class SearchComponent extends PlaylistSelectComponentBase {
   }
   async fetchPlaylists(term: string) {
     this.isLoading = true;
-    const lists = await lastValueFrom(this.music.getPlaylistBySearch(term));
-    if (lists.results.playlists) this.playlists = lists.results.playlists.data;
+    const lists = await this.music.getPlaylistBySearch(term);
+    if (lists.length) this.playlists = lists;
     this.isLoading = false;
   }
 }

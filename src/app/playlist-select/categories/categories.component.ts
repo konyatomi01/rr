@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { DialogService } from '../../services/dialog.service';
-import { MusicService } from '../../services/music.service';
+import { MusicService, Playlist } from '../../services/music.service';
 import { ServerService } from '../../services/server.service';
 import { PlaylistSelectComponentBase } from '../playlist-select-base.component';
 
@@ -13,7 +13,7 @@ import { PlaylistSelectComponentBase } from '../playlist-select-base.component';
 export class CategoriesComponent extends PlaylistSelectComponentBase {
 
   page: number = 1;
-  dataCache: any[][] = Array.from({ length: 10 }, () => []);
+  dataCache: Playlist[][] = Array.from({ length: 10 }, () => []);
 
   constructor(
     private music: MusicService,
@@ -30,9 +30,8 @@ export class CategoriesComponent extends PlaylistSelectComponentBase {
     }
     else {
       this.isLoading = true;
-      const lists = await lastValueFrom(this.music.getChartsPlaylists(offset));
+      this.playlists = await this.music.getChartsPlaylists(offset);
       this.isLoading = false;
-      this.playlists = lists.results.playlists[0].data;
       this.dataCache[this.page - 1] = this.playlists;
       return;
     }

@@ -1,14 +1,14 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { SettingsDialogData } from '../popups/settings/settings.component';
 import { DialogService } from '../services/dialog.service';
+import { Playlist } from '../services/music.service';
 
 @Component({
   template: '',
 })
 export abstract class PlaylistSelectComponentBase implements OnDestroy {
 
-  playlists: any[] = [];
+  playlists: Playlist[] = [];
   subscription?: Subscription;
   isLoading: boolean = false;
 
@@ -17,13 +17,8 @@ export abstract class PlaylistSelectComponentBase implements OnDestroy {
   ) {};
   
 
-  playlistClicked(playlist: any) {
-    const data: SettingsDialogData = {
-      id: playlist.id,
-      name: playlist.attributes.name,
-      image: this.getArtworkUrl(playlist.attributes.artwork.url)
-    }
-    this.dialog.openSettingsDialog(data);
+  playlistClicked(playlist: Playlist) {
+    this.dialog.openSettingsDialog({ ...playlist, image: this.getArtworkUrl(playlist.image) });
   }
 
   getArtworkUrl(link: string): string {

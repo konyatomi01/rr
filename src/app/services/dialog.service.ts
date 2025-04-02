@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { SettingsDialogData } from '../popups/settings/settings.component';
 import { AcceptDialogData } from '../popups/accept/accept.component';
+import { Playlist } from './music.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DialogService {
-  public settingsState$ = new BehaviorSubject<{ visible: boolean; data?: SettingsDialogData }>({
+  public settingsState$ = new BehaviorSubject<{ visible: boolean; data?: Playlist }>({
     visible: false,
   });
   public acceptState$ = new BehaviorSubject<{ visible: boolean; data?: AcceptDialogData }>({
     visible: false,
   });
 
-  openSettingsDialog(data: SettingsDialogData): void {
+  openSettingsDialog(data: Playlist): void {
     this.settingsState$.next({ visible: true, data });
   }
   openAcceptDialog(data: AcceptDialogData): void {

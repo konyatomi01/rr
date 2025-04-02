@@ -10,8 +10,8 @@
     <div class="row playlist-displayer">
         <ng-container *ngIf="!isLoading">
             <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
-                <img class="cover" [src]="getArtworkUrl(playlist.attributes.artwork.url)"/>
-                <figcaption class="caption">{{ playlist.attributes.name }}</figcaption>
+                <img class="cover" [src]="getArtworkUrl(playlist.image)"/>
+                <figcaption class="caption">{{ playlist.name }}</figcaption>
             </button>
         </ng-container>
         <ng-container *ngIf="isLoading">
