@@ -27,24 +27,17 @@
                         </button>
                     </div>
                 </div>
-                <div class="setting-row">
-                    <h2>Game Mode:</h2>
-                    <div class="mode-buttons button-group d-flex">
-                        <button [class.selected]="form.controls.mode.value === gameModes.title" (click)="setMode(gameModes.title)" class="col-6 setting-button">Title</button>
-                        <button [class.selected]="form.controls.mode.value === gameModes.artist" 
-                                (click)="setMode(gameModes.artist)"
-                                class="col-6 setting-button"
-                                [class.disabled]="!enoughArtist">Artist</button>
-                    </div>
-                </div>
-                <div class="setting-row">
-                    <h2>Speed:</h2>
-                    <div class="button-group speed-buttons d-flex">
-                        <button [class.selected]="form.controls.speed.value === gameSpeeds.slow" (click)="setSpeed(gameSpeeds.slow)" class="setting-button col">Slow</button>
-                        <button [class.selected]="form.controls.speed.value === gameSpeeds.normal" (click)="setSpeed(gameSpeeds.normal)" class="setting-button col">Normal</button>
-                        <button [class.selected]="form.controls.speed.value === gameSpeeds.fast" (click)="setSpeed(gameSpeeds.fast)" class="setting-button col">Fast</button>
-                    </div>
-                </div>
+                <h2>Game Mode:</h2>
+                <rr-toggle-button [form]="form.controls.mode" class="mb-2">
+                    <button toggle-button [value]="gameModes.title">Title</button>
+                    <button toggle-button [value]="gameModes.artist" [class.disabled]="!enoughArtist" (click)="setMode()">Artist</button>
+                </rr-toggle-button>
+                <h2>Speed:</h2>
+                <rr-toggle-button [form]="form.controls.speed" class="mb-2">
+                    <button toggle-button [value]="gameSpeeds.slow">Slow</button>
+                    <button toggle-button [value]="gameSpeeds.normal">Normal</button>
+                    <button toggle-button [value]="gameSpeeds.fast">Fast</button>
+                </rr-toggle-button>
                 <div class="setting-row">
                     <h2>Max health:</h2>
                     <div class="row health-buttons">

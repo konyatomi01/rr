@@ -46,7 +46,6 @@ export interface Settings {
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnDestroy {
-  @ViewChild('artistModeTooltip') artistModeTooltip!: MatTooltip;
 
   form = new FormGroup({
     rounds: new FormControl<number>(3, [Validators.required, Validators.min(1), Validators.max(30)]),
@@ -90,12 +89,10 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
 
   public gameModes = GameModes;
 
-  setMode(mode: GameModes): void {
-    if(mode === GameModes.artist && !this.enoughArtist) {
+  setMode(): void {
+    if (!this.enoughArtist) {
       this.snackBar.notEnoughArtist();
     }
-    this.form.controls.mode.setValue(mode);
-    
   }
 
   plusRounds(): void {
@@ -115,14 +112,6 @@ countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
   }
 
   public gameSpeeds = GameSpeeds;
-
-  setSpeed(speed: GameSpeeds): void {
-    this.form.controls.speed.setValue(speed);
-    
-    if (this.artistModeTooltip) {
-      this.artistModeTooltip.hide();
-    }
-  }
 
   start(): void {
     const playlist: PlaylistToPlay = { 

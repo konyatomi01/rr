@@ -30,9 +30,10 @@ import { MusicService } from './services/music.service';
 import { PartyService } from './services/party.service';
 import { ServerService } from './services/server.service';
 import { SnackbarService } from './services/snackbar.service';
-import { ButtonComponent } from './ui/button.component';
+import { ButtonComponent } from './ui/button/button.component';
 import { GameButtonComponent } from './ui/game-button/game-button.component';
 import { ProgressSpinnerComponent } from './ui/spinner/spinner.component';
+import { ToggleButtonComponent, ToggleDirective } from './ui/toggle-button/toggle-button.component';
 
 
 const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
@@ -55,7 +56,9 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     GamePartyComponent,
     GameOverComponent,
     RoundOverComponent,
-    ProgressSpinnerComponent
+    ProgressSpinnerComponent,
+    ToggleDirective,
+    ToggleButtonComponent
 
   ],
   imports: [

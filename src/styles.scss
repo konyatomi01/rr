@@ -73,3 +73,40 @@ html, body { height: 100%; }
   border-radius: 15px;
   z-index: 100000;
 }
+
+rr-toggle-button {
+  position: relative;
+  height: auto;
+  padding: 4px;
+  background: $button-group-background;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  width: max-content;
+
+  .indicator {
+    position: absolute;
+    z-index: 1000000;
+    background: $orange;
+    height: 32px;
+    border-radius: 100px;
+    transition: transform 0.3s ease;
+  }
+
+  button {
+    z-index: 1000001;
+    border-radius: 28px;
+    height: 100%;
+    background: none;
+    color: $orange;
+    border: none;
+    padding: 3px 20px;
+
+    &.selected {
+        color: $text;
+    }
+    &.disabled {
+        color: #{$orange}a6;
+    }
+  }
+}
