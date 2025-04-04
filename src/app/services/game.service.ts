@@ -48,8 +48,7 @@ export class GameService {
     }
 
     gameStarts(speed: number, maxRounds: number) {
-        this.dialog.closeAcceptDialog();
-        this.dialog.closeSettingDialog();
+        this.dialog.closeAllDialogs();
         this.maxTime = speed;
         this.currentRound = 0;
         this.maxRounds = maxRounds;

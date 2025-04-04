@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -9,7 +10,6 @@ import { BrowserModule, provideClientHydration } from '@angular/platform-browser
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
-import { DialogModule } from 'primeng/dialog';
 import { AppComponent } from './app.component';
 import { GameOverComponent } from './game-over/game-over.component';
 import { GamePartyComponent } from './game/game-party/game-party.component';
@@ -67,11 +67,11 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     MatIconModule,
     MatFormFieldModule,
     MatTooltip,
+    MatDialogModule,
     ReactiveFormsModule,
     CommonModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    DialogModule,
     SocketIoModule.forRoot(config)
   ],
   providers: [

@@ -1,11 +1,13 @@
-<div class="logo-div">
-  <img src="assets/logo2223.png" class="logo">
+<div class="app-container">
+  <div class="mb-2 text-center">
+    <img src="assets/logo2223.png" class="logo">
+  </div>
+  
+  <ng-container *ngIf="route.state === 'launch'"><app-launch></app-launch></ng-container>
+  <ng-container *ngIf="route.state === 'select'"><app-playlist-select></app-playlist-select></ng-container>
+  <ng-container *ngIf="route.state === 'game'"><app-game></app-game></ng-container>
+  <ng-container *ngIf="route.state === 'gameover'"><app-game-over></app-game-over></ng-container>
+  <ng-container *ngIf="route.state === 'roundover'"><app-round-over></app-round-over></ng-container>
+  
+  <div class="snackbar" *ngIf="snackBar.show">{{ snackBar.text }}</div>
 </div>
-
-<ng-container *ngIf="route.state === 'launch'"><app-launch></app-launch></ng-container>
-<ng-container *ngIf="route.state === 'select'"><app-playlist-select></app-playlist-select></ng-container>
-<ng-container *ngIf="route.state === 'game'"><app-game></app-game></ng-container>
-<ng-container *ngIf="route.state === 'gameover'"><app-game-over></app-game-over></ng-container>
-<ng-container *ngIf="route.state === 'roundover'"><app-round-over></app-round-over></ng-container>
-
-<div class="snackbar" *ngIf="snackBar.show">{{ snackBar.text }}</div>

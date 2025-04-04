@@ -1,7 +1,6 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ServerService } from '../../services/server.service';
-import { Subscription } from 'rxjs';
-import { DialogService } from '../../services/dialog.service';
 import { Settings } from '../settings/settings.component';
 
 export interface AcceptDialogData {
@@ -14,39 +13,22 @@ export interface AcceptDialogData {
   templateUrl: './accept.component.html',
   styleUrl: './accept.component.scss'
 })
-export class AcceptComponent implements OnDestroy {
+export class AcceptComponent {
   data?: AcceptDialogData;
   display: boolean = false;
-  dialogSubscription?: Subscription;
 
   constructor(
-    private dialogService: DialogService,
-    readonly server: ServerService
+    readonly server: ServerService,
+    @Inject(MAT_DIALOG_DATA) public dialogData: { data: AcceptDialogData }
   ) {
-    this.dialogSubscription = this.dialogService.acceptState$.subscribe((state) => {
-      this.display = state.visible;
-      if(state.data) {
-        this.data = state.data;
-      }
-    });
+    this.data = dialogData.data;
   }
 
   accept(): void {
     this.server.acceptProposal();
-    this.close();
   }
 
   decline(): void {
     this.server.declineProposal();
-    this.close();
   }  
-
-  close(): void {
-    this.dialogService.closeAcceptDialog();
-    this.data = undefined;
-  }
-
-  ngOnDestroy() {
-    this.dialogSubscription?.unsubscribe();
-  }
 }

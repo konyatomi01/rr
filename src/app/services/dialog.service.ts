@@ -1,30 +1,35 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { AcceptDialogData } from '../popups/accept/accept.component';
+import { MatDialog } from '@angular/material/dialog';
+import { AcceptComponent, AcceptDialogData } from '../popups/accept/accept.component';
+import { SettingsComponent } from '../popups/settings/settings.component';
 import { Playlist } from './music.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DialogService {
-  public settingsState$ = new BehaviorSubject<{ visible: boolean; data?: Playlist }>({
-    visible: false,
-  });
-  public acceptState$ = new BehaviorSubject<{ visible: boolean; data?: AcceptDialogData }>({
-    visible: false,
-  });
+
+  constructor(private dialog: MatDialog) {}
 
   openSettingsDialog(data: Playlist): void {
-    this.settingsState$.next({ visible: true, data });
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur();
+    this.dialog.open(SettingsComponent, {
+      autoFocus: true,
+      restoreFocus: true,
+      data: { data }
+    });
   }
   openAcceptDialog(data: AcceptDialogData): void {
-    this.acceptState$.next({ visible: true, data });
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur();
+    this.dialog.open(AcceptComponent, {
+      disableClose: true,
+      data: { data }
+    });
   }
 
-  closeSettingDialog(): void {
-    this.settingsState$.next({ visible: false });
-  }
-  closeAcceptDialog(): void {
-    this.acceptState$.next({ visible: false });
+  closeAllDialogs(): void {
+    this.dialog.closeAll();
   }
 }

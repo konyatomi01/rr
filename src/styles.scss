@@ -38,8 +38,6 @@ body {
     background-size: cover;
     height: 100dvh;
     font-family: "Concert One", sans-serif !important;
-    padding-left: 7vw;
-    padding-right: 7vw;
 }
 
 .rr-card {
@@ -109,4 +107,36 @@ rr-toggle-button {
         color: #{$orange}a6;
     }
   }
+}
+
+.cdk-overlay-container {
+  top: 0;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cdk-overlay-backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  height: 100vh;
+}
+
+.cdk-global-overlay-wrapper {
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  display: flex
+;
+}
+
+.mat-mdc-dialog-surface.mdc-dialog__surface {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  z-index: 1;
 }
