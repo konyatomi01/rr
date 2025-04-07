@@ -51,7 +51,7 @@ export class ServerService {
       sessionStorage.removeItem('player_id');
       sessionStorage.removeItem('party_id');
       this.router.launch();
-      confirm('Connection failed!');
+      this.dialog.openConnectionLostDialog();
     });
     this.socket.on('updateParty', (players: PlayerData[]) => {
       this.party.party = players;

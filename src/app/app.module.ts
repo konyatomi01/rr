@@ -34,6 +34,7 @@ import { ButtonComponent } from './ui/button/button.component';
 import { GameButtonComponent } from './ui/game-button/game-button.component';
 import { ProgressSpinnerComponent } from './ui/spinner/spinner.component';
 import { ToggleButtonComponent, ToggleDirective } from './ui/toggle-button/toggle-button.component';
+import { MessageComponent } from './popups/message/message.component';
 
 
 const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
@@ -58,7 +59,8 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     RoundOverComponent,
     ProgressSpinnerComponent,
     ToggleDirective,
-    ToggleButtonComponent
+    ToggleButtonComponent,
+    MessageComponent,
 
   ],
   imports: [

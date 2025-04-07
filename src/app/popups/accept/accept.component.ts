@@ -15,7 +15,6 @@ export interface AcceptDialogData {
 })
 export class AcceptComponent {
   data?: AcceptDialogData;
-  display: boolean = false;
 
   constructor(
     readonly server: ServerService,
