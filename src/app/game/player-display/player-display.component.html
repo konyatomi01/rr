@@ -1,14 +1,16 @@
-<div class="h-100 w100 main-player p-2">
-    <img [src]="party.player.pfp" class="h-100 main-pfp me-2">
-    <div>
-        <div class="">
-            <div>{{party.player.name}}</div>
-            <div>{{party.player.points}} points</div>
-        </div>
-        <div class="d-flex h-50">
-            <img [src]="party.player.lives > 0 ? 'assets/heart-filled.svg' : 'assets/heart.svg'" class="h-75">
-            <img [src]="party.player.lives > 1 ? 'assets/heart-filled.svg' : 'assets/heart.svg'" class="h-75">
-            <img [src]="party.player.lives > 2 ? 'assets/heart-filled.svg' : 'assets/heart.svg'" class="h-75">
+<ng-container *ngIf="party.player as player">
+    <div class="h-100 w100 main-player p-2">
+        <img [src]="player.pfp" class="h-100 main-pfp me-2">
+        <div>
+            <div class="">
+                <div>{{player.name}}</div>
+                <div>{{player.points}} points</div>
+            </div>
+            <div class="d-flex h-50">
+                <img [src]="player.lives > 0 ? 'assets/heart-filled.svg' : 'assets/heart.svg'" class="h-75">
+                <img [src]="player.lives > 1 ? 'assets/heart-filled.svg' : 'assets/heart.svg'" class="h-75">
+                <img [src]="player.lives > 2 ? 'assets/heart-filled.svg' : 'assets/heart.svg'" class="h-75">
+            </div>
         </div>
     </div>
-</div>
+</ng-container>

@@ -1,19 +1,15 @@
 import { Injectable } from '@angular/core';
+import { Player } from '../../server/player';
 
-export interface PlayerEval {
-  name: string,
-  pfp: string,
-  points: number,
-  streak: number,
-}
+export type PlayerData = Omit<Player, 'socket' | 'disconnected' | 'isAlive' | 'reset' | 'playerData'>;
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class PartyService {
-  player: any;
-  party: any[] = [];
-  partyEval: PlayerEval[] = [];
+  player?: PlayerData;
+  party: PlayerData[] = [];
 
     constructor() { }
 

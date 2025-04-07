@@ -4,7 +4,7 @@ import { AcceptDialogData } from '../popups/accept/accept.component';
 import { Settings } from '../popups/settings/settings.component';
 import { DialogService } from './dialog.service';
 import { GameService } from './game.service';
-import { PartyService, PlayerEval } from './party.service';
+import { PartyService, PlayerData } from './party.service';
 import { RoutingService } from './routing.service';
 import { SnackbarService } from './snackbar.service';
 
@@ -53,14 +53,14 @@ export class ServerService {
       this.router.launch();
       confirm('Connection failed!');
     });
-    this.socket.on('updateParty', (players: any[]) => {
+    this.socket.on('updateParty', (players: PlayerData[]) => {
       this.party.party = players;
     });
-    this.socket.on('evalParty', (players: PlayerEval[]) => {
-      this.party.partyEval = players;
+    this.socket.on('evalParty', (players: PlayerData[]) => {
+      this.party.party = players;
       this.game.roundOver();
     });
-    this.socket.on('updatePlayer', (player: any) => {
+    this.socket.on('updatePlayer', (player: PlayerData) => {
       this.party.player = player;
     });
     this.socket.on('incomingProposal', (proposal: AcceptDialogData) => {

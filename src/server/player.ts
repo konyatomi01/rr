@@ -1,3 +1,5 @@
+import { PlayerData } from "../app/services/party.service";
+
 export class Player {
     disconnected: boolean = false;
 
@@ -23,15 +25,21 @@ export class Player {
 
     isAlive() {return this.lives>0};
 
-    sendUpdatePlayer() {
-        this.socket.emit('updatePlayer', {
+    get playerData(): PlayerData {
+        return {
+            id: this.id,
             name: this.name,
-                pfp: this.pfp,
-                lives: this.lives,
-                points: this.points,
-                streak: this.streak
-        })
+            pfp: this.pfp,
+            lives: this.lives,
+            points: this.points,
+            streak: this.streak,
+            currentPoints: this.currentPoints,
+            rightRounds: this.rightRounds,
+            answered: this.answered,
+            accepted: this.accepted
+        };
     }
+    
     reset(health: number) {
         this.accepted = false;
         this.answered = false;

@@ -1,7 +1,6 @@
 import { PlaylistToPlay, Settings, Track } from "../app/popups/settings/settings.component"
 import { Player } from "./player"
 import { GameServer } from "./server"
-import { popRandomElement } from "./util"
 
 export interface GameProposal {
   player: Player,
@@ -55,30 +54,25 @@ export class Party {
         return this.players.find(p => p.id === id);
     } 
 
-    sendUpdateParty() {
+    sendUpdateParty(isEval: boolean = false) {
         this.players = this.players.sort((a, b) => b.points - a.points);
         this.players.forEach(p => {
-            p.socket.emit('updateParty', 
-                this.players.map(player => ({
-                    name: player.name,
-                    pfp: player.pfp,
-                    lives: player.lives,
-                    points: player.points,
-                    accepted: player.accepted,
-                    rightRounds: player.rightRounds
-                }))
+            p.socket.emit(isEval ? 'evalParty' : 'updateParty', 
+                this.players.map(player => player.playerData),
             );
-        p.sendUpdatePlayer();
+        p.socket.emit('updatePlayer', p.playerData);
     });
   }
 
   startGame() {
     this.currentRound = 0;
-    this.maxLives = this.gameProposal?.settings.health!;
-    this.speed = this.gameProposal?.settings.speed!;
-    this.gameMode = this.gameProposal?.settings.gameMode!;
-    this.maxRounds = this.gameProposal?.settings.rounds!;
-    this.playlist = this.gameProposal?.settings.playlist!;
+    if (this.gameProposal) {
+      this.maxLives = this.gameProposal?.settings.health;
+      this.speed = this.gameProposal?.settings.speed;
+      this.gameMode = this.gameProposal?.settings.gameMode;
+      this.maxRounds = this.gameProposal?.settings.rounds;
+      this.playlist = this.gameProposal?.settings.playlist;
+    }
     this.gameProposal = undefined;
     if(this.gameMode === 'artist') this.answers = Array.from(new Set(this.playlist.tracks.map(song => song.artist)));
     else this.answers = Array.from(new Set(this.playlist.tracks.map(song => song.title)));
@@ -86,7 +80,7 @@ export class Party {
     this.players.forEach(p => {
         p.reset(this.maxLives);
         p.socket.emit('gameStarts', this.speed, this.maxRounds);
-        p.sendUpdatePlayer();
+        p.socket.emit('updatePlayer', p.playerData);
     });
     this.sendUpdateParty();
     this.countdown(3);
@@ -116,20 +110,13 @@ export class Party {
     this.sendUpdateParty();
     this.remainingTime = this.speed;
     
-    this.currentSong = popRandomElement(this.playlist.tracks)!;
-    let answers: string[] = [];
-    if(this.gameMode === 'artist') {
-        const wrongAnswers = this.getWrongAnswers(this.currentSong.artist);
-        answers = [this.currentSong.artist, ...wrongAnswers];
-    }
-    else {
-        const wrongAnswers = this.getWrongAnswers(this.currentSong.title);
-        answers = [this.currentSong.title, ...wrongAnswers];
-    }
+    const idx = Math.floor(Math.random() * this.playlist.tracks.length);
+    this.currentSong = this.playlist.tracks.splice(idx, 1)[0];
+
     this.players.forEach(player=>{
       player.currentPoints = 0;
       player.answered = false;
-      player.socket.emit('nextRound', answers, this.currentSong.url, this.currentRound);
+      player.socket.emit('nextRound', this.getAnswers(), this.currentSong.url, this.currentRound);
       
     });
     this.startTimer();
@@ -143,13 +130,14 @@ export class Party {
 
   }
 
-  getWrongAnswers(exclude: string): string[] {
-    const filteredArray = this.answers.filter(item => item !== exclude);
+  getAnswers(): string[] {
+    const filteredArray = this.answers.filter(item => item !== this.currentSong[this.gameMode]);
     for (let i = filteredArray.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [filteredArray[i], filteredArray[j]] = [filteredArray[j], filteredArray[i]];
     }
-    return filteredArray.slice(0, 3);
+    const wrongAnswers = filteredArray.slice(0, 3);
+    return [this.currentSong[this.gameMode], ...wrongAnswers];
 }
 
 startTimer() {
@@ -173,30 +161,15 @@ startTimer() {
         p.streak = 1;
       });
       setTimeout(() => {
-        this.sendRoundEval();
+        this.sendUpdateParty(true);
+        setTimeout(() => {
+          this.nextRound();
+      }, 3000);
     }, 3000);
     }
   }
   checkRoundOver() {
     if(this.players.filter(p => p.isAlive() && !p.answered).length === 0) this.stopTimer();
-  }
-
-  sendRoundEval() {
-    console.log(this.id, this.currentRound, '.round is over');
-    this.players.forEach(p => {
-      p.socket.emit('evalParty', 
-          this.players.map(player => ({
-              name: player.name,
-              pfp: player.pfp,
-              points: player.currentPoints,
-              streak: player.streak,
-          }))
-      );
-    });
-    setTimeout(() => {
-      this.nextRound();
-  }, 3000);
-    
   }
 
   countdown(number: number) {

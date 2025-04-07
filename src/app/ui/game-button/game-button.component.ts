@@ -46,11 +46,11 @@ export class GameButtonComponent implements AfterViewInit, OnDestroy {
   }
 
   answer(): void {
-    if(this.party.player.lives > 0 && this.gameService.remainingTime.getValue() > 0 && !this.gameService.answered.getValue()) {
+    if(this.party.player!.lives > 0 && this.gameService.remainingTime.getValue() > 0 && !this.gameService.answered.getValue()) {
       (this.gameService.answered as BehaviorSubject<boolean>).next(true);
       if(this.text === this.gameService.rightAnswer) {
         const answerTime = performance.now() - this.gameService.startTime;
-        const points = Math.round((this.gameService.maxTime * 1000 - answerTime) * this.party.player.streak);
+        const points = Math.round((this.gameService.maxTime * 1000 - answerTime) * this.party.player!.streak);
         this.server.answerRight(points);
       } else {
         this.server.answerWrong();
@@ -64,7 +64,7 @@ export class GameButtonComponent implements AfterViewInit, OnDestroy {
     this.button.nativeElement.removeAttribute('disabled');
     this.text = this.gameService.answers[this.id];
     
-    if (this.party.player.lives === 0) {
+    if (this.party.player!.lives === 0) {
       this.button.nativeElement.classList.add('disabled');
       this.button.nativeElement.setAttribute('disabled', 'true');
     }
