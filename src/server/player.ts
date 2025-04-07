@@ -15,6 +15,7 @@ export class Player {
     rightRounds: number = 0
     answered: boolean = false
     accepted: boolean = false 
+    isLeader: boolean = false
 
     constructor(_id: string, _name: string, _pfp: string, _socket: any) {
         this.id = _id;
@@ -36,7 +37,8 @@ export class Player {
             currentPoints: this.currentPoints,
             rightRounds: this.rightRounds,
             answered: this.answered,
-            accepted: this.accepted
+            accepted: this.accepted,
+            isLeader: this.isLeader,
         };
     }
     

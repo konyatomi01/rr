@@ -9,17 +9,17 @@ export interface GameProposal {
 
 export class Party {
     id: string
-    players: Player[] = []
-    playlist: PlaylistToPlay = { title: '', cover: '', tracks: []}
-    answers: string[] = []
-    gameMode: 'artist' | 'title' = 'title'
-    maxRounds: number = 10
-    maxLives: number = 3
-    speed: number = 30
-    currentRound: number = 0
-    currentSong: Track = { url: '', title: '', artist: '' }
-    gameProposal: GameProposal | undefined
-    private removalTimer: NodeJS.Timeout | null = null
+    players: Player[] = [];
+    playlist: PlaylistToPlay = { title: '', cover: '', tracks: []};
+    answers: string[] = [];
+    gameMode: 'artist' | 'title' = 'title';
+    maxRounds: number = 10;
+    maxLives: number = 3;
+    speed: number = 30;
+    currentRound: number = 0;
+    currentSong: Track = { url: '', title: '', artist: '' };
+    gameProposal: GameProposal | undefined;
+    private removalTimer: NodeJS.Timeout | null = null;
     private timer: any;
     remainingTime: number = 0;
 
@@ -182,5 +182,12 @@ startTimer() {
       this.nextRound();
     }
   }
+
+  updateLeader(): void {
+    this.players.forEach(p => p.isLeader = false);
+    const player = this.players.filter(p => !p.disconnected)[0];
+    if (player) player.isLeader = true;
+    this.sendUpdateParty();
+  } 
   
 }
