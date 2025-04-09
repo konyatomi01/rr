@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ServerService } from '../../services/server.service';
 import { PartyService } from '../../services/party.service';
+import { DialogService } from '../../services/dialog.service';
 
 @Component({
   selector: 'app-party',
@@ -11,7 +12,8 @@ export class PartyComponent {
 
   constructor(
     private server: ServerService,
-    readonly party: PartyService
+    readonly party: PartyService,
+    public dialog: DialogService,
   ) {
   }
   leaveParty(): void {

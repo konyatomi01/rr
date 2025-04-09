@@ -4,10 +4,12 @@
     <rr-button text="Leave Party" color="orange" (click)="leaveParty()"></rr-button>
 
 </div>
-<div *ngIf="party.party" class="player-displayer gap-2">
+<div *ngIf="party.party" class="player-displayer gap-1">
+    <button class="menu me-2" (click)="dialog.openPartyListDialog()">
+        <div class="count">{{ party.party.length }}</div>
+        <img src="assets/list.svg" alt="">
+    </button>
     <div *ngFor="let player of party.party" class="player p-1 gap-1" [class.accepted]="player.accepted">
         <img  class="pfp" [src]="player.pfp">
-        <span class="name">{{ player.name }}</span>
-        <img *ngIf="player.isLeader" class="h-50 me-1" src="assets/crown.svg" alt="">
     </div>
 </div>

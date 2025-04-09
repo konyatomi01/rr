@@ -31,18 +31,43 @@ h2 {
     border-radius: 25px;
     background-color: $red;
     height: 45px;
-    flex: 0 0 auto;
+    width: 45px;
+    flex-shrink: 0;
 
     &.accepted {
         background-color: $green;
     }
 
     .pfp {
-        height: 85%;
+        height: 100%;
         border-radius: 1000px;
         border: solid 1px $white; 
     }
-    .name {
-        text-wrap: nowrap;
+}
+
+.menu {
+    position: relative;
+    height: 42px;
+    width: 42px;
+    align-items: center;
+    display: flex;
+    background-color: $orange;
+    border-radius: 1000px;
+    border: none;
+
+    .count {
+        position: absolute;
+        top: -3px;
+        right: -8px;
+        background: $red;
+        border-radius: 1000px;
+        font-size: 14px;
+        padding: 0px 8px;
+        color: $text;
+    }
+
+    img {
+        height: 35px;
+        width: 32px;
     }
 }

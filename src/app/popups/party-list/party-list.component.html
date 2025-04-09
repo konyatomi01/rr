@@ -1,0 +1,10 @@
+<div class="d-flex flex-column rr-card dark h-100 overflow-hidden align-items-center p-3 pb-5">
+    <div class="mb-3">Joined players:</div>
+    <div class="overflow-y-auto w-100">
+        <div *ngFor="let player of party.party" class="player p-1 gap-1 mb-2" [class.accepted]="player.accepted">
+            <img  class="pfp" [src]="player.pfp">
+            <span class="name">{{ player.name }}</span>
+            <img *ngIf="player.isLeader" class="h-50 me-1" src="assets/crown.svg" alt="">
+        </div>
+    </div>
+</div>

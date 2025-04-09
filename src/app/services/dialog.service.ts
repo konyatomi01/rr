@@ -4,6 +4,7 @@ import { AcceptComponent, AcceptDialogData } from '../popups/accept/accept.compo
 import { SettingsComponent } from '../popups/settings/settings.component';
 import { Playlist } from './music.service';
 import { MessageComponent, MessageDialogData } from '../popups/message/message.component';
+import { PartyListComponent } from '../popups/party-list/party-list.component';
 
 @Injectable({
   providedIn: 'root'
@@ -42,6 +43,17 @@ export class DialogService {
       disableClose: true,
       minWidth: '300px',
       data: { data }
+    });
+  }
+
+  openPartyListDialog(): void {
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur();
+    this.dialog.open(PartyListComponent, {
+      width: '300px',
+      height: '80vh',
+      minHeight: '300px',
+      maxHeight: '80vh',
     });
   }
 

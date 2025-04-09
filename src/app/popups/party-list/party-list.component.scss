@@ -1,0 +1,29 @@
+@import '../../../styles/colors.scss';
+
+:host {
+    height: 100%;
+}
+
+.player {
+    overflow: hidden;
+    color: $text;
+    display: flex;
+    align-items: center;
+    border-radius: 25px;
+    background-color: $red;
+    height: 45px;
+    width: 100%;
+
+    &.accepted {
+        background-color: $green;
+    }
+
+    .pfp {
+        height: 100%;
+        border-radius: 1000px;
+        border: solid 1px $white; 
+    }
+    .name {
+        text-wrap: nowrap;
+    }
+}

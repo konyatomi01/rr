@@ -37,8 +37,13 @@ export class Party {
         }
     }
 
-    removePlayer(player: Player) {
+    removePlayer(player?: Player) {
+        if (!player) return;
+        player.isLeader = false;
         this.players = this.players.filter(p => p.id !== player.id);
+        if (!this.players.filter(p => p.isLeader).length) {
+          this.updateLeader();
+        }
         if (this.players.length > 0) {
             this.sendUpdateParty();
         } else {

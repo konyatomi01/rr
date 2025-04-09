@@ -17,6 +17,5 @@ export class MessageComponent {
     @Inject(MAT_DIALOG_DATA) public dialogData: { data: MessageDialogData }
   ) {
     this.data = dialogData.data;
-    console.log(this.data);
   } 
 }

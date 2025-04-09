@@ -83,7 +83,6 @@ export class GameServer {
                     this.playerList = this.playerList.filter(p => p.id !== player!.id);
                     if (party) {
                         party.removePlayer(player);
-                        party.updateLeader();
                     }
                     this.disconnectedPlayers.push(player);
 
@@ -104,7 +103,6 @@ export class GameServer {
                         player.socket = socket;
                         player.disconnected = false;
                         party.addPlayer(player);
-                        party.updateLeader();
                         this.playerList.push(player);
                         console.log(player.name, 'reconnected');
                         socket.emit('succesfullReconnect');
@@ -148,8 +146,7 @@ export class GameServer {
             });
             //leaveParty
             socket.on('leaveParty', () => {
-                party?.removePlayer(player!);
-                party?.updateLeader();
+                party?.removePlayer(player);
                 console.log(player?.name, 'left the party:', party?.id);
                 party = undefined;
                 player = undefined;
