@@ -54,6 +54,7 @@ h2 {
     background-color: $orange;
     border-radius: 1000px;
     border: none;
+    justify-content: center;
 
     .count {
         position: absolute;
@@ -67,7 +68,7 @@ h2 {
     }
 
     img {
-        height: 35px;
+        height: 32px;
         width: 32px;
     }
 }

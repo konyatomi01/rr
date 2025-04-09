@@ -4,6 +4,16 @@
     height: 100%;
 }
 
+.title-div {
+    font-size: x-large;
+}
+
+.back-button {
+    border: none;
+    background: none;
+    color: $white;
+}
+
 .player {
     overflow: hidden;
     color: $text;
