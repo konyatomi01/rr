@@ -191,4 +191,18 @@ startTimer() {
       this.nextRound();
     }
   } 
+
+  kickPlayer(id: string): boolean {
+    const player = this.findPlayerById(id);
+    if (player) {
+      this.players.forEach(p => {
+        p.socket.emit('playerKicked', player.name);
+      });
+      this.sendUpdateParty();
+      player.socket.emit('getKicked');
+      this.removePlayer(player);
+      return true
+    }
+    return false;
+  }
 }

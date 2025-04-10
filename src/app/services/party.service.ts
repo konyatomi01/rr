@@ -10,6 +10,7 @@ export type PlayerData = Omit<Player, 'socket' | 'disconnected' | 'isAlive' | 'r
 export class PartyService {
   player?: PlayerData;
   party: PlayerData[] = [];
+  showParty: boolean = false;
 
     constructor() { }
 

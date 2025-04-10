@@ -87,6 +87,12 @@ export class ServerService {
     this.socket.on('token', (token: string) => {
       sessionStorage.setItem('token', token);
     });
+    this.socket.on('playerKicked', (name: string) => {
+      this.snackBar.playerKicked(name);
+    });
+    this.socket.on('getKicked', () => {
+      this.router.launch();
+    });
     this.socket.emit('getToken');
    }
 
@@ -120,5 +126,8 @@ export class ServerService {
   }
   answerWrong() {
     this.socket.emit('answerWrong');
+  }
+  kickPlayer(player_id: string) {
+    this.socket.emit('kickPlayer', player_id);
   }
 }

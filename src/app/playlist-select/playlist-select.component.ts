@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ServerService } from '../services/server.service';
 import { SnackbarService } from '../services/snackbar.service';
 import { SearchService } from './search/search.service';
+import { PartyService } from '../services/party.service';
 
 @Component({
   selector: 'app-playlist-select',
@@ -15,7 +16,8 @@ export class PlaylistSelectComponent {
     
     readonly server: ServerService,
     readonly search: SearchService,
-    private snackBar: SnackbarService
+    private snackBar: SnackbarService,
+    readonly party: PartyService,
   ) {}
 
   copyCode(): void {

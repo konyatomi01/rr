@@ -211,6 +211,12 @@ export class GameServer {
                     party?.checkRoundOver();
                 }
             });
+            socket.on('kickPlayer', (player_id: string) => {
+                if (party && party.kickPlayer(player_id)) {
+                    console.log(player?.name, 'kicked', player_id);
+                    this.playerList = this.playerList.filter(p => p.id !== player_id);
+                }
+            });
         });
 
         const PORT = 3000;

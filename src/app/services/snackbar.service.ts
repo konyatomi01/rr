@@ -51,4 +51,13 @@ export class SnackbarService {
       this.show = false;
     }, 3000);
   }
+
+  playerKicked(player_name: string): void {
+    this.text = `${player_name} was removed from the party!`;
+    this.show = true;
+
+    setTimeout(() => {
+      this.show = false;
+    }, 3000);
+  }
 }

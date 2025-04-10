@@ -1,0 +1,16 @@
+
+<div class="overflow-y-auto row w-100 my-2 flex-grow-1">
+    <div class="col-12 col-md-6 col-lg-4 h-min-content"  *ngFor="let player of party.party" >
+        <div class="player p-1 w-100 m-1" [class.accepted]="player.accepted">
+            <div class="d-flex align-items-center gap-1 h-100">
+                <img class="pfp" [src]="player.pfp">
+                <img *ngIf="player.isLeader" class="h-50" src="assets/crown.svg">
+                <span class="name">{{ player.name }}</span>
+            </div>
+            <button class="kick-button me-2"  *ngIf="!player.isLeader && party.player?.isLeader" (click)="kickPlayer(player)">
+                <mat-icon>cancel</mat-icon>
+            </button>
+        </div>
+    </div>
+    <div class="filler"></div>
+</div>

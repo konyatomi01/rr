@@ -1,0 +1,41 @@
+@import '../../../styles/colors.scss';
+
+:host {
+    display: contents;
+}
+
+.player {
+    overflow: hidden;
+    color: $text;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 25px;
+    background-color: $red;
+    height: 45px;
+
+    &.accepted {
+        background-color: $green;
+    }
+}
+
+.pfp {
+    height: 100%;
+    border-radius: 1000px;
+    border: solid 1px $white; 
+}
+
+.kick-button {
+    border: none;
+    background: none;
+    color: $white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px;
+}
+
+.filler {
+    flex: 1 1 auto;
+    height: -webkit-fill-available;
+}

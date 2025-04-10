@@ -21,6 +21,7 @@ h2 {
     overflow-x: auto;
     width: 100%;
     align-items: end;
+    height: 45px;
 }
 
 .player {
@@ -67,8 +68,10 @@ h2 {
         color: $text;
     }
 
-    img {
+    mat-icon {
+        color: $text;
         height: 32px;
         width: 32px;
+        font-size: 32px;
     }
 }
