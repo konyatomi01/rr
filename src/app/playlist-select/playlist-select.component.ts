@@ -22,7 +22,7 @@ export class PlaylistSelectComponent {
 
   copyCode(): void {
     navigator.clipboard.writeText(this.server.party_id);
-    this.snackBar.copyCode();
+    this.snackBar.message("Code copied!");
 }
 
 }

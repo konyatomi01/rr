@@ -83,7 +83,7 @@ export class SettingsComponent {
 
 	setMode(): void {
 		if (!this.enoughArtist) {
-			this.snackBar.notEnoughArtist();
+			this.snackBar.message("Only available when there are at least 4 different artists in the playlist!");
 		}
 	}
 

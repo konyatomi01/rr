@@ -36,7 +36,7 @@ export class ServerService {
       this.gameJoined(party_id, player_id);
     });
     this.socket.on('joinFailed', () => {
-      this.snackBar.invalidCode();
+      this.snackBar.message("Invalid join code!");
     });
     this.socket.on('partyLeft', () => {
       sessionStorage.removeItem('player_id');
@@ -67,10 +67,10 @@ export class ServerService {
       this.dialog.openAcceptDialog(proposal);
     });
     this.socket.on('proposalDeclined', (player_name: string) => {
-      this.snackBar.proposalDeclined(player_name);
+      this.snackBar.message(`${player_name} has declined the game! Pick a new playlist to start!`);
     });
     this.socket.on('proposalAlready', (player_name: string) => {
-      this.snackBar.proposalAlready(player_name);
+      this.snackBar.message(`${player_name} has already selected a playlist!`);
     });
     this.socket.on('gameStarts', (speed: number, maxRounds: number) => {
       this.game.gameStarts(speed, maxRounds);
@@ -88,7 +88,7 @@ export class ServerService {
       sessionStorage.setItem('token', token);
     });
     this.socket.on('playerKicked', (name: string) => {
-      this.snackBar.playerKicked(name);
+      this.snackBar.message(`${name} was removed from the party!`);
     });
     this.socket.on('getKicked', () => {
       this.router.launch();
