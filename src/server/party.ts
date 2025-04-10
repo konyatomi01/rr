@@ -29,6 +29,9 @@ export class Party {
 
     addPlayer(player: Player) {
         this.players.push(player);
+        if (this.players.filter(p => p.isLeader).length === 0) {
+            this.players[0].isLeader = true;
+        }
         this.sendUpdateParty();
 
         if (this.removalTimer) {
@@ -41,10 +44,11 @@ export class Party {
         if (!player) return;
         player.isLeader = false;
         this.players = this.players.filter(p => p.id !== player.id);
-        if (!this.players.filter(p => p.isLeader).length) {
-          this.updateLeader();
+        if (this.players.length && this.players.filter(p => p.isLeader).length === 0) {
+          this.players[0].isLeader = true;
+          console.log(`${this.players[0].name} is now the leader of: ${this.id}`);
         }
-        if (this.players.length > 0) {
+        if (this.players.length) {
             this.sendUpdateParty();
         } else {
 
@@ -186,13 +190,5 @@ startTimer() {
     } else {
       this.nextRound();
     }
-  }
-
-  updateLeader(): void {
-    this.players.forEach(p => p.isLeader = false);
-    const player = this.players.filter(p => !p.disconnected)[0];
-    if (player) player.isLeader = true;
-    this.sendUpdateParty();
   } 
-  
 }

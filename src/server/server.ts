@@ -29,7 +29,6 @@ export class GameServer {
 
     playerList: Player[] = [];
     partyList: Party[] = [];
-    disconnectedPlayers: Player[] = [];
 
 
     findParty(party_id: string): Party | undefined {
@@ -80,16 +79,15 @@ export class GameServer {
             socket.on('disconnect', () => {
                 if (player) {
                     console.log(player.name, 'disconnected');
-                    this.playerList = this.playerList.filter(p => p.id !== player!.id);
+                    player.disconnected = true;
                     if (party) {
                         party.removePlayer(player);
                     }
-                    this.disconnectedPlayers.push(player);
 
                     setTimeout(() => {
-                        if (this.disconnectedPlayers.find(p => p.id === player!.id)) {
+                        if (this.playerList.find(p => p.id === player!.id) && player!.disconnected) {
                             console.log(player!.name, 'did not reconnect in time');
-                            this.disconnectedPlayers = this.disconnectedPlayers.filter(p => p.id !== player!.id);
+                            this.playerList = this.playerList.filter(p => p.id !== player!.id);
                         }
                     }, 60000); // 60 seconds
                 }
@@ -98,8 +96,8 @@ export class GameServer {
             socket.on('reconnect', (player_id: string, party_id: string) => {
                 party = this.findParty(party_id);
                 if (party) {
-                    player = this.disconnectedPlayers.find(p => p.id === player_id);
-                    if (player) {
+                    player = this.playerList.find(p => p.id === player_id);
+                    if (player && player.disconnected) {
                         player.socket = socket;
                         player.disconnected = false;
                         party.addPlayer(player);
@@ -120,7 +118,6 @@ export class GameServer {
             socket.on('hostGame', (name: string, pfp: string) => {
                 const player_id = this.generatePlayerId();
                 player = new Player(player_id, name, pfp, socket);
-                player.isLeader = true;
                 this.playerList.push(player);
                 console.log(player.name, 'connected with id:', player.id);
                 const party_id = this.generatePartyId();
