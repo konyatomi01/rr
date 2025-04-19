@@ -1,4 +1,4 @@
-import { AfterContentInit, Component, ContentChildren, Directive, ElementRef, HostBinding, HostListener, Input, OnDestroy, QueryList } from '@angular/core';
+import { AfterContentInit, booleanAttribute, Component, ContentChildren, Directive, ElementRef, HostBinding, HostListener, Input, OnDestroy, QueryList } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -8,6 +8,10 @@ import { Subscription } from 'rxjs';
 })
 export class ToggleDirective<T> {
   @Input() value!: T;
+  @Input({ transform: booleanAttribute }) disabled: boolean = false;
+  @HostBinding('class.disabled') get isDisabled() {
+    return this.disabled;
+  }
   @HostBinding('class.selected') get active() {
     return this.parent.form.value === this.value;
   }
@@ -33,7 +37,11 @@ export class ToggleDirective<T> {
 })
 export class ToggleButtonComponent<T> implements OnDestroy, AfterContentInit {
   @Input({ required: true }) form!: FormControl<T>;
+  @Input() color: 'orange' | 'red' = 'orange';
   
+  @HostBinding('class.red') get isRed() {
+		return this.color === 'red';
+	}
   @ContentChildren(ToggleDirective, { descendants: true }) buttons!: QueryList<ToggleDirective<T>>;
 
   subscription?: Subscription;

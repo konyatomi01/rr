@@ -1,21 +1,27 @@
 import { Component } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { PartyService } from '../services/party.service';
 import { ServerService } from '../services/server.service';
 import { SnackbarService } from '../services/snackbar.service';
-import { SearchService } from './search/search.service';
-import { PartyService } from '../services/party.service';
+
+enum PlaylistSelectTab {
+  charts,
+  search,
+  custom
+}
 
 @Component({
-  selector: 'app-playlist-select',
+  selector: 'rr-playlist-select',
   templateUrl: './playlist-select.component.html',
   styleUrl: './playlist-select.component.scss',
-  providers: [SearchService]
 })
 export class PlaylistSelectComponent {
+  selectedTab = new FormControl<PlaylistSelectTab>(PlaylistSelectTab.charts);
+  tabs = PlaylistSelectTab;
 
   constructor(
     
     readonly server: ServerService,
-    readonly search: SearchService,
     private snackBar: SnackbarService,
     readonly party: PartyService,
   ) {}

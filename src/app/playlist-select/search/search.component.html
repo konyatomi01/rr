@@ -1,10 +1,25 @@
 <ng-container *ngIf="playlists">
+    <div  class="input-field my-2 d-flex justify-content-center">
+        <mat-icon matPrefix class="flex-shrink-0">search</mat-icon>
+        <input id="search" [formControl]="search" type="text" class="form-control" placeholder="Search for any playlist!">
+        <button class="clear-button" matSuffix [ngClass]="{'inactive': !search.dirty}" (click)="reset()">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
     <div class="row playlist-displayer">
         <ng-container *ngIf="!isLoading">
-            <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
-                <img class="cover" [src]="getArtworkUrl(playlist.image)"/>
-                <figcaption class="caption">{{ playlist.name }}</figcaption>
-            </button>
+            <ng-container *ngIf="playlists.length">
+                <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
+                    <img class="cover" [src]="getArtworkUrl(playlist.image)"/>
+                    <figcaption class="caption">{{ playlist.name }}</figcaption>
+                </button>
+            </ng-container>
+            <ng-container *ngIf="!playlists.length">
+                <div class="d-flex align-items-center text-center">
+                    Use the searchbar to find any public playlist avaiable on Apple Music!
+                </div>
+
+            </ng-container>
         </ng-container>
         <ng-container *ngIf="isLoading">
             <rr-spinner></rr-spinner>

@@ -3,7 +3,7 @@ import { PartyService } from '../../services/party.service';
 import { ServerService } from '../../services/server.service';
 
 @Component({
-  selector: 'app-player-display',
+  selector: 'rr-player-display',
   templateUrl: './player-display.component.html',
   styleUrl: './player-display.component.scss'
 })

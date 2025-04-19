@@ -9,7 +9,7 @@ export interface AcceptDialogData {
 }
 
 @Component({
-  selector: 'app-accept',
+  selector: 'rr-accept',
   templateUrl: './accept.component.html',
   styleUrl: './accept.component.scss'
 })

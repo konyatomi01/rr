@@ -4,7 +4,7 @@ import { ServerService } from '../../services/server.service';
 
 
 @Component({
-  selector: 'app-game-party',
+  selector: 'rr-game-party',
   templateUrl: './game-party.component.html',
   styleUrl: './game-party.component.scss'
 })

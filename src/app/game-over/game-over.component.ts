@@ -5,7 +5,7 @@ import { DisplayService } from '../services/display.service';
 import { RoutingService } from '../services/routing.service';
 
 @Component({
-  selector: 'app-game-over',
+  selector: 'rr-game-over',
   templateUrl: './game-over.component.html',
   styleUrl: './game-over.component.scss'
 })

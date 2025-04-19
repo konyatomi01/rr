@@ -3,7 +3,7 @@ import { GameService } from '../services/game.service';
 import { PartyService } from '../services/party.service';
 
 @Component({
-  selector: 'app-round-over',
+  selector: 'rr-round-over',
   templateUrl: './round-over.component.html',
   styleUrl: './round-over.component.scss'
 })

@@ -88,7 +88,6 @@ rr-toggle-button {
 
   .indicator {
     position: absolute;
-    z-index: 1000000;
     background: $orange;
     height: 32px;
     border-radius: 100px;
@@ -96,19 +95,42 @@ rr-toggle-button {
   }
 
   button {
-    z-index: 1000001;
+    z-index: 1;
     border-radius: 28px;
     height: 100%;
     background: none;
     color: $orange;
     border: none;
     padding: 3px 20px;
+    position: relative;
+
+    .warning {
+      position: absolute;
+      top: -3px;
+      right: -8px;
+      background: $orange;
+      border-radius: 1000px;
+      font-size: 14px;
+      padding: 0px 8px;
+      color: $text;
+  }
 
     &.selected {
         color: $text;
     }
     &.disabled {
-        color: #{$orange}a6;
+        opacity: 0.8;
+    }
+  }
+  &.red {
+    .indicator {
+      background: $red;
+    }
+    button {
+      color: $red;
+      &.selected {
+        color: $white;
+      }
     }
   }
 }

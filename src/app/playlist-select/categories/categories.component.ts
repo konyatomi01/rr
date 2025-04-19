@@ -6,7 +6,7 @@ import { ServerService } from '../../services/server.service';
 import { PlaylistSelectComponentBase } from '../playlist-select-base.component';
 
 @Component({
-  selector: 'app-categories',
+  selector: 'rr-categories',
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
 })

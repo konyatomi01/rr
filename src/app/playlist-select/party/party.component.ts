@@ -4,7 +4,7 @@ import { PartyService } from '../../services/party.service';
 import { DialogService } from '../../services/dialog.service';
 
 @Component({
-  selector: 'app-party',
+  selector: 'rr-party',
   templateUrl: './party.component.html',
   styleUrl: './party.component.scss'
 })

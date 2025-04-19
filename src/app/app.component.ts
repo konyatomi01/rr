@@ -3,7 +3,7 @@ import { RoutingService } from './services/routing.service';
 import { SnackbarService } from './services/snackbar.service';
 
 @Component({
-  selector: 'app-root',
+  selector: 'rr-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

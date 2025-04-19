@@ -24,3 +24,46 @@
 .caption {
     font-size: small;
 }
+
+
+.input-field {
+    padding: 5px 10px;
+    border: 3px solid $apple-music;
+    border-radius: 75px;
+    outline: none;
+    color: $text;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    margin-bottom: 3%;
+    width: 85%;
+    min-width: 275px;
+}
+
+input {
+    background: none;
+    border: none;
+
+    &:focus {
+        outline: none;
+        background: none;
+        box-shadow: none;
+    }
+}
+
+.clear-button {
+    width: max-content;
+    height: max-content;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    padding: 0;
+    background-color: $text;
+    border-radius: 1000px;
+    border: solid 4px $text;
+    color: $white;
+
+    &.inactive {
+        opacity: 0.5;
+    }
+}

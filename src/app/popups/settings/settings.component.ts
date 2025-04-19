@@ -38,7 +38,7 @@ export interface Settings {
 }
 
 @Component({
-	selector: 'app-settings',
+	selector: 'rr-settings',
 	templateUrl: './settings.component.html',
 	styleUrl: './settings.component.scss'
 })
