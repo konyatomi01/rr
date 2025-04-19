@@ -3,6 +3,7 @@
     <ng-container *ngIf="!party.showParty">
       <ng-container *ngIf="!server.waitingToAccept">
         <div  class="input-field my-2 d-flex justify-content-center">
+          <mat-icon matPrefix class="flex-shrink-0">search</mat-icon>
           <input id="search" [formControl]="search.search" type="text" class="form-control" placeholder="Search for any playlist!">
           <button class="clear-button" matSuffix [ngClass]="{'inactive': !search.search.dirty}" (click)="search.search.reset()">
             <mat-icon>clear</mat-icon>

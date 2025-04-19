@@ -39,7 +39,7 @@ h2 {
 
 .input-field {
     padding: 5px 10px;
-    border: 3px solid $spotify-green;
+    border: 3px solid $apple-music;
     border-radius: 75px;
     outline: none;
     color: $text;
@@ -48,7 +48,7 @@ h2 {
     background-color: white;
     margin-bottom: 3%;
     width: 85%;
-
+    min-width: 275px;
 }
 
 input {

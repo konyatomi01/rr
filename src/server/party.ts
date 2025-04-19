@@ -121,6 +121,10 @@ export class Party {
     
     const idx = Math.floor(Math.random() * this.playlist.tracks.length);
     this.currentSong = this.playlist.tracks.splice(idx, 1)[0];
+    if(!this.currentSong) {
+      this.gameOver();
+      return;
+    }
 
     this.players.forEach(player=>{
       player.currentPoints = 0;
