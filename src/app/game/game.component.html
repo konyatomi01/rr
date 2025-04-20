@@ -1,7 +1,8 @@
 <div class="game-full">
     <div class="d-flex justify-content-between w-100 mb-2">
-        <div class="bold">Rounds: {{gameService.currentRound}}/{{gameService.maxRounds}}</div>
-        <div class="bold" [ngClass]="{'lowTime': isLowTime}">Remaining: {{gameService.remainingTime | async}}s</div>
+        <div class="fw-bold">Rounds: {{gameService.currentRound}}/{{gameService.maxRounds}}</div>
+        <div class="vibe-mode" *ngIf="gameService.vibeMode">Vibe Mode</div>
+        <div class="fw-bold" [class.lowTime]="isLowTime">Remaining: {{gameService.remainingTime | async}}s</div>
     </div>
     <rr-player-display class="mb-2"></rr-player-display>
     <div class="w-100 main-div d-flex flex-column flex-xl-row">

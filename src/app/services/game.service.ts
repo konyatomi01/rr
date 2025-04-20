@@ -25,6 +25,7 @@ export class GameService {
     startTime: number = Date.now();
     showCountDown: boolean = true;
     url: string = '';
+    vibeMode: boolean = false;
 
     answered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     remainingTime = new BehaviorSubject<number>(6);
@@ -47,8 +48,9 @@ export class GameService {
         };
     }
 
-    gameStarts(speed: number, maxRounds: number) {
+    gameStarts(speed: number, maxRounds: number, vibeMode: boolean) {
         this.dialog.closeAllDialogs();
+        this.vibeMode = vibeMode;
         this.maxTime = speed;
         this.currentRound = 0;
         this.maxRounds = maxRounds;

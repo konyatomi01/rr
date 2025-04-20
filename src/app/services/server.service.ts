@@ -71,8 +71,8 @@ export class ServerService {
     this.socket.on('proposalAlready', (player_name: string) => {
       this.snackBar.message(`${player_name} has already selected a playlist!`);
     });
-    this.socket.on('gameStarts', (speed: number, maxRounds: number) => {
-      this.game.gameStarts(speed, maxRounds);
+    this.socket.on('gameStarts', (speed: number, maxRounds: number, vibeMode: boolean) => {
+      this.game.gameStarts(speed, maxRounds, vibeMode);
     });
     this.socket.on('nextRound', (answers: string[], url: string, currentRound: number) => {
       this.game.nextRound(answers, url, currentRound);

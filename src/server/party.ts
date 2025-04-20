@@ -17,6 +17,7 @@ export class Party {
     maxRounds: number = 10;
     maxLives: number = 3;
     speed: number = 30;
+    vibeMode: boolean = false;
     currentRound: number = 0;
     currentSong: Track = { url: '', title: '', artist: '' };
     gameProposal: GameProposal | undefined;
@@ -79,11 +80,12 @@ export class Party {
   startGame() {
     this.currentRound = 0;
     if (this.gameProposal) {
-      this.maxLives = this.gameProposal?.settings.health;
-      this.speed = this.gameProposal?.settings.speed;
-      this.gameMode = this.gameProposal?.settings.gameMode;
-      this.maxRounds = this.gameProposal?.settings.rounds;
-      this.playlist = this.gameProposal?.settings.playlist;
+      this.maxLives = this.gameProposal.settings.health;
+      this.speed = this.gameProposal.settings.speed;
+      this.gameMode = this.gameProposal.settings.gameMode;
+      this.maxRounds = this.gameProposal.settings.rounds;
+      this.playlist = this.gameProposal.settings.playlist;
+      this.vibeMode = this.gameProposal.settings.vibeMode;
     }
     this.gameProposal = undefined;
     if(this.gameMode === 'artist') this.answers = Array.from(new Set(this.playlist.tracks.map(song => song.artist)));
@@ -91,7 +93,7 @@ export class Party {
     
     this.players.forEach(p => {
         p.reset(this.maxLives);
-        p.socket.emit('gameStarts', this.speed, this.maxRounds);
+        p.socket.emit('gameStarts', this.speed, this.maxRounds, this.vibeMode);
         p.socket.emit('updatePlayer', p.playerData);
     });
     this.sendUpdateParty();
@@ -99,6 +101,7 @@ export class Party {
     console.log(this.id, 'game starts with settings: \n', 
         this.maxLives, 'lives\n', this.speed, 'speed\n', 
         this.maxRounds, 'rounds\n', this.gameMode, 'gamemode\n', 'on:', this.playlist.title);
+    if (this.vibeMode) console.log('with vibe mode');   
   }
 
   nextRound() {
@@ -177,11 +180,13 @@ startTimer() {
         p.streak = 1;
       });
       setTimeout(() => {
-        this.sendUpdateParty(true);
         setTimeout(() => {
-          this.nextRound();
+          this.sendUpdateParty(true);
+          setTimeout(() => {
+            this.nextRound();
+        }, 3000);
       }, 3000);
-    }, 3000);
+      }, this.vibeMode ? ((27 - this.speed + this.remainingTime) * 1000) : 0);
     }
   }
   checkRoundOver() {
