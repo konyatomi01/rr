@@ -32,6 +32,7 @@ export interface Settings {
 	rounds: number,
 	gameMode: GameModes,
 	speed: GameSpeeds,
+	vibeMode: boolean,
 	health: number,
 	playlist: PlaylistToPlay
 }
@@ -44,12 +45,14 @@ export interface Settings {
 export class SettingsComponent {
 
 	form = new FormGroup({
-		rounds: new FormControl<number>(3, [Validators.required, Validators.min(1), Validators.max(30)]),
-		mode: new FormControl<GameModes>(GameModes.title, Validators.required),
-		speed: new FormControl<GameSpeeds>(GameSpeeds.slow, Validators.required),
-		lives: new FormControl<number>(3, Validators.required),
+		rounds: new FormControl<number>(3, { validators: [Validators.required, Validators.min(1), Validators.max(30)], nonNullable: true }),
+		mode: new FormControl<GameModes>(GameModes.title, { validators: Validators.required, nonNullable: true }),
+		speed: new FormControl<GameSpeeds>(GameSpeeds.slow, { validators: Validators.required, nonNullable: true }),
+		vibeMode: new FormControl<boolean>(false, { nonNullable: true }),
+		lives: new FormControl<number>(3, { validators: Validators.required, nonNullable: true }),
 	});
 	data?: PlaylistToPlay;
+	showVibeModeTooltip: boolean = false;
 
 	constructor(
 		readonly server: ServerService,
@@ -61,6 +64,16 @@ export class SettingsComponent {
 
 	get enoughArtist(): boolean {
 		return this.countDistinctPropertyValues(this.data!.tracks, "artist") > 3;
+	}
+
+	toggleVibeModeTooltip(): void {
+		if (!this.showVibeModeTooltip) {
+			this.showVibeModeTooltip = !this.showVibeModeTooltip;
+			setTimeout(() => {
+				this.showVibeModeTooltip = false;
+			}, 3500);
+		}
+		else this.showVibeModeTooltip = false;
 	}
 
 	countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
@@ -79,14 +92,14 @@ export class SettingsComponent {
 	}
 
 	plusRounds(): void {
-		if (this.form.controls.rounds.value! + 1 <= this.data!.tracks.length) {
-			this.form.controls.rounds.setValue(this.form.controls.rounds.value! + 1);
+		if (this.form.controls.rounds.value + 1 <= this.data!.tracks.length) {
+			this.form.controls.rounds.setValue(this.form.controls.rounds.value + 1);
 		}
 	}
 
 	minusRounds(): void {
-		if (this.form.controls.rounds.value! - 1 >= 1) {
-			this.form.controls.rounds.setValue(this.form.controls.rounds.value! - 1);
+		if (this.form.controls.rounds.value - 1 >= 1) {
+			this.form.controls.rounds.setValue(this.form.controls.rounds.value - 1);
 		}
 	}
 
@@ -95,10 +108,11 @@ export class SettingsComponent {
 	start(): void {
 
 		const settings: Settings = { 
-			rounds: this.form.controls.rounds.value!,
-			gameMode: this.form.controls.mode.value!,
-			speed: this.form.controls.speed.value!,
-			health: this.form.controls.lives.value!,
+			rounds: this.form.controls.rounds.value,
+			gameMode: this.form.controls.mode.value,
+			speed: this.form.controls.speed.value,
+			vibeMode: this.form.controls.vibeMode.value,
+			health: this.form.controls.lives.value,
 			playlist: this.data!
 		}
 		this.server.startGame(settings);

@@ -1,5 +1,10 @@
 @import '../../../styles/colors.scss';
 
+.rr-card {
+    height: 600px;
+    padding-bottom: 12px;
+}
+
 .title-div {
     font-size: x-large;
 }
@@ -22,7 +27,8 @@
 }
 
 .settings-options {
-    height: 60%;
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 .setting-row {
@@ -99,4 +105,12 @@ p {
     color: red;
     background: none;
     border: none;
+}
+
+.vibe-mode-info {
+    font-size: small;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 10px;
+    width: calc(100% - 60px);
 }

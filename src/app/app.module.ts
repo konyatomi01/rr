@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltip } from '@angular/material/tooltip';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -17,10 +16,14 @@ import { GameComponent } from './game/game.component';
 import { PlayerDisplayComponent } from './game/player-display/player-display.component';
 import { LaunchComponent } from './launch/launch.component';
 import { CategoriesComponent } from './playlist-select/categories/categories.component';
+import { CustomPlaylistComponent } from './playlist-select/custom-playlist/custom-playlist.component';
+import { PartyListComponent } from './playlist-select/party-list/party-list.component';
 import { PartyComponent } from './playlist-select/party/party.component';
 import { PlaylistSelectComponent } from './playlist-select/playlist-select.component';
 import { SearchComponent } from './playlist-select/search/search.component';
 import { AcceptComponent } from './popups/accept/accept.component';
+import { AddSongComponent } from './popups/add-song/add-song.component';
+import { MessageComponent } from './popups/message/message.component';
 import { SettingsComponent } from './popups/settings/settings.component';
 import { RoundOverComponent } from './round-over/round-over.component';
 import { DialogService } from './services/dialog.service';
@@ -32,12 +35,9 @@ import { ServerService } from './services/server.service';
 import { SnackbarService } from './services/snackbar.service';
 import { ButtonComponent } from './ui/button/button.component';
 import { GameButtonComponent } from './ui/game-button/game-button.component';
+import { SlideToggleComponent } from './ui/slide-toggle/slide-toggle.component';
 import { ProgressSpinnerComponent } from './ui/spinner/spinner.component';
 import { ToggleButtonComponent, ToggleDirective } from './ui/toggle-button/toggle-button.component';
-import { MessageComponent } from './popups/message/message.component';
-import { PartyListComponent } from './playlist-select/party-list/party-list.component';
-import { CustomPlaylistComponent } from './playlist-select/custom-playlist/custom-playlist.component';
-import { AddSongComponent } from './popups/add-song/add-song.component';
 
 
 const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
@@ -66,7 +66,8 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     MessageComponent,
     PartyListComponent,
     CustomPlaylistComponent,
-    AddSongComponent
+    AddSongComponent,
+    SlideToggleComponent,
 
   ],
   imports: [
@@ -74,7 +75,6 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     BrowserModule,
     MatIconModule,
     MatFormFieldModule,
-    MatTooltip,
     MatDialogModule,
     ReactiveFormsModule,
     CommonModule,

@@ -66,8 +66,16 @@ body {
 
 html, body { height: 100%; }
 
-.p-dialog-mask {
-  background-color: rgba(0, 0, 0, 0.5);
+.icon-button {
+  background: none;
+  border: none;
+  color: inherit;
+  width: max-content;
+  height: max-content;
+  padding: 0px;
+  margin: 0px;
+  cursor: pointer;
+  vertical-align: middle;
 }
 
 .snackbar {
