@@ -1,0 +1,29 @@
+<div class="d-flex flex-column rr-card dark h-auto">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="title-div">ADD SONGS</div>
+        <button class="back-button" mat-dialog-close>
+            <mat-icon>cancel</mat-icon>
+        </button>
+    </div>
+    <div class="input-field my-2 d-flex justify-content-center">
+        <mat-icon matPrefix class="flex-shrink-0">search</mat-icon>
+        <input id="search" [formControl]="search" type="text" class="form-control" placeholder="Search for any songs!">
+        <button class="clear-button" matSuffix [ngClass]="{'inactive': !search.dirty}" (click)="reset()">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+      <div class="song-displayer">
+        <ng-container *ngIf="!isLoading">
+          <div *ngFor="let song of songs" class="song p-1 mb-1">
+            <img [src]="song.cover"/>
+            <span class="ms-2">{{ song.title }}</span>
+            <div class="flex-grow-1"></div>
+            <button (click)="addSong(song)"><mat-icon>add</mat-icon></button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="isLoading">
+            <rr-spinner></rr-spinner>
+        </ng-container>
+    </div>
+
+</div>

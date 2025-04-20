@@ -36,6 +36,8 @@ import { ProgressSpinnerComponent } from './ui/spinner/spinner.component';
 import { ToggleButtonComponent, ToggleDirective } from './ui/toggle-button/toggle-button.component';
 import { MessageComponent } from './popups/message/message.component';
 import { PartyListComponent } from './playlist-select/party-list/party-list.component';
+import { CustomPlaylistComponent } from './playlist-select/custom-playlist/custom-playlist.component';
+import { AddSongComponent } from './popups/add-song/add-song.component';
 
 
 const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', options: {} };
@@ -62,7 +64,9 @@ const config: SocketIoConfig = { url: 'https://rhythm-royale.onrender.com', opti
     ToggleDirective,
     ToggleButtonComponent,
     MessageComponent,
-    PartyListComponent
+    PartyListComponent,
+    CustomPlaylistComponent,
+    AddSongComponent
 
   ],
   imports: [

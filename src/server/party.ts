@@ -1,4 +1,5 @@
 import { PlaylistToPlay, Settings, Track } from "../app/popups/settings/settings.component"
+import { CustomPlaylistTrack } from "../app/services/party.service";
 import { Player } from "./player"
 import { GameServer } from "./server"
 
@@ -22,6 +23,7 @@ export class Party {
     private removalTimer: NodeJS.Timeout | null = null;
     private timer: any;
     remainingTime: number = 0;
+    customPlaylist: CustomPlaylistTrack[] = [];
 
     constructor(_id: string) {
         this.id = _id;
@@ -29,6 +31,7 @@ export class Party {
 
     addPlayer(player: Player) {
         this.players.push(player);
+        player.socket.emit('updateCustomPlaylist', this.customPlaylist);
         if (this.players.filter(p => p.isLeader).length === 0) {
             this.players[0].isLeader = true;
         }
@@ -208,5 +211,22 @@ startTimer() {
       return true
     }
     return false;
+  }
+
+  addCustomTrack(track: CustomPlaylistTrack): true | string {
+    if (this.customPlaylist.find(t => t.url === track.url)) {
+      return `${track.title} by ${track.artist} is already in the playlist!`;
+    }
+    if (this.customPlaylist.length >= 30) {
+      return `The playlist is full!`;
+    }
+    this.customPlaylist.push(track);
+    this.players.forEach(p => p.socket.emit('updateCustomPlaylist', this.customPlaylist));
+    return true;
+  }
+  
+  removeCustomTrack(track: CustomPlaylistTrack) {
+    this.customPlaylist = this.customPlaylist.filter(t => t.url !== track.url);
+    this.players.forEach(p => p.socket.emit('updateCustomPlaylist', this.customPlaylist));
   }
 }

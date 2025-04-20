@@ -1,0 +1,89 @@
+@import '../../../styles/colors.scss';
+
+.title-div {
+    font-size: x-large;
+}
+
+.back-button {
+    border: none;
+    background: none;
+    color: $white;
+}
+
+
+.input-field {
+    padding: 5px 10px;
+    border: 3px solid $apple-music;
+    border-radius: 75px;
+    outline: none;
+    color: $text;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    margin-bottom: 3%;
+}
+
+input {
+    background: none;
+    border: none;
+
+    &:focus {
+        outline: none;
+        background: none;
+        box-shadow: none;
+    }
+}
+
+.clear-button {
+    width: max-content;
+    height: max-content;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    padding: 0;
+    background-color: $text;
+    border-radius: 1000px;
+    border: solid 4px $text;
+    color: $white;
+
+    &.inactive {
+        opacity: 0.5;
+    }
+}
+
+.song-displayer {
+    height: 60vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    .song {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        max-width: 300px;
+        background-color: #00000063;
+        border-radius: 10px;
+
+        img {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+        }
+
+        button {
+            background: none;
+            border: none;
+
+            mat-icon {
+                background: rgba(256, 256, 256, 0.1);
+                color: $white;
+                width: 36px;
+                height: 36px;
+                font-size: 36px;
+                border-radius: 1000px;
+            }
+        }
+
+    }
+}

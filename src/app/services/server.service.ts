@@ -4,7 +4,7 @@ import { AcceptDialogData } from '../popups/accept/accept.component';
 import { Settings } from '../popups/settings/settings.component';
 import { DialogService } from './dialog.service';
 import { GameService } from './game.service';
-import { PartyService, PlayerData } from './party.service';
+import { CustomPlaylistTrack, PartyService, PlayerData } from './party.service';
 import { RoutingService } from './routing.service';
 import { SnackbarService } from './snackbar.service';
 
@@ -15,7 +15,6 @@ import { SnackbarService } from './snackbar.service';
 export class ServerService {
   player_id: string = '';
   party_id: string = '';
-  waitingToAccept: boolean = false;
 
   constructor(
     private router: RoutingService,
@@ -93,6 +92,16 @@ export class ServerService {
     this.socket.on('getKicked', () => {
       this.router.launch();
     });
+    this.socket.on('updateCustomPlaylist', (songs: CustomPlaylistTrack[]) => {
+      sessionStorage.setItem('customPlaylist', JSON.stringify(songs));
+      this.party.customPlaylist = songs;
+    });
+    this.socket.on('addSongSucess', (song: CustomPlaylistTrack) => {
+      this.snackBar.message(`${song.title} by ${song.artist} was added to the playlist!`);
+    });
+    this.socket.on('addSongFailed', (error: string) => {
+      this.snackBar.message(error);
+    });
     this.socket.emit('getToken');
    }
 
@@ -129,5 +138,11 @@ export class ServerService {
   }
   kickPlayer(player_id: string) {
     this.socket.emit('kickPlayer', player_id);
+  }
+  addCustomPlaylistTrack(track: CustomPlaylistTrack) {
+    this.socket.emit('addCustomPlaylistTrack', track);
+  }
+  removeCustomPlaylistTrack(track: CustomPlaylistTrack) {
+    this.socket.emit('removeCustomPlaylistTrack', track);
   }
 }

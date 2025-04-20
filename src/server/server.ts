@@ -7,6 +7,7 @@ import { Player } from './player';
 import { Party } from './party';
 import { Settings } from '../app/popups/settings/settings.component';
 import * as dotenv from 'dotenv';
+import { CustomPlaylistTrack } from '../app/services/party.service';
 
 
 export class GameServer {
@@ -215,6 +216,19 @@ export class GameServer {
                 if (party && party.kickPlayer(player_id)) {
                     console.log(player?.name, 'kicked', player_id);
                     this.playerList = this.playerList.filter(p => p.id !== player_id);
+                }
+            });
+            socket.on('addCustomPlaylistTrack', (track: CustomPlaylistTrack) => {
+                if (party) {
+                    const result = party.addCustomTrack(track);
+                    if (result === true)
+                        socket.emit('addSongSucess', track);
+                    else socket.emit('addSongFailed', result);
+                }
+            });
+            socket.on('removeCustomPlaylistTrack', (track: CustomPlaylistTrack) => {
+                if (party) {
+                    party.removeCustomTrack(track);
                 }
             });
         });

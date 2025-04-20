@@ -16,11 +16,11 @@ export class CategoriesComponent extends PlaylistSelectComponentBase {
   dataCache: Playlist[][] = Array.from({ length: 10 }, () => []);
 
   constructor(
-    private music: MusicService,
+    music: MusicService,
     readonly server: ServerService,
     dialog: DialogService
   ) {
-    super(dialog);
+    super(dialog, music);
     this.fetchPlaylists();
   }
   async fetchPlaylists(offset: number = 20) {

@@ -1,0 +1,27 @@
+<div class="d-flex w-100">
+    <div class="col-6 p-1">
+        <button class=" action add" (click)="dialog.openAddToPlaylistDialog()">
+            <mat-icon class="flex-shrink-0 me-2">add</mat-icon>
+            <span>Add song</span>
+        </button>
+    </div>
+    <div class="col-6 p-1">
+        <button class=" action start" (click)="start()" [class.disabled]="party.customPlaylist.length < 4">
+            <mat-icon class="flex-shrink-0 me-2">play_arrow</mat-icon>
+            <span>Start</span>
+        </button>
+    </div>
+</div>
+<div *ngIf="!party.customPlaylist.length" class="d-flex justify-content-center flex-column align-items-center text-center flex-grow-1 gap-4">
+    <span>Create your custom playlist together!</span>
+    <span>Add any songs from the Apple Music library to your custom playlist with the Add song button!</span>
+</div>
+<div *ngIf="party.customPlaylist.length" class="song-displayer mt-2" [class.isMd]="display.isMd$ | async">
+    <div *ngFor="let song of party.customPlaylist" class="song p-1">
+        <img class="cover" [src]="song.cover"/>
+        <span class="ms-2">{{ song.title }}</span>
+        <div class="flex-grow-1"></div>
+        <button *ngIf="ownSong(song)" (click)="removeSong(song)"><mat-icon>clear</mat-icon></button>
+        <img *ngIf="!ownSong(song)" [src]="song.player?.pfp" class="player">
+      </div>
+</div>

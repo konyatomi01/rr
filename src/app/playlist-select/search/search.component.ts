@@ -14,11 +14,11 @@ export class SearchComponent extends PlaylistSelectComponentBase {
   search = new FormControl<string>('', { validators: [Validators.required] });
 
   constructor(
-    private music: MusicService,
     readonly display: DisplayService,
-    dialog: DialogService
+    dialog: DialogService,
+    music: MusicService
   ) {
-    super(dialog);
+    super(dialog, music);
     this.subscription = this.search.valueChanges.subscribe(async value => {
       if(value) await this.fetchPlaylists(value);
     });

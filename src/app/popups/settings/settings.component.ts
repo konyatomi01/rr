@@ -1,7 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MusicService, Playlist } from '../../services/music.service';
 import { ServerService } from '../../services/server.service';
 import { SnackbarService } from '../../services/snackbar.service';
 
@@ -50,27 +49,18 @@ export class SettingsComponent {
 		speed: new FormControl<GameSpeeds>(GameSpeeds.slow, Validators.required),
 		lives: new FormControl<number>(3, Validators.required),
 	});
-	tracks: Track[] = [];
-	data?: Playlist;
+	data?: PlaylistToPlay;
 
 	constructor(
 		readonly server: ServerService,
-		readonly music: MusicService,
 		private snackBar: SnackbarService,
-		@Inject(MAT_DIALOG_DATA) public dialogData: { data: Playlist }
+		@Inject(MAT_DIALOG_DATA) public dialogData: { data: PlaylistToPlay }
 	) {
 		this.data = dialogData.data;
-		if (this.data) {
-			this.loadTracks();
-		}
-	}
-
-	async loadTracks() {
-		this.tracks = await this.music.getTracksFromPlaylist(this.data!.id);
 	}
 
 	get enoughArtist(): boolean {
-		return this.countDistinctPropertyValues(this.tracks, "artist") > 3;
+		return this.countDistinctPropertyValues(this.data!.tracks, "artist") > 3;
 	}
 
 	countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
@@ -84,11 +74,12 @@ export class SettingsComponent {
 	setMode(): void {
 		if (!this.enoughArtist) {
 			this.snackBar.message("Only available when there are at least 4 different artists in the playlist!");
+			this.form.controls.mode.setValue(GameModes.title);
 		}
 	}
 
 	plusRounds(): void {
-		if (this.form.controls.rounds.value! + 1 <= this.tracks.length) {
+		if (this.form.controls.rounds.value! + 1 <= this.data!.tracks.length) {
 			this.form.controls.rounds.setValue(this.form.controls.rounds.value! + 1);
 		}
 	}
@@ -102,18 +93,13 @@ export class SettingsComponent {
 	public gameSpeeds = GameSpeeds;
 
 	start(): void {
-		const playlist: PlaylistToPlay = { 
-			title: this.data!.name,
-			cover: this.data!.image,
-			tracks: this.tracks
-		};
 
 		const settings: Settings = { 
 			rounds: this.form.controls.rounds.value!,
 			gameMode: this.form.controls.mode.value!,
 			speed: this.form.controls.speed.value!,
 			health: this.form.controls.lives.value!,
-			playlist: playlist
+			playlist: this.data!
 		}
 		this.server.startGame(settings);
 	}

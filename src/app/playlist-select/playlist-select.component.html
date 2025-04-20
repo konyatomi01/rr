@@ -1,21 +1,28 @@
 <div class="rr-card select-card">
     <rr-party></rr-party>
     <ng-container *ngIf="!party.showParty">
-      <ng-container *ngIf="!server.waitingToAccept">
+      <ng-container *ngIf="!waitingToAccept">
         <rr-toggle-button class="my-2" [form]="selectedTab" color="red">
           <button toggle-button [value]="tabs.charts">Charts</button>
           <button toggle-button [value]="tabs.search">Search</button>
-          <button toggle-button disabled [value]="tabs.custom">
-            <div class="warning">!</div>
+          <button toggle-button [value]="tabs.custom">
+            <div class="warning">{{ party.customPlaylist.length }}</div>
             Custom
           </button>
         </rr-toggle-button>
 
-        <rr-search class="px-3" *ngIf="selectedTab.value === tabs.search"></rr-search>
-        <rr-categories class="px-3" *ngIf="selectedTab.value === tabs.charts"></rr-categories>
-        <h1>SELECT A PLAYLIST TO START!</h1>
+        <ng-container *ngIf="selectedTab.value === tabs.search">
+          <rr-search class="px-3"></rr-search>
+          <h1>SELECT A PLAYLIST TO START!</h1>
+        </ng-container>
+        <ng-container *ngIf="selectedTab.value === tabs.charts">
+          <rr-categories class="px-3"></rr-categories>
+          <h1>SELECT A PLAYLIST TO START!</h1>
+        </ng-container>
+        <rr-custom-playlist class="px-3" *ngIf="selectedTab.value === tabs.custom"></rr-custom-playlist>
+        
       </ng-container>
-      <div *ngIf="server.waitingToAccept" class="waiting d-flex justify-content-center align-items-center">
+      <div *ngIf="waitingToAccept" class="waiting d-flex justify-content-center align-items-center flex-grow-1">
         Waiting for other players!
       </div>
     </ng-container>

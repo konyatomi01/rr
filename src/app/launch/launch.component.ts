@@ -33,7 +33,9 @@ export class LaunchComponent {
 
   constructor(
     private server: ServerService
-  ) {}
+  ) {
+    sessionStorage.removeItem('customPlaylist');
+  }
 
   private get name(): string {
     return this.form.controls.name.value || this.generatePlayerName();

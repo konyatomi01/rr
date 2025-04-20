@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { lastValueFrom } from 'rxjs';
 import { AcceptComponent, AcceptDialogData } from '../popups/accept/accept.component';
+import { AddSongComponent } from '../popups/add-song/add-song.component';
 import { MessageComponent, MessageDialogData } from '../popups/message/message.component';
-import { SettingsComponent } from '../popups/settings/settings.component';
-import { Playlist } from './music.service';
+import { PlaylistToPlay, SettingsComponent } from '../popups/settings/settings.component';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class DialogService {
 
   constructor(private dialog: MatDialog) {}
 
-  openSettingsDialog(data: Playlist): void {
+  openSettingsDialog(data: PlaylistToPlay): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur();
     this.dialog.open(SettingsComponent, {
@@ -24,6 +24,7 @@ export class DialogService {
   }
 
   openAcceptDialog(data: AcceptDialogData): void {
+    this.dialog.closeAll();
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur();
     this.dialog.open(AcceptComponent, {
@@ -43,6 +44,15 @@ export class DialogService {
       disableClose: true,
       minWidth: '300px',
       data: { data }
+    });
+  }
+
+  openAddToPlaylistDialog(): void {
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur();
+    this.dialog.open(AddSongComponent, {
+      autoFocus: true,
+      restoreFocus: true,
     });
   }
 

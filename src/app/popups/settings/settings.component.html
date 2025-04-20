@@ -7,10 +7,10 @@
             </button>
         </div>
         <div class="details mb-3">
-            <img [src]="data.image" class="cover">
+            <img [src]="data.cover" class="cover">
             <div class="w-auto">
-                <p class="playlist-title">{{data.name}}</p>
-                <p>{{tracks.length}} tracks</p>
+                <p class="playlist-title">{{data.title}}</p>
+                <p>{{data.tracks.length}} tracks</p>
             </div>
         </div>
         <div [formGroup]="form" class="settings-options w-100">
@@ -29,7 +29,7 @@
             <h2>Game Mode:</h2>
             <rr-toggle-button [form]="form.controls.mode" class="mb-2">
                 <button toggle-button [value]="gameModes.title">Title</button>
-                <button toggle-button [value]="gameModes.artist" [class.disabled]="!enoughArtist" (click)="setMode()">Artist</button>
+                <button toggle-button [value]="gameModes.artist" [disabled]="!enoughArtist" (click)="setMode()">Artist</button>
             </rr-toggle-button>
             <h2>Speed:</h2>
             <rr-toggle-button [form]="form.controls.speed" class="mb-2">
