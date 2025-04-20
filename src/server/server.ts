@@ -76,11 +76,26 @@ export class GameServer {
         io.on('connection', (socket) => {
             let player: Player | undefined;
             let party: Party | undefined;
+
+            const decline = (): void => {
+                if (party?.gameProposal) {
+                    if (!player?.accepted) {
+                        party.gameProposal = undefined;
+                        party.players.forEach(p => {
+                            p.accepted = false;
+                        })
+                        party.sendUpdateParty();
+                        party.players.filter(p => p.id !== player!.id).forEach(p => p.socket.emit('proposalDeclined', player!.name));
+                        console.log(player?.name, 'has declined the game proposal');
+                    }
+                }
+            }
             //disconnect
             socket.on('disconnect', () => {
                 if (player) {
                     console.log(player.name, 'disconnected');
                     player.disconnected = true;
+                    decline();
                     if (party) {
                         party.removePlayer(player);
                     }
@@ -179,17 +194,7 @@ export class GameServer {
                 }
             });
             socket.on('declineProposal', () => {
-                if (party?.gameProposal) {
-                    if (!player?.accepted) {
-                        party.gameProposal = undefined;
-                        party.players.forEach(p => {
-                            p.accepted = false;
-                        })
-                        party.sendUpdateParty();
-                        party.players.filter(p => p.id !== player!.id).forEach(p => p.socket.emit('proposalDeclined', player!.name));
-                        console.log(player?.name, 'has declined the game proposal');
-                    }
-                }
+                decline();
             });
             socket.on('answerRight', (points: number) => {
                 if (!player?.answered && player?.isAlive()) {
