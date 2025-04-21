@@ -77,3 +77,35 @@ rr-game-party {
     align-items: center;
     font-size: xx-large;
 }
+
+.game-button {
+    width: 80%;
+    text-wrap: nowrap;
+    overflow: hidden;
+    border-radius: 25px;
+    background: none;
+    padding: 10px;
+    color: $white;
+    border: solid 3px $white;
+
+    @media (min-width: 1200px) {
+        width: 75%;
+        height: 20%;
+    }
+
+    &:disabled {
+        border-color: $white-shadow;
+        color: $white-shadow;
+    }
+    &.answered.right {
+        background: $green;
+        border: none;
+        color: $text;
+    }
+    &.answered.wrong {
+        background: $red;
+        border: none;
+        color: $text;
+    }
+    
+}

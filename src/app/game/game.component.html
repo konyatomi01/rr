@@ -10,10 +10,15 @@
         <div class="game mb-2 me-xl-2">
             <ng-container *ngIf="gameService.currentRound > 0">
                 <ng-container *ngIf="!gameService.showCountDown">
-                    <game-button [id]="0"></game-button>
-                    <game-button [id]="1"></game-button>
-                    <game-button [id]="2"></game-button>
-                    <game-button [id]="3"></game-button>
+                    <button 
+                    *ngFor="let answer of gameService.answers"
+                    [disabled]="party.player!.lives === 0"
+                    class="game-button"
+                    [class.answered]="answered"
+                    [class.right]="answer === this.gameService.rightAnswer"
+                    [class.wrong]="answer !== this.gameService.rightAnswer"
+                    (click)="answerButtonClicked(answer)"
+                    >{{ answer }}</button>
                 </ng-container>
     
                 <ng-container *ngIf="gameService.showCountDown">
