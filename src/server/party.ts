@@ -132,10 +132,11 @@ export class Party {
       return;
     }
 
+    const answers = this.getAnswers();
     this.players.forEach(player=>{
       player.currentPoints = 0;
       player.answered = false;
-      player.socket.emit('nextRound', this.getAnswers(), this.currentSong.url, this.currentRound);
+      player.socket.emit('nextRound', answers, this.currentSong.url, this.currentRound);
       
     });
     this.startTimer();
