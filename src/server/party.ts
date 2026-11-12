@@ -1,5 +1,4 @@
-import { PlaylistToPlay, Settings, Track } from "../app/popups/settings/settings.component"
-import { CustomPlaylistTrack } from "../app/services/party.service";
+import { CustomPlaylistTrack, PlaylistToPlay, Settings, Track } from '../shared/models';
 import { Player } from "./player"
 import { GameServer } from "./server"
 

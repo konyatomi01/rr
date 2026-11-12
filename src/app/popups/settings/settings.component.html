@@ -1,63 +1,65 @@
-<ng-container *ngIf="form && data">
-    <div class="d-flex flex-column rr-card dark">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="title-div">GAME SETTINGS</div>
-            <button class="back-button" mat-dialog-close>
-                <mat-icon>cancel</mat-icon>
-            </button>
-        </div>
-        <div class="details mb-3">
-            <img [src]="data.cover" class="cover">
-            <div class="w-auto">
-                <p class="playlist-title">{{data.title}}</p>
-                <p>{{data.tracks.length}} tracks</p>
-            </div>
-        </div>
-        <div [formGroup]="form" class="settings-options w-100">
-            <div class="setting-row">
-                <h2>Number of rounds:</h2>
-                <div class="rounds-buttons h-50">
-                    <button class="round" (click)="minusRounds()">
-                        <img class="h-100" src="assets/minus.svg">
-                    </button>
-                    <div class="px-3">{{form.controls.rounds.value }}</div>
-                    <button class="round" (click)="plusRounds()">
-                        <img class="h-100" src="assets/plus.svg">
-                    </button>
-                </div>
-            </div>
-            <h2>Game Mode:</h2>
-            <rr-toggle-button [form]="form.controls.mode" class="mb-2">
-                <button toggle-button [value]="gameModes.title">Title</button>
-                <button toggle-button [value]="gameModes.artist" [disabled]="!enoughArtist" (click)="setMode()">Artist</button>
-            </rr-toggle-button>
-            <h2>Speed:</h2>
-            <rr-toggle-button [form]="form.controls.speed" class="mb-3">
-                <button toggle-button [value]="gameSpeeds.slow">Slow</button>
-                <button toggle-button [value]="gameSpeeds.normal">Normal</button>
-                <button toggle-button [value]="gameSpeeds.fast">Fast</button>
-            </rr-toggle-button>
-            <div class="d-flex gap-3 mb-2">
-                <rr-slide-toggle [form]="form.controls.vibeMode"></rr-slide-toggle>
-                <h2 (click)="toggleVibeModeTooltip()">
-                    vibe mode
-                    <button class="icon-button"><mat-icon>info</mat-icon></button>
-                </h2>
-            </div>
-            <div class="vibe-mode-info p-2" *ngIf="showVibeModeTooltip">
-                Vibe mode lets you listen to the 30-second music previews at any speed—even if everyone has already answered, the music still plays for the full 30 seconds.
-            </div>
-            <div class="setting-row">
-                <h2>Max health:</h2>
-                <div class="row health-buttons">
-                    <button *ngFor="let heart of [1, 2, 3]" (click)="form.controls.lives.setValue(heart)" class="heart col-4">
-                        <img src="{{ heart <= form.controls.lives.value ? 'assets/heart-filled.svg' : 'assets/heart.svg' }}" class="h-100 w-100">
-                    </button>
-                </div>
-            </div>    
-        </div>
-        <div class="d-flex justify-content-evenly mt-3">
-            <rr-button text="Start" color="blue" icon="play_arrow" (click)="start()" mat-dialog-close></rr-button>
-        </div>
+<div class="d-flex flex-column rr-card dark">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="title-div">GAME SETTINGS</div>
+    <button class="back-button" mat-dialog-close>
+      <mat-icon>cancel</mat-icon>
+    </button>
+  </div>
+  <div class="details mb-3">
+    <img [src]="data.cover" class="cover">
+    <div class="w-auto">
+      <p class="playlist-title">{{ data.title }}</p>
+      <p>{{ data.tracks.length }} tracks</p>
     </div>
-</ng-container>
+  </div>
+  <div [formGroup]="form" class="settings-options w-100">
+    <div class="setting-row">
+      <h2>Number of rounds:</h2>
+      <div class="rounds-buttons h-50">
+        <button class="round" (click)="minusRounds()">
+          <img class="h-100" src="assets/minus.svg">
+        </button>
+        <div class="px-3">{{ form.controls.rounds.value }}</div>
+        <button class="round" (click)="plusRounds()">
+          <img class="h-100" src="assets/plus.svg">
+        </button>
+      </div>
+    </div>
+    <h2>Game Mode:</h2>
+    <rr-toggle-button [form]="form.controls.mode" class="mb-2">
+      <button toggle-button [value]="gameModes.title">Title</button>
+      <button toggle-button [value]="gameModes.artist" [disabled]="!enoughArtists" (click)="setMode()">Artist</button>
+    </rr-toggle-button>
+    <h2>Speed:</h2>
+    <rr-toggle-button [form]="form.controls.speed" class="mb-3">
+      <button toggle-button [value]="gameSpeeds.slow">Slow</button>
+      <button toggle-button [value]="gameSpeeds.normal">Normal</button>
+      <button toggle-button [value]="gameSpeeds.fast">Fast</button>
+    </rr-toggle-button>
+    <div class="d-flex gap-3 mb-2">
+      <rr-slide-toggle [form]="form.controls.vibeMode" />
+      <h2 (click)="toggleVibeModeTooltip()">
+        vibe mode
+        <button class="icon-button"><mat-icon>info</mat-icon></button>
+      </h2>
+    </div>
+    @if (showVibeModeTooltip()) {
+      <div class="vibe-mode-info p-2">
+        Vibe mode lets you listen to the 30-second music previews at any speed—even if everyone has already answered, the music still plays for the full 30 seconds.
+      </div>
+    }
+    <div class="setting-row">
+      <h2>Max health:</h2>
+      <div class="row health-buttons">
+        @for (heart of hearts; track heart) {
+          <button (click)="form.controls.lives.setValue(heart)" class="heart col-4">
+            <img [src]="heart <= form.controls.lives.value ? 'assets/heart-filled.svg' : 'assets/heart.svg'" class="h-100 w-100">
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-evenly mt-3">
+    <rr-button text="Start" color="blue" icon="play_arrow" (click)="start()" mat-dialog-close />
+  </div>
+</div>

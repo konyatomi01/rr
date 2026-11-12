@@ -1,38 +1,40 @@
-import { Component } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { DialogService } from '../../services/dialog.service';
-import { DisplayService } from '../../services/display.service';
-import { MusicService } from '../../services/music.service';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatIcon } from '@angular/material/icon';
+import { ProgressSpinnerComponent } from '../../ui/spinner/spinner.component';
 import { PlaylistSelectComponentBase } from '../playlist-select-base.component';
 
 @Component({
   selector: 'rr-search',
+  imports: [ReactiveFormsModule, MatIcon, ProgressSpinnerComponent],
   templateUrl: './search.component.html',
-  styleUrl: './search.component.scss'
+  styleUrl: './search.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchComponent extends PlaylistSelectComponentBase {
-  search = new FormControl<string>('', { validators: [Validators.required] });
+  readonly search = new FormControl('', { nonNullable: true, validators: [Validators.required] });
 
-  constructor(
-    readonly display: DisplayService,
-    dialog: DialogService,
-    music: MusicService
-  ) {
-    super(dialog, music);
-    this.subscription = this.search.valueChanges.subscribe(async value => {
-      if(value) await this.fetchPlaylists(value);
+  constructor() {
+    super();
+    this.search.valueChanges.pipe(takeUntilDestroyed()).subscribe(value => {
+      if (value) this.fetchPlaylists(value);
     });
-  }
-  async fetchPlaylists(term: string) {
-    this.isLoading = true;
-    const lists = await this.music.getPlaylistBySearch(term);
-    if (lists.length) this.playlists = lists;
-    this.isLoading = false;
   }
 
   reset(): void {
     this.search.setValue('');
     this.search.markAsPristine();
-    this.playlists = [];
+    this.playlists.set([]);
+  }
+
+  private async fetchPlaylists(term: string): Promise<void> {
+    this.isLoading.set(true);
+    try {
+      const lists = await this.music.getPlaylistBySearch(term);
+      if (lists.length) this.playlists.set(lists);
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 }

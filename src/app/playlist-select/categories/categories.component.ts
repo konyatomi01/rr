@@ -1,49 +1,56 @@
-import { Component } from '@angular/core';
-import { BehaviorSubject, lastValueFrom } from 'rxjs';
-import { DialogService } from '../../services/dialog.service';
-import { MusicService, Playlist } from '../../services/music.service';
-import { ServerService } from '../../services/server.service';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
+import { Playlist } from '../../services/music.service';
+import { ProgressSpinnerComponent } from '../../ui/spinner/spinner.component';
 import { PlaylistSelectComponentBase } from '../playlist-select-base.component';
+
+const PAGE_SIZE = 20;
+export const PAGE_COUNT = 10;
 
 @Component({
   selector: 'rr-categories',
+  imports: [MatIcon, ProgressSpinnerComponent],
   templateUrl: './categories.component.html',
-  styleUrl: './categories.component.scss'
+  styleUrl: './categories.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoriesComponent extends PlaylistSelectComponentBase {
+  protected readonly pageCount = PAGE_COUNT;
+  readonly page = signal(1);
+  private readonly dataCache = new Map<number, Playlist[]>();
 
-  page: number = 1;
-  dataCache: Playlist[][] = Array.from({ length: 10 }, () => []);
-
-  constructor(
-    music: MusicService,
-    readonly server: ServerService,
-    dialog: DialogService
-  ) {
-    super(dialog, music);
+  constructor() {
+    super();
     this.fetchPlaylists();
   }
-  async fetchPlaylists(offset: number = 20) {
-    if (this.dataCache[this.page - 1].length) {
-      this.playlists = this.dataCache[this.page - 1];
-      return;
-    }
-    else {
-      this.isLoading = true;
-      this.playlists = await this.music.getChartsPlaylists(offset);
-      this.isLoading = false;
-      this.dataCache[this.page - 1] = this.playlists;
-      return;
-    }
+
+  categoryPlus(): void {
+    if (this.page() >= PAGE_COUNT) return;
+    this.page.update(page => page + 1);
+    this.fetchPlaylists();
   }
 
-  categoryPlus() {
-    this.page++;
-    this.fetchPlaylists(this.page * 20);
+  categoryMinus(): void {
+    if (this.page() <= 1) return;
+    this.page.update(page => page - 1);
+    this.fetchPlaylists();
   }
 
-  categoryMinus() {
-    this.page--;
-    this.fetchPlaylists(this.page * 20);
+  private async fetchPlaylists(): Promise<void> {
+    const page = this.page();
+    const cached = this.dataCache.get(page);
+    if (cached?.length) {
+      this.playlists.set(cached);
+      return;
+    }
+    this.isLoading.set(true);
+    try {
+      const playlists = await this.music.getChartsPlaylists(page * PAGE_SIZE);
+      this.dataCache.set(page, playlists);
+      // Ignore responses for pages the user has already navigated away from.
+      if (this.page() === page) this.playlists.set(playlists);
+    } finally {
+      if (this.page() === page) this.isLoading.set(false);
+    }
   }
 }

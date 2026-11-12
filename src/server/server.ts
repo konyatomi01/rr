@@ -5,9 +5,8 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import { Player } from './player';
 import { Party } from './party';
-import { Settings } from '../app/popups/settings/settings.component';
+import { CustomPlaylistTrack, Settings } from '../shared/models';
 import * as dotenv from 'dotenv';
-import { CustomPlaylistTrack } from '../app/services/party.service';
 
 
 export class GameServer {

@@ -1,55 +1,46 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { lastValueFrom } from 'rxjs';
-import { AcceptComponent, AcceptDialogData } from '../popups/accept/accept.component';
+import { firstValueFrom } from 'rxjs';
+import { GameProposalData, PlaylistToPlay } from '../../shared/models';
+import { AcceptComponent } from '../popups/accept/accept.component';
 import { AddSongComponent } from '../popups/add-song/add-song.component';
 import { MessageComponent, MessageDialogData } from '../popups/message/message.component';
-import { PlaylistToPlay, SettingsComponent } from '../popups/settings/settings.component';
+import { SettingsComponent } from '../popups/settings/settings.component';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class DialogService {
-
-  constructor(private dialog: MatDialog) {}
+  private readonly dialog = inject(MatDialog);
+  private readonly document = inject(DOCUMENT);
 
   openSettingsDialog(data: PlaylistToPlay): void {
-    const buttonElement = document.activeElement as HTMLElement;
-    buttonElement.blur();
+    this.blurActiveElement();
     this.dialog.open(SettingsComponent, {
       autoFocus: true,
       restoreFocus: true,
-      data: { data }
+      data,
     });
   }
 
-  openAcceptDialog(data: AcceptDialogData): void {
+  openAcceptDialog(data: GameProposalData): void {
     this.dialog.closeAll();
-    const buttonElement = document.activeElement as HTMLElement;
-    buttonElement.blur();
+    this.blurActiveElement();
     this.dialog.open(AcceptComponent, {
       disableClose: true,
-      data: { data }
+      data,
     });
   }
 
   openConnectionLostDialog(): void {
-    const buttonElement = document.activeElement as HTMLElement;
-    buttonElement.blur();
-    const data: MessageDialogData = {
-      text: 'Connection lost!',
-      cancel: false
-    };
-    this.dialog.open(MessageComponent, {
+    this.blurActiveElement();
+    this.dialog.open<MessageComponent, MessageDialogData>(MessageComponent, {
       disableClose: true,
       minWidth: '300px',
-      data: { data }
+      data: { text: 'Connection lost!', cancel: false },
     });
   }
 
   openAddToPlaylistDialog(): void {
-    const buttonElement = document.activeElement as HTMLElement;
-    buttonElement.blur();
+    this.blurActiveElement();
     this.dialog.open(AddSongComponent, {
       autoFocus: true,
       restoreFocus: true,
@@ -57,22 +48,20 @@ export class DialogService {
   }
 
   async openKickPlayerDialog(playerName: string): Promise<boolean> {
-    const buttonElement = document.activeElement as HTMLElement;
-    buttonElement.blur();
-    const data: MessageDialogData = {
-      text: `Are you sure you want to kick ${playerName}?`,
-      cancel: true
-    };
-    const dialogRef = this.dialog.open(MessageComponent, {
+    this.blurActiveElement();
+    const dialogRef = this.dialog.open<MessageComponent, MessageDialogData, boolean>(MessageComponent, {
       disableClose: true,
       minWidth: '300px',
-      data: { data }
+      data: { text: `Are you sure you want to kick ${playerName}?`, cancel: true },
     });
-    const result = await lastValueFrom(dialogRef.afterClosed());
-    return result;
+    return (await firstValueFrom(dialogRef.afterClosed())) ?? false;
   }
 
   closeAllDialogs(): void {
     this.dialog.closeAll();
+  }
+
+  private blurActiveElement(): void {
+    (this.document.activeElement as HTMLElement | null)?.blur();
   }
 }

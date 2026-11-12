@@ -1,69 +1,84 @@
-import { AfterContentInit, booleanAttribute, Component, ContentChildren, Directive, ElementRef, HostBinding, HostListener, Input, OnDestroy, QueryList } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Directive,
+  ElementRef,
+  afterRenderEffect,
+  booleanAttribute,
+  computed,
+  contentChildren,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { startWith, switchMap } from 'rxjs';
 
 @Directive({
   selector: '[toggle-button]',
-  standalone: false,
+  host: {
+    '[class.disabled]': 'disabled()',
+    '[class.selected]': 'selected()',
+    '(click)': 'select()',
+  },
 })
 export class ToggleDirective<T> {
-  @Input() value!: T;
-  @Input({ transform: booleanAttribute }) disabled: boolean = false;
-  @HostBinding('class.disabled') get isDisabled() {
-    return this.disabled;
-  }
-  @HostBinding('class.selected') get active() {
-    return this.parent.form.value === this.value;
-  }
-  @HostListener('click')
-	onClick() {
-		this.parent.form.setValue(this.value);
-	}
-  get width() {
+  private readonly parent = inject<ToggleButtonComponent<T>>(ToggleButtonComponent);
+  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  readonly value = input.required<T>();
+  readonly disabled = input(false, { transform: booleanAttribute });
+
+  readonly selected = computed(() => this.parent.value() === this.value());
+
+  get width(): number {
     return this.el.nativeElement.offsetWidth;
   }
-  get left() {
+  get left(): number {
     return this.el.nativeElement.offsetLeft;
   }
-  constructor( public parent: ToggleButtonComponent<T>, private el: ElementRef<HTMLButtonElement> ) {}
+
+  protected select(): void {
+    this.parent.form().setValue(this.value());
+  }
 }
 
 @Component({
   selector: 'rr-toggle-button',
   template: `
-    <ng-content></ng-content>
-    <div class="indicator" [style.transform]="'translateX(' + (left - 4) + 'px)'" [style.width.px]="width"></div>
+    <ng-content />
+    <div class="indicator" [style.transform]="'translateX(' + (left() - 4) + 'px)'" [style.width.px]="width()"></div>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.red]': 'color() === "red"',
+  },
 })
-export class ToggleButtonComponent<T> implements OnDestroy, AfterContentInit {
-  @Input({ required: true }) form!: FormControl<T>;
-  @Input() color: 'orange' | 'red' = 'orange';
-  
-  @HostBinding('class.red') get isRed() {
-		return this.color === 'red';
-	}
-  @ContentChildren(ToggleDirective, { descendants: true }) buttons!: QueryList<ToggleDirective<T>>;
+export class ToggleButtonComponent<T> {
+  readonly form = input.required<FormControl<T>>();
+  readonly color = input<'orange' | 'red'>('orange');
 
-  subscription?: Subscription;
-  width: number = 0;
-  left: number = 0;
+  /** Current value of the bound form control, as a signal. */
+  readonly value = toSignal(
+    toObservable(this.form).pipe(switchMap(control => control.valueChanges.pipe(startWith(control.value)))),
+  );
 
-ngAfterContentInit(): void {
-  this.subscription = this.form.valueChanges.subscribe(() => {
-      this.animate();
-  });
-  setTimeout(() => this.animate(), 0);
-}
+  private readonly buttons = contentChildren<ToggleDirective<T>>(ToggleDirective, { descendants: true });
 
-animate(): void {
-  const button = this.buttons.find((button) => button.active);
-  if (button) {
-      this.width = button.width;
-      this.left = button.left;
-  }
-}
+  protected readonly width = signal(0);
+  protected readonly left = signal(0);
 
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+  constructor() {
+    // Move the indicator under the selected button once the DOM reflects the new selection.
+    afterRenderEffect({
+      read: () => {
+        const selected = this.buttons().find(button => button.selected());
+        if (selected) {
+          this.width.set(selected.width);
+          this.left.set(selected.left);
+        }
+      },
+    });
   }
 }

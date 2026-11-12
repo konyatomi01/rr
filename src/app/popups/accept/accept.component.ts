@@ -1,27 +1,19 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogClose } from '@angular/material/dialog';
+import { GameProposalData } from '../../../shared/models';
 import { ServerService } from '../../services/server.service';
-import { Settings } from '../settings/settings.component';
-
-export interface AcceptDialogData {
-  player: string;
-  settings: Settings;
-}
+import { ButtonComponent } from '../../ui/button/button.component';
 
 @Component({
   selector: 'rr-accept',
+  imports: [ButtonComponent, MatDialogClose],
   templateUrl: './accept.component.html',
-  styleUrl: './accept.component.scss'
+  styleUrl: './accept.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcceptComponent {
-  data?: AcceptDialogData;
-
-  constructor(
-    readonly server: ServerService,
-    @Inject(MAT_DIALOG_DATA) public dialogData: { data: AcceptDialogData }
-  ) {
-    this.data = dialogData.data;
-  }
+  private readonly server = inject(ServerService);
+  protected readonly data = inject<GameProposalData>(MAT_DIALOG_DATA);
 
   accept(): void {
     this.server.acceptProposal();
@@ -29,5 +21,5 @@ export class AcceptComponent {
 
   decline(): void {
     this.server.declineProposal();
-  }  
+  }
 }

@@ -1,21 +1,31 @@
-import { Injectable } from '@angular/core';
-import { Player } from '../../server/player';
-import { Track } from '../popups/settings/settings.component';
+import { Injectable, signal } from '@angular/core';
+import { CustomPlaylistTrack, PlayerData } from '../../shared/models';
 
-export type PlayerData = Omit<Player, 'socket' | 'disconnected' | 'isAlive' | 'reset' | 'playerData'>;
+export type { CustomPlaylistTrack, PlayerData } from '../../shared/models';
 
-export interface CustomPlaylistTrack extends Track {
-	player?: PlayerData,
-	cover: string
-}
+const CUSTOM_PLAYLIST_KEY = 'customPlaylist';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class PartyService {
-  player?: PlayerData;
-  party: PlayerData[] = [];
-  showParty: boolean = false;
-  customPlaylist: CustomPlaylistTrack[] = [];
-  
+  readonly player = signal<PlayerData | undefined>(undefined);
+  readonly party = signal<PlayerData[]>([]);
+  readonly showParty = signal(false);
+  readonly customPlaylist = signal<CustomPlaylistTrack[]>([]);
+
+  toggleShowParty(): void {
+    this.showParty.update(show => !show);
+  }
+
+  setCustomPlaylist(songs: CustomPlaylistTrack[]): void {
+    sessionStorage.setItem(CUSTOM_PLAYLIST_KEY, JSON.stringify(songs));
+    this.customPlaylist.set(songs);
+  }
+
+  restoreCustomPlaylist(): void {
+    this.customPlaylist.set(JSON.parse(sessionStorage.getItem(CUSTOM_PLAYLIST_KEY) || '[]'));
+  }
+
+  clearStoredCustomPlaylist(): void {
+    sessionStorage.removeItem(CUSTOM_PLAYLIST_KEY);
+  }
 }

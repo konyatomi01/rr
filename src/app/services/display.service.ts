@@ -1,34 +1,21 @@
-import { Injectable, NgZone } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { distinctUntilChanged, map } from 'rxjs/operators';
+import { DestroyRef, Injectable, Signal, inject, signal } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
+/** Bootstrap breakpoints, exposed as signals that follow the viewport width. */
+@Injectable({ providedIn: 'root' })
 export class DisplayService {
-  private isSmSubject = new BehaviorSubject<boolean>(false);
-  private isMdSubject = new BehaviorSubject<boolean>(false);
-  private isLgSubject = new BehaviorSubject<boolean>(false);
-  private isXlSubject = new BehaviorSubject<boolean>(false);
+  private readonly destroyRef = inject(DestroyRef);
 
-  isSm$: Observable<boolean> = this.isSmSubject.asObservable().pipe(distinctUntilChanged());
-  isMd$: Observable<boolean> = this.isMdSubject.asObservable().pipe(distinctUntilChanged());
-  isLg$: Observable<boolean> = this.isLgSubject.asObservable().pipe(distinctUntilChanged());
-  isXl$: Observable<boolean> = this.isXlSubject.asObservable().pipe(distinctUntilChanged());
+  readonly isSm = this.minWidth(576);
+  readonly isMd = this.minWidth(768);
+  readonly isLg = this.minWidth(992);
+  readonly isXl = this.minWidth(1200);
 
-  constructor(private ngZone: NgZone) {
-    this.updateScreenSize(window.innerWidth);
-    window.addEventListener('resize', (event) => {
-      this.ngZone.run(() => {
-        this.updateScreenSize(window.innerWidth);
-      });
-    });
-  }
-
-  private updateScreenSize(width: number): void {
-    this.isSmSubject.next(width >= 576);
-    this.isMdSubject.next(width >= 768);
-    this.isLgSubject.next(width >= 992);
-    this.isXlSubject.next(width >= 1200);
+  private minWidth(px: number): Signal<boolean> {
+    const query = window.matchMedia(`(min-width: ${px}px)`);
+    const matches = signal(query.matches);
+    const listener = (event: MediaQueryListEvent) => matches.set(event.matches);
+    query.addEventListener('change', listener);
+    this.destroyRef.onDestroy(() => query.removeEventListener('change', listener));
+    return matches.asReadonly();
   }
 }

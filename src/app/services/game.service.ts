@@ -1,101 +1,92 @@
-import { Injectable } from '@angular/core';
-import { PartyService } from './party.service';
-import { RoutingService } from './routing.service';
-import { BehaviorSubject } from 'rxjs';
+import { DOCUMENT, Injectable, computed, inject, signal } from '@angular/core';
 import { DialogService } from './dialog.service';
+import { RoutingService } from './routing.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class GameService {
-    constructor(
-        readonly party: PartyService,
-        private router: RoutingService,
-        readonly dialog: DialogService
-    ) {
-        document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
-    }
+  private readonly router = inject(RoutingService);
+  private readonly dialog = inject(DialogService);
+  private readonly document = inject(DOCUMENT);
 
-    private audio: HTMLAudioElement = new Audio();
-    maxTime: number = 0;
-    currentRound: number = 0;
-    maxRounds: number = 0;
-    rightAnswer: string = '';
-    answers: string[] = [];
-    startTime: number = Date.now();
-    showCountDown: boolean = true;
-    url: string = '';
-    vibeMode: boolean = false;
+  private readonly audio = new Audio();
+  private url = '';
 
-    answered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-    remainingTime = new BehaviorSubject<number>(6);
+  readonly maxTime = signal(0);
+  readonly currentRound = signal(0);
+  readonly maxRounds = signal(0);
+  readonly rightAnswer = signal('');
+  readonly answers = signal<string[]>([]);
+  readonly showCountDown = signal(true);
+  readonly vibeMode = signal(false);
+  readonly answered = signal(false);
+  readonly remainingTime = signal(6);
+  /** `performance.now()` timestamp of when the current round's music started. */
+  startTime = 0;
 
-    private handleVisibilityChange() {
-        if (document.visibilityState === 'visible' && this.url) {
-            this.preloadAudio(this.url);
-        }
-    }
+  readonly isLowTime = computed(() => this.remainingTime() < 6);
+  readonly roundFinished = computed(() => this.answered() || this.remainingTime() === 0);
 
-    preloadAudio(url: string) {
-        this.audio.src = url;
-        this.audio.preload = 'auto';
-        this.audio.load();
-        this.audio.oncanplaythrough = () => {
-            console.log('Audio preloaded successfully');
-        };
-        this.audio.onerror = (error) => {
-            console.error('Error preloading audio:', error);
-        };
-    }
+  constructor() {
+    this.document.addEventListener('visibilitychange', () => {
+      if (this.document.visibilityState === 'visible' && this.url) {
+        this.preloadAudio(this.url);
+      }
+    });
+  }
 
-    gameStarts(speed: number, maxRounds: number, vibeMode: boolean) {
-        this.dialog.closeAllDialogs();
-        this.vibeMode = vibeMode;
-        this.maxTime = speed;
-        this.currentRound = 0;
-        this.maxRounds = maxRounds;
-        this.remainingTime.next(this.maxTime);
-        this.showCountDown = true;
-        this.router.game();
-    }
+  preloadAudio(url: string): void {
+    this.audio.src = url;
+    this.audio.preload = 'auto';
+    this.audio.load();
+    this.audio.oncanplaythrough = () => console.log('Audio preloaded successfully');
+    this.audio.onerror = error => console.error('Error preloading audio:', error);
+  }
 
-    nextRound(answers: string[], url: string, currentRound: number) {
-        this.remainingTime.next(this.maxTime);
-        this.audio.pause();
-        this.showCountDown = false;
-        this.currentRound = currentRound;
-        this.rightAnswer = answers[0];
-        this.answers = this.shuffleAnswers(answers);
-        this.answered.next(false);
-        this.router.game();
+  gameStarts(speed: number, maxRounds: number, vibeMode: boolean): void {
+    this.dialog.closeAllDialogs();
+    this.vibeMode.set(vibeMode);
+    this.maxTime.set(speed);
+    this.currentRound.set(0);
+    this.maxRounds.set(maxRounds);
+    this.remainingTime.set(speed);
+    this.showCountDown.set(true);
+    this.router.game();
+  }
 
-        this.url = url;
-        this.audio.src = url;
-        this.audio.preload = 'auto';
+  nextRound(answers: string[], url: string, currentRound: number): void {
+    this.remainingTime.set(this.maxTime());
+    this.audio.pause();
+    this.showCountDown.set(false);
+    this.currentRound.set(currentRound);
+    this.rightAnswer.set(answers[0]);
+    this.answers.set(shuffle(answers));
+    this.answered.set(false);
+    this.router.game();
 
-        this.audio.play().catch(error => {
-            console.error('Audio playback failed:', error);
-        });
+    this.url = url;
+    this.audio.src = url;
+    this.audio.preload = 'auto';
+    this.audio.play().catch(error => console.error('Audio playback failed:', error));
 
-        this.startTime = performance.now();
-    }
+    this.startTime = performance.now();
+  }
 
-    roundOver() {
-        this.router.roundover();
-        this.audio.pause();
-    }
+  roundOver(): void {
+    this.router.roundover();
+    this.audio.pause();
+  }
 
-    shuffleAnswers<T>(array: T[]): T[] {
-        const shuffledArray = array.slice();
-        for (let i = shuffledArray.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
-        }
-        return shuffledArray;
-    }
+  gameOver(): void {
+    this.audio.pause();
+    this.router.gameover();
+  }
+}
 
-    gameOver() {
-        this.audio.pause();
-        this.router.gameover();
-    }
+function shuffle<T>(array: readonly T[]): T[] {
+  const shuffled = array.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }

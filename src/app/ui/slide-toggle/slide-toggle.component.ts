@@ -1,42 +1,47 @@
-import { Component, ElementRef, HostBinding, HostListener, Input, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  afterNextRender,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
-
 
 @Component({
   selector: 'rr-slide-toggle',
   template: `
-    <button #false></button>
-    <button #true></button>
-    <div class="indicator" [style.transform]="'translateX(' + (left - 3) + 'px)'" [style.width.px]="width"></div>
-    
+    <button #off type="button"></button>
+    <button #on type="button"></button>
+    <div class="indicator" [style.transform]="'translateX(' + (left() - 3) + 'px)'" [style.width.px]="width()"></div>
   `,
-  styleUrls: ['./slide-toggle.component.scss'],
+  styleUrl: './slide-toggle.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.active]': 'active()',
+    '(click)': 'setValue(!active())',
+  },
 })
 export class SlideToggleComponent {
-  @Input({ required: true }) form!: FormControl<boolean>;
+  readonly form = input.required<FormControl<boolean>>();
 
-  @ViewChild('false', { static: true }) falseButton!: ElementRef<HTMLButtonElement>;
-	@ViewChild('true', { static: true }) trueButton!: ElementRef<HTMLButtonElement>;
+  private readonly offButton = viewChild.required<ElementRef<HTMLButtonElement>>('off');
+  private readonly onButton = viewChild.required<ElementRef<HTMLButtonElement>>('on');
 
-  @HostListener('click')
-  toggleValue(): void {
-    this.setValue(!this.form.value);
+  protected readonly active = signal(false);
+  protected readonly width = signal(0);
+  protected readonly left = signal(0);
+
+  constructor() {
+    afterNextRender(() => this.setValue(false));
   }
 
-  @HostBinding('class.active') get active() {
-      return this.form.value;
-    }
-  width: number = 0;
-  left: number = 0;
-
-ngAfterContentInit(): void {
-  this.setValue(false);
-}
-
-setValue(value: boolean): void {
-  this.form.setValue(value);
-  const button = value ? this.trueButton.nativeElement : this.falseButton.nativeElement;
-  this.width = button.offsetWidth;
-  this.left = button.offsetLeft;
-}
+  protected setValue(value: boolean): void {
+    this.form().setValue(value);
+    this.active.set(value);
+    const button = (value ? this.onButton() : this.offButton()).nativeElement;
+    this.width.set(button.offsetWidth);
+    this.left.set(button.offsetLeft);
+  }
 }

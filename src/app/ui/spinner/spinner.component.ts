@@ -1,12 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   selector: 'rr-spinner',
-  template: `
-    <div class="spinner" [style.width.px]="diameter" [style.height.px]="diameter"></div>
-  `,
-  styleUrl: './spinner.component.scss'
+  template: `<div class="spinner" [style.width.px]="diameter()" [style.height.px]="diameter()"></div>`,
+  styleUrl: './spinner.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressSpinnerComponent {
-  @Input() diameter: number = 50;
+  readonly diameter = input(50);
 }

@@ -1,68 +1,64 @@
-import { Component } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatIcon } from '@angular/material/icon';
+import { PartyService } from '../services/party.service';
 import { ServerService } from '../services/server.service';
+import { ButtonComponent } from '../ui/button/button.component';
+
+const ICONS = [1, 2, 13, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => `assets/player-icons/${n}.png`);
 
 @Component({
   selector: 'rr-launch',
+  imports: [ReactiveFormsModule, MatIcon, ButtonComponent],
   templateUrl: './launch.component.html',
-  styleUrl: './launch.component.scss'
+  styleUrl: './launch.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LaunchComponent {
-  icons: string[] = [
-    'assets/player-icons/1.png',
-    'assets/player-icons/2.png',
-    'assets/player-icons/13.png',
-    'assets/player-icons/4.png',
-    'assets/player-icons/5.png',
-    'assets/player-icons/6.png',
-    'assets/player-icons/7.png',
-    'assets/player-icons/8.png',
-    'assets/player-icons/9.png',
-    'assets/player-icons/10.png',
-    'assets/player-icons/11.png',
-    'assets/player-icons/12.png',
-  ];
-  accountCreated: boolean = false;
+  private readonly server = inject(ServerService);
 
-  form = new FormGroup({
-    icon: new FormControl('assets/player-icons/1.png'),
-    name: new FormControl('', [Validators.maxLength(16)])
+  protected readonly icons = ICONS;
+  readonly accountCreated = signal(false);
+
+  readonly form = new FormGroup({
+    icon: new FormControl(ICONS[0], { nonNullable: true }),
+    name: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(16)] }),
   });
 
-  code = new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]);
+  readonly code = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.required, Validators.minLength(6), Validators.maxLength(6)],
+  });
 
-  constructor(
-    private server: ServerService
-  ) {
-    sessionStorage.removeItem('customPlaylist');
+  constructor() {
+    inject(PartyService).clearStoredCustomPlaylist();
   }
 
   private get name(): string {
-    return this.form.controls.name.value || this.generatePlayerName();
+    return this.form.controls.name.value || generatePlayerName();
   }
 
   next(): void {
     if (this.form.valid) {
-      this.accountCreated = true;
+      this.accountCreated.set(true);
     } else {
       this.form.controls.name.markAsTouched();
     }
   }
 
-  generatePlayerName(): string {
-    const number = Math.floor(Math.random() * 999);
-    return `Player#${number.toString()}`;
+  hostGame(): void {
+    this.server.hostGame(this.name, this.form.controls.icon.value);
   }
 
-  hostGame(): void {
-    this.server.hostGame(this.name, this.form.controls.icon.value!);
-  }
   joinGame(): void {
     if (this.code.valid) {
-      this.server.joinGame(this.name, this.form.controls.icon.value!, this.code.value!);
+      this.server.joinGame(this.name, this.form.controls.icon.value, this.code.value);
     } else {
       this.code.markAsTouched();
     }
   }
 }
 
+function generatePlayerName(): string {
+  return `Player#${Math.floor(Math.random() * 999)}`;
+}

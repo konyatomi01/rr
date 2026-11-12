@@ -1,23 +1,21 @@
-
 <div class="upper-row mb-2">
-    <h2>Joined players:</h2>
-    <rr-button text="Leave Party" color="orange" (click)="leaveParty()"></rr-button>
-
+  <h2>Joined players:</h2>
+  <rr-button text="Leave Party" color="orange" (click)="leaveParty()" />
 </div>
-<div *ngIf="party.party" class="player-displayer gap-1">
-    <ng-container *ngIf="party.showParty">
-        <button class="menu me-2" (click)="party.showParty = !party.showParty">
-            <mat-icon>arrow_back</mat-icon>
-        </button>
-    </ng-container>
-    <ng-container *ngIf="!party.showParty">
-        <button class="menu me-2" (click)="party.showParty = !party.showParty">
-            <div class="count">{{ party.party.length }}</div>
-            <mat-icon>list</mat-icon>
-        </button>
-        <div *ngFor="let player of party.party" class="player p-1" [class.accepted]="player.accepted">
-            <img  class="pfp" [src]="player.pfp">
-        </div>
-    </ng-container>
-    
+<div class="player-displayer gap-1">
+  @if (party.showParty()) {
+    <button class="menu me-2" (click)="party.toggleShowParty()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  } @else {
+    <button class="menu me-2" (click)="party.toggleShowParty()">
+      <div class="count">{{ party.party().length }}</div>
+      <mat-icon>list</mat-icon>
+    </button>
+    @for (player of party.party(); track player.id) {
+      <div class="player p-1" [class.accepted]="player.accepted">
+        <img class="pfp" [src]="player.pfp" />
+      </div>
+    }
+  }
 </div>

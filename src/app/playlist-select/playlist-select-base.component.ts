@@ -1,32 +1,21 @@
-import { Component, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Directive, inject, signal } from '@angular/core';
 import { DialogService } from '../services/dialog.service';
 import { MusicService, Playlist } from '../services/music.service';
 
-@Component({
-  template: '',
-})
-export abstract class PlaylistSelectComponentBase implements OnDestroy {
+/** Shared state and behaviour for the playlist pickers (charts / search). */
+@Directive()
+export abstract class PlaylistSelectComponentBase {
+  protected readonly music = inject(MusicService);
+  private readonly dialog = inject(DialogService);
 
-  playlists: Playlist[] = [];
-  subscription?: Subscription;
-  isLoading: boolean = false;
+  readonly playlists = signal<Playlist[]>([]);
+  readonly isLoading = signal(false);
 
-  constructor(
-    private dialog: DialogService,
-    readonly music: MusicService
-  ) {};
-  
-
-  async playlistClicked(playlist: Playlist) {
+  async playlistClicked(playlist: Playlist): Promise<void> {
     this.dialog.openSettingsDialog({
       title: playlist.name,
       cover: playlist.image,
-      tracks: await this.music.getTracksFromPlaylist(playlist.id)
+      tracks: await this.music.getTracksFromPlaylist(playlist.id),
     });
-  }
-
-  ngOnDestroy() {
-    this.subscription?.unsubscribe();
   }
 }

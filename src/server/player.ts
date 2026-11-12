@@ -1,4 +1,4 @@
-import { PlayerData } from "../app/services/party.service";
+import { PlayerData } from '../shared/models';
 
 export class Player {
     disconnected: boolean = false;

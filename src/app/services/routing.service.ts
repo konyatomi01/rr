@@ -1,43 +1,38 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
+export type AppState = 'launch' | 'select' | 'game' | 'gameover' | 'roundover';
+
+const STORAGE_KEY = 'routerState';
+const STATES: readonly AppState[] = ['launch', 'select', 'game', 'gameover', 'roundover'];
+
+@Injectable({ providedIn: 'root' })
 export class RoutingService {
-    constructor() {
-        this.getState();
-    }
+  private readonly _state = signal<AppState>(RoutingService.restoreState());
+  readonly state = this._state.asReadonly();
 
-    state: string = 'launch'
+  launch(): void {
+    this.setState('launch');
+  }
+  select(): void {
+    this.setState('select');
+  }
+  game(): void {
+    this.setState('game');
+  }
+  gameover(): void {
+    this.setState('gameover');
+  }
+  roundover(): void {
+    this.setState('roundover');
+  }
 
-    launch() {
-        this.state = 'launch';
-        this.saveState();
-    }
-    select() {
-        this.state = 'select';
-        this.saveState();
-    }
-    game() {
-        this.state = 'game';
-        this.saveState();
-    }
-    gameover() {
-        this.state = 'gameover';
-        this.saveState();
-    }
-    roundover() {
-        this.state = 'roundover';
-        this.saveState();
-    }
+  private setState(state: AppState): void {
+    this._state.set(state);
+    sessionStorage.setItem(STORAGE_KEY, state);
+  }
 
-    saveState() {
-        sessionStorage.setItem('routerState', this.state);
-    }
-    getState() {
-        if(sessionStorage.getItem('routerState')) this.state = sessionStorage.getItem('routerState')!
-    }
-
-
-
+  private static restoreState(): AppState {
+    const saved = sessionStorage.getItem(STORAGE_KEY) as AppState | null;
+    return saved && STATES.includes(saved) ? saved : 'launch';
+  }
 }

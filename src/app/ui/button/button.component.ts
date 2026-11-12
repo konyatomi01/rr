@@ -1,18 +1,25 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
+
+export type ButtonColor = 'red' | 'yellow' | 'orange' | 'green' | 'blue';
 
 @Component({
   selector: 'rr-button',
+  imports: [MatIcon],
   template: `
-    <button [ngClass]="color">
-        <mat-icon *ngIf="icon" class="me-1">{{icon}}</mat-icon>
-        {{text}}
-        <ng-content />
+    <button [class]="color()">
+      @if (icon()) {
+        <mat-icon class="me-1">{{ icon() }}</mat-icon>
+      }
+      {{ text() }}
+      <ng-content />
     </button>
   `,
-  styleUrl: './button.component.scss'
+  styleUrl: './button.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ButtonComponent {
-  @Input() icon: string = '';
-  @Input() color: 'red' | 'yellow'| 'orange' | 'green' | 'blue' = 'red';
-  @Input() text: string = '';
+  readonly icon = input('');
+  readonly color = input<ButtonColor>('red');
+  readonly text = input('');
 }

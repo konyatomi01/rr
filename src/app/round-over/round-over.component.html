@@ -1,22 +1,19 @@
-<div class="w-100 h-100 d-flex justify-content-center"> 
-    <div class="main-div mb-3">
-        <div *ngFor="let player of party.party" class="player-row mb-3">
-            <img [src]="player.pfp" class="pfp mx-2">
-            <div class="d-flex h-100 details justify-content-between px-1 align-items-center">
-                <div>
-                    {{player.name}}
-                </div>
-                <div>
-                    <div class="evalPoints me-3">
-                        +{{player.currentPoints}}p
-                    </div>
-                    <div class="evalStreak me-3">
-                        <mat-icon>local_fire_department</mat-icon>
-                        {{player.streak.toFixed(1)}}x
-                    </div>  
-                </div> 
-            </div>  
+<div class="w-100 h-100 d-flex justify-content-center">
+  <div class="main-div mb-3">
+    @for (player of party.party(); track player.id) {
+      <div class="player-row mb-3">
+        <img [src]="player.pfp" class="pfp mx-2">
+        <div class="d-flex h-100 details justify-content-between px-1 align-items-center">
+          <div>{{ player.name }}</div>
+          <div>
+            <div class="evalPoints me-3">+{{ player.currentPoints }}p</div>
+            <div class="evalStreak me-3">
+              <mat-icon>local_fire_department</mat-icon>
+              {{ player.streak.toFixed(1) }}x
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
+    }
+  </div>
 </div>
-

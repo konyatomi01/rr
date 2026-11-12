@@ -1,8 +1,7 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { lastValueFrom } from 'rxjs';
-import { Track } from '../popups/settings/settings.component';
-import { CustomPlaylistTrack } from './party.service';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { CustomPlaylistTrack, Track } from '../../shared/models';
 
 export interface Playlist {
   name: string;
@@ -10,82 +9,69 @@ export interface Playlist {
   image: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
-export class MusicService {
+const API_URL = 'https://api.music.apple.com/v1/catalog/us';
 
-  constructor(private http: HttpClient) {
-    }
+@Injectable({ providedIn: 'root' })
+export class MusicService {
+  private readonly http = inject(HttpClient);
 
   private get token(): string {
     return sessionStorage.getItem('token') || '';
   }
 
-  getArtworkUrl(link: string): string {
-		return link.replace('{w}', '300').replace('{h}', '300');
-	}
-
-  public async getChartsPlaylists(offset: number): Promise<Playlist[]> {
-    if (this.token) {
-      const apiUrl = `https://api.music.apple.com/v1/catalog/us/charts?types=playlists&limit=20&offset=${offset-20}`;
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
-      const lists: any[] = (await lastValueFrom(this.http.get<any>(apiUrl, { headers }))).results.playlists[0].data;
-      return lists.map(item => ({
-        name: item.attributes.name,
-        id: item.attributes.playParams.id,
-        image: this.getArtworkUrl(item.attributes.artwork.url)
-      })); 
-    }
-    return [];
-  }
-  public async getPlaylistBySearch(searchTerm: string): Promise<Playlist[]> {
-    if (this.token) {
-      const apiUrl = `https://api.music.apple.com/v1/catalog/us/search?types=playlists&limit=10&term=${searchTerm}`;
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
-      const lists: any = await lastValueFrom(this.http.get<any>(apiUrl, { headers }));
-      if (lists.results.playlists) {
-        const data: any[] = lists.results.playlists.data;
-        return data.map(item => ({
-          name: item.attributes.name,
-          id: item.attributes.playParams.id,
-          image: this.getArtworkUrl(item.attributes.artwork.url)
-        }));
-      }
-    }
-    return [];
+  async getChartsPlaylists(offset: number): Promise<Playlist[]> {
+    const res = await this.get('charts', { types: 'playlists', limit: 20, offset: offset - 20 });
+    if (!res) return [];
+    return toPlaylists(res.results.playlists[0].data);
   }
 
-  public async getSongsBySearch(searchTerm: string): Promise<CustomPlaylistTrack[]> {
-    if (this.token) {
-      const apiUrl = `https://api.music.apple.com/v1/catalog/us/search?types=songs&limit=10&term=${searchTerm}`;
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
-      const lists: any = await lastValueFrom(this.http.get<any>(apiUrl, { headers }));
-      if (lists.results.songs) {
-        const data: any[] = lists.results.songs.data;
-        return data.map(item => ({
-          url: item.attributes.previews[0].url,
-          title: item.attributes.name,
-          artist: item.attributes.artistName,
-          cover: this.getArtworkUrl(item.attributes.artwork.url),
-        }));
-      }
-    }
-    return [];
+  async getPlaylistBySearch(searchTerm: string): Promise<Playlist[]> {
+    const res = await this.get('search', { types: 'playlists', limit: 10, term: searchTerm });
+    return res?.results.playlists ? toPlaylists(res.results.playlists.data) : [];
   }
 
-  public async getTracksFromPlaylist(playlistId: string): Promise<Track[]> {
-    if (this.token) {
-      const apiUrl = `https://api.music.apple.com/v1/catalog/us/playlists/${playlistId}`;
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
-      const data: any[] = (await lastValueFrom(this.http.get<any>(apiUrl, { headers }))).data[0].relationships.tracks.data;
-      return data.filter((item: any) => item.attributes.previews.length)
-        .map(item => ({
-          url: item.attributes.previews[0].url,
-          title: item.attributes.name,
-          artist: item.attributes.artistName
-        }));
-    }
-    return [];
+  async getSongsBySearch(searchTerm: string): Promise<CustomPlaylistTrack[]> {
+    const res = await this.get('search', { types: 'songs', limit: 10, term: searchTerm });
+    if (!res?.results.songs) return [];
+    return (res.results.songs.data as any[]).map(item => ({
+      url: item.attributes.previews[0].url,
+      title: item.attributes.name,
+      artist: item.attributes.artistName,
+      cover: artworkUrl(item.attributes.artwork.url),
+    }));
   }
+
+  async getTracksFromPlaylist(playlistId: string): Promise<Track[]> {
+    const res = await this.get(`playlists/${playlistId}`);
+    if (!res) return [];
+    return (res.data[0].relationships.tracks.data as any[])
+      .filter(item => item.attributes.previews.length)
+      .map(item => ({
+        url: item.attributes.previews[0].url,
+        title: item.attributes.name,
+        artist: item.attributes.artistName,
+      }));
+  }
+
+  /** Calls the Apple Music catalog API. Resolves to `null` when no developer token is available yet. */
+  private async get(path: string, params: Record<string, string | number> = {}): Promise<any | null> {
+    const token = this.token;
+    if (!token) return null;
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return firstValueFrom(
+      this.http.get<any>(`${API_URL}/${path}`, { headers, params: new HttpParams({ fromObject: params }) }),
+    );
+  }
+}
+
+function artworkUrl(link: string): string {
+  return link.replace('{w}', '300').replace('{h}', '300');
+}
+
+function toPlaylists(items: any[]): Playlist[] {
+  return items.map(item => ({
+    name: item.attributes.name,
+    id: item.attributes.playParams.id,
+    image: artworkUrl(item.attributes.artwork.url),
+  }));
 }
