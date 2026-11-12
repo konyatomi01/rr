@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogClose } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { GameModes, GameSpeeds, PlaylistToPlay, Settings } from '../../../shared/models';
+import { GameModes, GameSpeeds, PlaylistDetails, Settings } from '../../../shared/models';
 import { ServerService } from '../../services/server.service';
 import { SnackbarService } from '../../services/snackbar.service';
 import { ButtonComponent } from '../../ui/button/button.component';
@@ -30,7 +30,7 @@ const TOOLTIP_TIME_MS = 3500;
 export class SettingsComponent {
   private readonly server = inject(ServerService);
   private readonly snackBar = inject(SnackbarService);
-  protected readonly data = inject<PlaylistToPlay>(MAT_DIALOG_DATA);
+  protected readonly data = inject<PlaylistDetails>(MAT_DIALOG_DATA);
 
   protected readonly gameModes = GameModes;
   protected readonly gameSpeeds = GameSpeeds;
@@ -99,7 +99,7 @@ export class SettingsComponent {
       speed,
       vibeMode,
       health: lives,
-      playlist: this.data,
+      playlist: this.data.ref,
     };
     this.server.startGame(settings);
   }

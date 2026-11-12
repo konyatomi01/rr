@@ -1,77 +1,42 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { CustomPlaylistTrack, Track } from '../../shared/models';
+import { Playlist, Track } from '../../shared/models';
+import { SERVER_URL } from '../server-url';
 
-export interface Playlist {
-  name: string;
-  id: string;
-  image: string;
-}
+const API_URL = `${SERVER_URL}/api/music`;
 
-const API_URL = 'https://api.music.apple.com/v1/catalog/us';
-
+/** Browses and searches music through the game server, which proxies (and caches) Deezer. */
 @Injectable({ providedIn: 'root' })
 export class MusicService {
   private readonly http = inject(HttpClient);
 
-  private get token(): string {
-    return sessionStorage.getItem('token') || '';
+  /** `page` is 1-based. */
+  getChartsPlaylists(page: number): Promise<Playlist[]> {
+    return this.get('charts', { page });
   }
 
-  async getChartsPlaylists(offset: number): Promise<Playlist[]> {
-    const res = await this.get('charts', { types: 'playlists', limit: 20, offset: offset - 20 });
-    if (!res) return [];
-    return toPlaylists(res.results.playlists[0].data);
+  getPlaylistBySearch(searchTerm: string): Promise<Playlist[]> {
+    return this.get('playlists/search', { q: searchTerm });
   }
 
-  async getPlaylistBySearch(searchTerm: string): Promise<Playlist[]> {
-    const res = await this.get('search', { types: 'playlists', limit: 10, term: searchTerm });
-    return res?.results.playlists ? toPlaylists(res.results.playlists.data) : [];
+  getSongsBySearch(searchTerm: string): Promise<Track[]> {
+    return this.get('tracks/search', { q: searchTerm });
   }
 
-  async getSongsBySearch(searchTerm: string): Promise<CustomPlaylistTrack[]> {
-    const res = await this.get('search', { types: 'songs', limit: 10, term: searchTerm });
-    if (!res?.results.songs) return [];
-    return (res.results.songs.data as any[]).map(item => ({
-      url: item.attributes.previews[0].url,
-      title: item.attributes.name,
-      artist: item.attributes.artistName,
-      cover: artworkUrl(item.attributes.artwork.url),
-    }));
+  getTracksFromPlaylist(playlistId: string): Promise<Track[]> {
+    return this.get(`playlists/${encodeURIComponent(playlistId)}/tracks`);
   }
 
-  async getTracksFromPlaylist(playlistId: string): Promise<Track[]> {
-    const res = await this.get(`playlists/${playlistId}`);
-    if (!res) return [];
-    return (res.data[0].relationships.tracks.data as any[])
-      .filter(item => item.attributes.previews.length)
-      .map(item => ({
-        url: item.attributes.previews[0].url,
-        title: item.attributes.name,
-        artist: item.attributes.artistName,
-      }));
+  /** Resolves to an empty list when the request fails, so callers can treat it as "no results". */
+  private async get<T>(path: string, params: Record<string, string | number> = {}): Promise<T[]> {
+    try {
+      return await firstValueFrom(
+        this.http.get<T[]>(`${API_URL}/${path}`, { params: new HttpParams({ fromObject: params }) }),
+      );
+    } catch (e) {
+      console.error(`Music request failed: ${path}`, e);
+      return [];
+    }
   }
-
-  /** Calls the Apple Music catalog API. Resolves to `null` when no developer token is available yet. */
-  private async get(path: string, params: Record<string, string | number> = {}): Promise<any | null> {
-    const token = this.token;
-    if (!token) return null;
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return firstValueFrom(
-      this.http.get<any>(`${API_URL}/${path}`, { headers, params: new HttpParams({ fromObject: params }) }),
-    );
-  }
-}
-
-function artworkUrl(link: string): string {
-  return link.replace('{w}', '300').replace('{h}', '300');
-}
-
-function toPlaylists(items: any[]): Playlist[] {
-  return items.map(item => ({
-    name: item.attributes.name,
-    id: item.attributes.playParams.id,
-    image: artworkUrl(item.attributes.artwork.url),
-  }));
 }

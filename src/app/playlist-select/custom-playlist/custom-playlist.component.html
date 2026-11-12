@@ -14,7 +14,7 @@
 </div>
 @if (party.customPlaylist().length) {
   <div class="song-displayer mt-2" [class.isMd]="display.isMd()">
-    @for (song of party.customPlaylist(); track song.url) {
+    @for (song of party.customPlaylist(); track song.id) {
       <div class="song p-1">
         <img class="cover" [src]="song.cover" />
         <span class="ms-2">{{ song.title }}</span>
@@ -30,6 +30,6 @@
 } @else {
   <div class="d-flex justify-content-center flex-column align-items-center text-center flex-grow-1 gap-4">
     <span>Create your custom playlist together!</span>
-    <span>Add any songs from the Apple Music library to your custom playlist with the Add song button!</span>
+    <span>Add any songs from the Deezer catalog to your custom playlist with the Add song button!</span>
   </div>
 }

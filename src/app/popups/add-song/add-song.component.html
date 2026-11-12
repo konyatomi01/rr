@@ -16,7 +16,7 @@
     @if (isLoading()) {
       <rr-spinner />
     } @else {
-      @for (song of songs(); track song.url) {
+      @for (song of songs(); track song.id) {
         <div class="song p-1 mb-1">
           <img [src]="song.cover" />
           <span class="ms-2">{{ song.title }}</span>

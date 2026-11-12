@@ -5,7 +5,9 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import { Player } from './player';
 import { Party } from './party';
-import { CustomPlaylistTrack, Settings } from '../shared/models';
+import { Settings } from '../shared/models';
+import { getTrack, isDeezerId } from './deezer';
+import { musicRouter } from './music-routes';
 import * as dotenv from 'dotenv';
 
 
@@ -57,6 +59,9 @@ export class GameServer {
         const app = express();
 
         app.use(cors());
+
+        // Must be registered before the SPA catch-all below.
+        app.use('/api/music', musicRouter);
 
         const publicDirPath = path.join(__dirname, '../../dist/rhythm-royale/browser');
         app.use(express.static(publicDirPath));
@@ -126,9 +131,6 @@ export class GameServer {
                     console.log(player_id, 'can not reconnect', party_id, 'party not found!');
                 }
             });
-            socket.on('getToken', () => {
-                socket.emit('token', process.env['API_KEY']);
-            });
             //hostGame
             socket.on('hostGame', (name: string, pfp: string) => {
                 const player_id = this.generatePlayerId();
@@ -167,7 +169,7 @@ export class GameServer {
             });
             //startProposal
             socket.on('startProposal', (settings: Settings) => {
-                if (party) {
+                if (party && settings?.playlist) {
                     if (!party.gameProposal) {
                         party.gameProposal = { player: player!, settings: settings };
                         player!.accepted = true;
@@ -176,7 +178,7 @@ export class GameServer {
                             console.log(player!.name, 'wants to play on:', settings.playlist.title);
                             party.sendUpdateParty();
                         }
-                        else party.startGame();
+                        else void party.startGame();
 
                     }
                     else socket.emit('proposalAlready', party.gameProposal.player.name);
@@ -187,7 +189,7 @@ export class GameServer {
                     if (!player?.accepted) {
                         player!.accepted = true;
                         party.sendUpdateParty();
-                        if (party.players.every(p => p.accepted)) party.startGame();
+                        if (party.players.every(p => p.accepted)) void party.startGame();
                         console.log(player?.name, 'has accepted the game proposal');
                     }
                 }
@@ -222,17 +224,32 @@ export class GameServer {
                     this.playerList = this.playerList.filter(p => p.id !== player_id);
                 }
             });
-            socket.on('addCustomPlaylistTrack', (track: CustomPlaylistTrack) => {
-                if (party) {
-                    const result = party.addCustomTrack(track);
-                    if (result === true)
-                        socket.emit('addSongSucess', track);
-                    else socket.emit('addSongFailed', result);
+            // The client only sends the Deezer id; the track data comes from Deezer, not the client.
+            socket.on('addCustomPlaylistTrack', async (trackId: string) => {
+                const targetParty = party;
+                const owner = player;
+                if (!targetParty || !owner || !isDeezerId(trackId)) return;
+                let playable;
+                try {
+                    playable = await getTrack(trackId);
+                } catch (e) {
+                    console.error('Could not look up track', trackId, e);
+                    socket.emit('addSongFailed', 'Could not add the song, please try again!');
+                    return;
                 }
+                if (!playable) {
+                    socket.emit('addSongFailed', 'This song has no preview available!');
+                    return;
+                }
+                const track = { ...playable.track, player: owner.playerData };
+                const result = targetParty.addCustomTrack(track);
+                if (result === true)
+                    socket.emit('addSongSucess', track);
+                else socket.emit('addSongFailed', result);
             });
-            socket.on('removeCustomPlaylistTrack', (track: CustomPlaylistTrack) => {
+            socket.on('removeCustomPlaylistTrack', (trackId: string) => {
                 if (party) {
-                    party.removeCustomTrack(track);
+                    party.removeCustomTrack(trackId);
                 }
             });
         });

@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { CustomPlaylistTrack, PlaylistToPlay } from '../../../shared/models';
+import { CustomPlaylistTrack, MIN_PLAYLIST_TRACKS, PlaylistDetails } from '../../../shared/models';
 import { DialogService } from '../../services/dialog.service';
 import { DisplayService } from '../../services/display.service';
 import { PartyService } from '../../services/party.service';
 import { ServerService } from '../../services/server.service';
 import { SnackbarService } from '../../services/snackbar.service';
 
-const MIN_TRACKS = 4;
+const MIN_TRACKS = MIN_PLAYLIST_TRACKS;
 
 @Component({
   selector: 'rr-custom-playlist',
@@ -31,16 +31,15 @@ export class CustomPlaylistComponent {
       this.snackbar.message(`You need at least ${MIN_TRACKS} tracks to start a game`);
       return;
     }
-    const data: PlaylistToPlay = {
-      title: 'Custom Playlist',
-      cover: 'assets/custom-playlist.jpg',
+    const data: PlaylistDetails = {
+      ref: { source: 'custom', title: 'Custom Playlist', cover: 'assets/custom-playlist.jpg' },
       tracks,
     };
     this.dialog.openSettingsDialog(data);
   }
 
   removeSong(song: CustomPlaylistTrack): void {
-    this.server.removeCustomPlaylistTrack(song);
+    this.server.removeCustomPlaylistTrack(song.id);
     this.snackbar.message(`Removed ${song.title} from custom playlist`);
   }
 

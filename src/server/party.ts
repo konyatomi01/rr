@@ -1,4 +1,5 @@
-import { CustomPlaylistTrack, PlaylistToPlay, Settings, Track } from '../shared/models';
+import { CustomPlaylistTrack, MIN_PLAYLIST_TRACKS, PlaylistRef, Settings, Track } from '../shared/models';
+import { getPlaylistTracks, getTrack, isDeezerId } from './deezer';
 import { Player } from "./player"
 import { GameServer } from "./server"
 
@@ -7,10 +8,16 @@ export interface GameProposal {
   settings: Settings,
 }
 
+const MAX_CUSTOM_TRACKS = 30;
+/** Consecutive preview lookups that may fail before the game is ended. */
+const MAX_PREVIEW_FAILURES = 3;
+
 export class Party {
     id: string
     players: Player[] = [];
-    playlist: PlaylistToPlay = { title: '', cover: '', tracks: []};
+    playlistTitle: string = '';
+    /** Tracks not played yet in the current game. */
+    tracks: Track[] = [];
     answers: string[] = [];
     gameMode: 'artist' | 'title' = 'title';
     maxRounds: number = 10;
@@ -18,8 +25,10 @@ export class Party {
     speed: number = 30;
     vibeMode: boolean = false;
     currentRound: number = 0;
-    currentSong: Track = { url: '', title: '', artist: '' };
+    currentSong: Track = { id: '', title: '', artist: '', cover: '' };
     gameProposal: GameProposal | undefined;
+    /** Bumped when a game starts or ends, so async work from an older game can tell it is stale. */
+    private gameId = 0;
     private removalTimer: NodeJS.Timeout | null = null;
     private timer: any;
     remainingTime: number = 0;
@@ -76,20 +85,41 @@ export class Party {
     });
   }
 
-  startGame() {
-    this.currentRound = 0;
-    if (this.gameProposal) {
-      this.maxLives = this.gameProposal.settings.health;
-      this.speed = this.gameProposal.settings.speed;
-      this.gameMode = this.gameProposal.settings.gameMode;
-      this.maxRounds = this.gameProposal.settings.rounds;
-      this.playlist = this.gameProposal.settings.playlist;
-      this.vibeMode = this.gameProposal.settings.vibeMode;
+  /**
+   * Loads the proposed playlist's tracks from Deezer and starts the game. The proposal stays set
+   * while loading, so nobody can propose another game in the meantime.
+   */
+  async startGame() {
+    const proposal = this.gameProposal;
+    if (!proposal) return;
+    const settings = proposal.settings;
+
+    let tracks: Track[];
+    try {
+      tracks = await this.loadTracks(settings.playlist);
+    } catch (e) {
+      console.error(this.id, 'could not load playlist', settings.playlist, e);
+      this.cancelProposal('Could not load the playlist. Try again or pick another one!');
+      return;
     }
+    if (this.gameProposal !== proposal) return;
+    if (tracks.length < MIN_PLAYLIST_TRACKS) {
+      this.cancelProposal('This playlist does not have enough playable tracks!');
+      return;
+    }
+
+    this.gameId++;
+    this.currentRound = 0;
+    this.maxLives = settings.health;
+    this.speed = settings.speed;
+    this.gameMode = settings.gameMode;
+    this.maxRounds = settings.rounds;
+    this.vibeMode = settings.vibeMode;
+    this.playlistTitle = settings.playlist.title;
+    this.tracks = tracks;
     this.gameProposal = undefined;
-    if(this.gameMode === 'artist') this.answers = Array.from(new Set(this.playlist.tracks.map(song => song.artist)));
-    else this.answers = Array.from(new Set(this.playlist.tracks.map(song => song.title)));
-    
+    this.answers = Array.from(new Set(tracks.map(song => song[this.gameMode])));
+
     this.players.forEach(p => {
         p.reset(this.maxLives);
         p.socket.emit('gameStarts', this.speed, this.maxRounds, this.vibeMode);
@@ -99,11 +129,47 @@ export class Party {
     this.countdown(3);
     console.log(this.id, 'game starts with settings: \n', 
         this.maxLives, 'lives\n', this.speed, 'speed\n', 
-        this.maxRounds, 'rounds\n', this.gameMode, 'gamemode\n', 'on:', this.playlist.title);
-    if (this.vibeMode) console.log('with vibe mode');   
+        this.maxRounds, 'rounds\n', this.gameMode, 'gamemode\n', 'on:', this.playlistTitle);
+    if (this.vibeMode) console.log('with vibe mode');
   }
 
-  nextRound() {
+  private async loadTracks(ref: PlaylistRef): Promise<Track[]> {
+    if (ref.source === 'custom') {
+      return this.customPlaylist.map(({ id, title, artist, cover }) => ({ id, title, artist, cover }));
+    }
+    if (!isDeezerId(ref.id)) throw new Error(`Invalid playlist id: ${ref.id}`);
+    // Copy: the cached array is shared, and rounds splice played tracks out of it.
+    return [...await getPlaylistTracks(ref.id)];
+  }
+
+  private cancelProposal(message: string) {
+    this.gameProposal = undefined;
+    this.players.forEach(p => {
+      p.accepted = false;
+      p.socket.emit('startFailed', message);
+    });
+    this.sendUpdateParty();
+  }
+
+  /** Removes random tracks from the pool until one has a playable preview, with a fresh URL. */
+  private async nextPlayableTrack(): Promise<{ track: Track; preview: string } | undefined> {
+    let failures = 0;
+    while (this.tracks.length && failures < MAX_PREVIEW_FAILURES) {
+      const idx = Math.floor(Math.random() * this.tracks.length);
+      const [track] = this.tracks.splice(idx, 1);
+      try {
+        const playable = await getTrack(track.id);
+        if (playable) return { track, preview: playable.preview };
+        console.log(this.id, 'skipping unplayable track', track.id, track.title);
+      } catch (e) {
+        failures++;
+        console.error(this.id, 'preview lookup failed for', track.id, e);
+      }
+    }
+    return undefined;
+  }
+
+  async nextRound() {
     this.currentRound++;
     if(this.currentRound > this.maxRounds) {
       this.gameOver();
@@ -123,26 +189,29 @@ export class Party {
     }
     this.sendUpdateParty();
     this.remainingTime = this.speed;
-    
-    const idx = Math.floor(Math.random() * this.playlist.tracks.length);
-    this.currentSong = this.playlist.tracks.splice(idx, 1)[0];
-    if(!this.currentSong) {
+
+    const gameId = this.gameId;
+    const next = await this.nextPlayableTrack();
+    if (gameId !== this.gameId) return; // the game ended or restarted while we were waiting
+    if (!next) {
       this.gameOver();
       return;
     }
+    this.currentSong = next.track;
 
     const answers = this.getAnswers();
     this.players.forEach(player=>{
       player.currentPoints = 0;
       player.answered = false;
-      player.socket.emit('nextRound', answers, this.currentSong.url, this.currentRound);
-      
+      player.socket.emit('nextRound', answers, next.preview, this.currentRound);
+
     });
     this.startTimer();
 
   }
 
   gameOver() {
+    this.gameId++;
     console.log(this.id, 'game is over');
     this.sendUpdateParty();
     this.players.forEach(p => p.socket.emit('gameOver'));
@@ -219,10 +288,10 @@ startTimer() {
   }
 
   addCustomTrack(track: CustomPlaylistTrack): true | string {
-    if (this.customPlaylist.find(t => t.url === track.url)) {
+    if (this.customPlaylist.find(t => t.id === track.id)) {
       return `${track.title} by ${track.artist} is already in the playlist!`;
     }
-    if (this.customPlaylist.length >= 30) {
+    if (this.customPlaylist.length >= MAX_CUSTOM_TRACKS) {
       return `The playlist is full!`;
     }
     this.customPlaylist.push(track);
@@ -230,8 +299,8 @@ startTimer() {
     return true;
   }
   
-  removeCustomTrack(track: CustomPlaylistTrack) {
-    this.customPlaylist = this.customPlaylist.filter(t => t.url !== track.url);
+  removeCustomTrack(trackId: string) {
+    this.customPlaylist = this.customPlaylist.filter(t => t.id !== trackId);
     this.players.forEach(p => p.socket.emit('updateCustomPlaylist', this.customPlaylist));
   }
 }

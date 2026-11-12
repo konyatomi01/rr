@@ -14,15 +14,35 @@ export enum GameSpeeds {
   fast = 5,
 }
 
+/** Fewest playable tracks a playlist needs: one right answer plus three wrong ones. */
+export const MIN_PLAYLIST_TRACKS = 4;
+
+/**
+ * A Deezer track. Preview URLs are signed and expire after ~15 minutes, so they are never
+ * stored here: the server resolves a fresh one by `id` right before each round.
+ */
 export interface Track {
-  url: string;
+  id: string;
   title: string;
   artist: string;
+  cover: string;
 }
 
-export interface PlaylistToPlay {
+export interface Playlist {
+  id: string;
   title: string;
   cover: string;
+  trackCount: number;
+}
+
+/** Identifies the playlist a game is played on. The server loads the tracks itself. */
+export type PlaylistRef =
+  | { source: 'deezer'; id: string; title: string; cover: string }
+  | { source: 'custom'; title: string; cover: string };
+
+/** What the settings dialog needs: the playlist to propose plus its tracks for validation. */
+export interface PlaylistDetails {
+  ref: PlaylistRef;
   tracks: Track[];
 }
 
@@ -32,7 +52,7 @@ export interface Settings {
   speed: GameSpeeds;
   vibeMode: boolean;
   health: number;
-  playlist: PlaylistToPlay;
+  playlist: PlaylistRef;
 }
 
 /** Serialisable player state sent from the server to clients. */
@@ -52,7 +72,6 @@ export interface PlayerData {
 
 export interface CustomPlaylistTrack extends Track {
   player?: PlayerData;
-  cover: string;
 }
 
 export interface GameProposalData {

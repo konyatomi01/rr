@@ -11,12 +11,12 @@
   } @else {
     @for (playlist of playlists(); track playlist.id) {
       <button class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
-        <img class="cover" [src]="playlist.image" />
-        <figcaption class="caption">{{ playlist.name }}</figcaption>
+        <img class="cover" [src]="playlist.cover" />
+        <figcaption class="caption">{{ playlist.title }}</figcaption>
       </button>
     } @empty {
       <div class="d-flex align-items-center text-center">
-        Use the searchbar to find any public playlist avaiable on Apple Music!
+        Use the searchbar to find any public playlist available on Deezer!
       </div>
     }
   }

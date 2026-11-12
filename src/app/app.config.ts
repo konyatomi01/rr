@@ -7,6 +7,7 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideSocketIo } from 'ngx-socket-io';
+import { SERVER_URL } from './server-url';
 import { ServerService } from './services/server.service';
 
 export const appConfig: ApplicationConfig = {
@@ -14,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideHttpClient(),
-    provideSocketIo({ url: 'https://rhythm-royale.onrender.com', options: {} }),
+    provideSocketIo({ url: SERVER_URL, options: {} }),
     // Connect to the game server (and attempt session reconnect) as soon as the app starts,
     // regardless of which screen is restored.
     provideAppInitializer(() => {

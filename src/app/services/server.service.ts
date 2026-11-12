@@ -29,7 +29,6 @@ export class ServerService {
       this.socket.emit('reconnect', storedPlayerId, storedPartyId);
     }
     this.registerListeners();
-    this.socket.emit('getToken');
   }
 
   hostGame(name: string, pfp: string): void {
@@ -59,11 +58,11 @@ export class ServerService {
   kickPlayer(playerId: string): void {
     this.socket.emit('kickPlayer', playerId);
   }
-  addCustomPlaylistTrack(track: CustomPlaylistTrack): void {
-    this.socket.emit('addCustomPlaylistTrack', track);
+  addCustomPlaylistTrack(trackId: string): void {
+    this.socket.emit('addCustomPlaylistTrack', trackId);
   }
-  removeCustomPlaylistTrack(track: CustomPlaylistTrack): void {
-    this.socket.emit('removeCustomPlaylistTrack', track);
+  removeCustomPlaylistTrack(trackId: string): void {
+    this.socket.emit('removeCustomPlaylistTrack', trackId);
   }
 
   private gameJoined(partyId: string, playerId: string): void {
@@ -117,7 +116,7 @@ export class ServerService {
     );
     this.socket.on('countdown', (remainingTime: number) => this.game.remainingTime.set(remainingTime));
     this.socket.on('gameOver', () => this.game.gameOver());
-    this.socket.on('token', (token: string) => sessionStorage.setItem('token', token));
+    this.socket.on('startFailed', (message: string) => this.snackBar.message(message));
     this.socket.on('playerKicked', (name: string) => this.snackBar.message(`${name} was removed from the party!`));
     this.socket.on('getKicked', () => this.router.launch());
     this.socket.on('updateCustomPlaylist', (songs: CustomPlaylistTrack[]) => this.party.setCustomPlaylist(songs));

@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { Playlist } from '../../services/music.service';
+import { Playlist } from '../../../shared/models';
 import { ProgressSpinnerComponent } from '../../ui/spinner/spinner.component';
 import { PlaylistSelectComponentBase } from '../playlist-select-base.component';
 
-const PAGE_SIZE = 20;
-export const PAGE_COUNT = 10;
+/** Deezer's chart has 100 playlists, served in pages of 20. */
+export const PAGE_COUNT = 5;
 
 @Component({
   selector: 'rr-categories',
@@ -45,7 +45,7 @@ export class CategoriesComponent extends PlaylistSelectComponentBase {
     }
     this.isLoading.set(true);
     try {
-      const playlists = await this.music.getChartsPlaylists(page * PAGE_SIZE);
+      const playlists = await this.music.getChartsPlaylists(page);
       this.dataCache.set(page, playlists);
       // Ignore responses for pages the user has already navigated away from.
       if (this.page() === page) this.playlists.set(playlists);

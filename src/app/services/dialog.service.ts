@@ -1,7 +1,7 @@
 import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
-import { GameProposalData, PlaylistToPlay } from '../../shared/models';
+import { GameProposalData, PlaylistDetails } from '../../shared/models';
 import { AcceptComponent } from '../popups/accept/accept.component';
 import { AddSongComponent } from '../popups/add-song/add-song.component';
 import { MessageComponent, MessageDialogData } from '../popups/message/message.component';
@@ -12,7 +12,7 @@ export class DialogService {
   private readonly dialog = inject(MatDialog);
   private readonly document = inject(DOCUMENT);
 
-  openSettingsDialog(data: PlaylistToPlay): void {
+  openSettingsDialog(data: PlaylistDetails): void {
     this.blurActiveElement();
     this.dialog.open(SettingsComponent, {
       autoFocus: true,
