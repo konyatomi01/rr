@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
+import { CHART_PAGE_COUNT } from '../../../shared/deezer';
 import { Playlist } from '../../../shared/models';
 import { ProgressSpinnerComponent } from '../../ui/spinner/spinner.component';
 import { PlaylistSelectComponentBase } from '../playlist-select-base.component';
 
-/** Deezer's chart has 100 playlists, served in pages of 20. */
-export const PAGE_COUNT = 5;
+export const PAGE_COUNT = CHART_PAGE_COUNT;
 
 @Component({
   selector: 'rr-categories',

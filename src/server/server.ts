@@ -6,8 +6,8 @@ import cors from 'cors';
 import { Player } from './player';
 import { Party } from './party';
 import { Settings } from '../shared/models';
-import { getTrack, isDeezerId } from './deezer';
-import { musicRouter } from './music-routes';
+import { isDeezerId } from '../shared/deezer';
+import { getTrack } from './deezer';
 import * as dotenv from 'dotenv';
 
 
@@ -59,9 +59,6 @@ export class GameServer {
         const app = express();
 
         app.use(cors());
-
-        // Must be registered before the SPA catch-all below.
-        app.use('/api/music', musicRouter);
 
         const publicDirPath = path.join(__dirname, '../../dist/rhythm-royale/browser');
         app.use(express.static(publicDirPath));

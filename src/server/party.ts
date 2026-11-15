@@ -1,5 +1,6 @@
 import { CustomPlaylistTrack, MIN_PLAYLIST_TRACKS, PlaylistRef, Settings, Track } from '../shared/models';
-import { getPlaylistTracks, getTrack, isDeezerId } from './deezer';
+import { isDeezerId } from '../shared/deezer';
+import { getPlaylistTracks, getTrack } from './deezer';
 import { Player } from "./player"
 import { GameServer } from "./server"
 

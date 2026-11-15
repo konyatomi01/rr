@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withJsonpSupport } from '@angular/common/http';
 import {
   ApplicationConfig,
   inject,
@@ -14,7 +14,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideHttpClient(),
+    // JSONP: the browser calls Deezer directly (it sends no CORS headers) so results follow
+    // the player's region.
+    provideHttpClient(withJsonpSupport()),
     provideSocketIo({ url: SERVER_URL, options: {} }),
     // Connect to the game server (and attempt session reconnect) as soon as the app starts,
     // regardless of which screen is restored.

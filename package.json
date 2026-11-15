@@ -8,7 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build-server": "tsc -p tsconfig.server.json",
-    "dev": "ts-node -P tsconfig.server.json src/server/server.ts"
+    "dev": "ts-node -P tsconfig.server.json src/server/server.ts",
+    "start:all": "concurrently --kill-others --names server,client --prefix-colors blue,magenta \"npm:dev\" \"npm:start\"",
+    "stop:all": "kill $(lsof -t -i tcp:3000 -i tcp:4200 -sTCP:LISTEN) 2>/dev/null && echo 'Stopped dev servers' || echo 'No dev servers running on ports 3000/4200'"
   },
   "private": true,
   "dependencies": {
@@ -36,9 +38,10 @@
     "@angular/compiler-cli": "^22.2.6",
     "@types/express": "^4.17.21",
     "@types/node": "^24.0.0",
+    "concurrently": "^10.0.7",
+    "jsdom": "^27.0.0",
     "nodemon": "^3.1.4",
     "typescript": "~6.0.3",
-    "vitest": "^5.0.0",
-    "jsdom": "^27.0.0"
+    "vitest": "^5.0.0"
   }
 }
