@@ -1,13 +1,18 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatCard } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
+import { RoundOverComponent } from '../round-over/round-over.component';
 import { GameService } from '../services/game.service';
 import { PartyService } from '../services/party.service';
-import { ServerService } from '../services/server.service';
 import { GamePartyComponent } from './game-party/game-party.component';
 import { PlayerDisplayComponent } from './player-display/player-display.component';
 
 @Component({
   selector: 'rr-game',
-  imports: [PlayerDisplayComponent, GamePartyComponent],
+  imports: [MatCard, MatButton, MatIconButton, MatIcon, MatProgressSpinner, PlayerDisplayComponent, GamePartyComponent, RoundOverComponent],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,19 +20,10 @@ import { PlayerDisplayComponent } from './player-display/player-display.componen
 export class GameComponent {
   protected readonly game = inject(GameService);
   protected readonly party = inject(PartyService);
-  private readonly server = inject(ServerService);
+  private readonly router = inject(Router);
 
-  answerButtonClicked(answer: string): void {
-    const player = this.party.player();
-    if (!player || player.lives <= 0 || this.game.remainingTime() <= 0 || this.game.answered()) return;
-
-    this.game.answered.set(true);
-    if (answer === this.game.rightAnswer()) {
-      const answerTime = performance.now() - this.game.startTime;
-      const points = Math.round((this.game.maxTime() * 1000 - answerTime) * player.streak);
-      this.server.answerRight(points);
-    } else {
-      this.server.answerWrong();
-    }
+  /** Leaving goes through the router, whose guard asks for confirmation. */
+  leave(): void {
+    void this.router.navigate(['/']);
   }
 }

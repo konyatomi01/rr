@@ -1,0 +1,21 @@
+@if (loading()) {
+  <div class="state">
+    <mat-progress-spinner mode="indeterminate" diameter="50" aria-label="Loading playlists" />
+  </div>
+} @else {
+  <div class="grid">
+    @for (playlist of playlists(); track playlist.id) {
+      <button class="pl-button" matRipple (click)="open(playlist)" [attr.aria-busy]="opening() === playlist.id">
+        <span class="cover-wrapper">
+          <img class="cover" [src]="playlist.cover" alt="">
+          @if (opening() === playlist.id) {
+            <mat-progress-spinner class="cover-spinner" mode="indeterminate" diameter="32" aria-label="Loading playlist" />
+          }
+        </span>
+        <span class="caption rr-clamp-2">{{ playlist.title }}</span>
+      </button>
+    } @empty {
+      <div class="state">{{ emptyText() }}</div>
+    }
+  </div>
+}

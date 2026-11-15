@@ -1,40 +1,40 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { MatFormField, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
-import { ProgressSpinnerComponent } from '../../ui/spinner/spinner.component';
-import { PlaylistSelectComponentBase } from '../playlist-select-base.component';
+import { MatInput } from '@angular/material/input';
+import { searchState } from '../../search-state';
+import { MusicService } from '../../services/music.service';
+import { PlaylistGridComponent } from '../playlist-grid/playlist-grid.component';
 
 @Component({
   selector: 'rr-search',
-  imports: [ReactiveFormsModule, MatIcon, ProgressSpinnerComponent],
+  imports: [ReactiveFormsModule, MatFormField, MatInput, MatPrefix, MatSuffix, MatIconButton, MatIcon, PlaylistGridComponent],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchComponent extends PlaylistSelectComponentBase {
-  readonly search = new FormControl('', { nonNullable: true, validators: [Validators.required] });
+export class SearchComponent {
+  private readonly music = inject(MusicService);
 
-  constructor() {
-    super();
-    this.search.valueChanges.pipe(takeUntilDestroyed()).subscribe(value => {
-      if (value) this.fetchPlaylists(value);
-    });
-  }
+  readonly search = new FormControl('', { nonNullable: true });
+  readonly state = searchState(this.search, term => this.music.getPlaylistBySearch(term));
 
-  reset(): void {
-    this.search.setValue('');
-    this.search.markAsPristine();
-    this.playlists.set([]);
-  }
+  readonly playlists = computed(() => {
+    const state = this.state();
+    return state.status === 'done' ? state.items : [];
+  });
 
-  private async fetchPlaylists(term: string): Promise<void> {
-    this.isLoading.set(true);
-    try {
-      const lists = await this.music.getPlaylistBySearch(term);
-      if (lists.length) this.playlists.set(lists);
-    } finally {
-      this.isLoading.set(false);
+  readonly emptyText = computed(() => {
+    const state = this.state();
+    switch (state.status) {
+      case 'done':
+        return `No playlists found for "${state.term}".`;
+      case 'error':
+        return 'Could not reach Deezer, please try again!';
+      default:
+        return 'Use the searchbar to find any public playlist available on Deezer!';
     }
-  }
+  });
 }

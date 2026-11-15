@@ -30,30 +30,20 @@ export class MusicService {
     return checkDeezerBody<T>(path, body);
   };
 
-  /** `page` is 1-based. */
+  /** `page` is 1-based. Rejects if Deezer can't be reached, so callers can tell errors from empty results. */
   getChartsPlaylists(page: number): Promise<Playlist[]> {
-    return orEmpty('charts', fetchChartPlaylists(this.get, page));
+    return fetchChartPlaylists(this.get, page);
   }
 
   getPlaylistBySearch(searchTerm: string): Promise<Playlist[]> {
-    return orEmpty('playlist search', fetchPlaylistSearch(this.get, searchTerm));
+    return fetchPlaylistSearch(this.get, searchTerm);
   }
 
   getSongsBySearch(searchTerm: string): Promise<Track[]> {
-    return orEmpty('track search', fetchTrackSearch(this.get, searchTerm));
+    return fetchTrackSearch(this.get, searchTerm);
   }
 
   getTracksFromPlaylist(playlistId: string): Promise<Track[]> {
-    return orEmpty('playlist tracks', fetchPlaylistTracks(this.get, playlistId));
-  }
-}
-
-/** Failed requests resolve to an empty list, so callers can treat them as "no results". */
-async function orEmpty<T>(what: string, request: Promise<T[]>): Promise<T[]> {
-  try {
-    return await request;
-  } catch (e) {
-    console.error(`Deezer ${what} request failed`, e);
-    return [];
+    return fetchPlaylistTracks(this.get, playlistId);
   }
 }

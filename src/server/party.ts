@@ -1,307 +1,552 @@
-import { CustomPlaylistTrack, MIN_PLAYLIST_TRACKS, PlaylistRef, Settings, Track } from '../shared/models';
-import { isDeezerId } from '../shared/deezer';
-import { getPlaylistTracks, getTrack } from './deezer';
-import { Player } from "./player"
-import { GameServer } from "./server"
+import { randomInt } from 'node:crypto';
+import { AckResult } from '../shared/events';
+import {
+  ANSWER_COUNT,
+  AnswerResult,
+  CustomPlaylistTrack,
+  GAME_PHASES,
+  GameEndReason,
+  MAX_CUSTOM_TRACKS,
+  MAX_PARTY_SIZE,
+  MIN_PLAYLIST_TRACKS,
+  PartyPhase,
+  PartyState,
+  PlaylistRef,
+  PREVIEW_LENGTH_MS,
+  PROPOSAL_TIMEOUT_MS,
+  Settings,
+  Track,
+} from '../shared/models';
+import { Player } from './player';
 
-export interface GameProposal {
-  player: Player,
-  settings: Settings,
+/** Where the game gets its music from (Deezer in production, a fake in tests). */
+export interface TrackSource {
+  getPlaylistTracks(playlistId: string): Promise<Track[]>;
+  /** The track with a fresh preview URL, or null if it can't be played. */
+  getTrack(trackId: string): Promise<{ track: Track; preview: string } | null>;
 }
 
-const MAX_CUSTOM_TRACKS = 30;
-/** Consecutive preview lookups that may fail before the game is ended. */
-const MAX_PREVIEW_FAILURES = 3;
+export const COUNTDOWN_MS = 3000;
+export const REVEAL_MS = 3000;
+export const ROUND_OVER_MS = 3000;
+export const EMPTY_PARTY_TTL_MS = 60_000;
+/** Consecutive failed preview lookups (Deezer errors) before the game is ended. */
+const MAX_LOOKUP_FAILURES = 3;
+/** Tracks without a preview skipped in a row before giving up, to spare Deezer's rate limit. */
+const MAX_UNPLAYABLE_SKIPS = 10;
 
+interface PlayableTrack {
+  track: Track;
+  preview: string;
+}
+
+interface Round {
+  number: number;
+  track: Track;
+  preview: string;
+  answers: string[];
+  correct: string;
+  startedAt: number;
+}
+
+interface Game {
+  settings: Settings;
+  /** Tracks not played yet. */
+  pool: Track[];
+  /** Distinct answers of the playlist (titles or artists) to pick the wrong ones from. */
+  answerPool: string[];
+  multiplayer: boolean;
+  round: Round | null;
+  /** The next round's track, looked up ahead of time so rounds start without waiting for Deezer. */
+  next: Promise<PlayableTrack | null> | null;
+  nextResolved: PlayableTrack | null;
+  lookupFailed: boolean;
+  endReason: GameEndReason | null;
+}
+
+interface Proposal {
+  by: Player;
+  settings: Settings;
+}
+
+function fail<T>(error: string): AckResult<T> {
+  return { ok: false, error };
+}
+
+function shuffle<T>(items: readonly T[]): T[] {
+  const result = items.slice();
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = randomInt(i + 1);
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
+ * A party and its game, as an explicit state machine (see `PartyPhase`). Every command checks the
+ * phase first, and all timed transitions go through a single timer, so stale timers or late
+ * messages can never act on a newer round or game.
+ */
 export class Party {
-    id: string
-    players: Player[] = [];
-    playlistTitle: string = '';
-    /** Tracks not played yet in the current game. */
-    tracks: Track[] = [];
-    answers: string[] = [];
-    gameMode: 'artist' | 'title' = 'title';
-    maxRounds: number = 10;
-    maxLives: number = 3;
-    speed: number = 30;
-    vibeMode: boolean = false;
-    currentRound: number = 0;
-    currentSong: Track = { id: '', title: '', artist: '', cover: '' };
-    gameProposal: GameProposal | undefined;
-    /** Bumped when a game starts or ends, so async work from an older game can tell it is stale. */
-    private gameId = 0;
-    private removalTimer: NodeJS.Timeout | null = null;
-    private timer: any;
-    remainingTime: number = 0;
-    customPlaylist: CustomPlaylistTrack[] = [];
+  phase: PartyPhase = 'lobby';
+  /** In join order: the first player is the leader. */
+  players: Player[] = [];
+  customPlaylist: CustomPlaylistTrack[] = [];
 
-    constructor(_id: string) {
-        this.id = _id;
-    }
+  private proposal: Proposal | null = null;
+  private game: Game | null = null;
+  private timer: NodeJS.Timeout | null = null;
+  private phaseEndsAt: number | null = null;
+  private emptyTimer: NodeJS.Timeout | null = null;
 
-    addPlayer(player: Player) {
-        this.players.push(player);
-        player.socket.emit('updateCustomPlaylist', this.customPlaylist);
-        if (this.players.filter(p => p.isLeader).length === 0) {
-            this.players[0].isLeader = true;
-        }
-        this.sendUpdateParty();
+  constructor(
+    readonly code: string,
+    private readonly source: TrackSource,
+    private readonly onEmpty: (party: Party) => void,
+  ) {}
 
-        if (this.removalTimer) {
-            clearTimeout(this.removalTimer);
-            this.removalTimer = null;
-        }
-    }
-
-    removePlayer(player?: Player) {
-        if (!player) return;
-        player.isLeader = false;
-        this.players = this.players.filter(p => p.id !== player.id);
-        if (this.players.length && this.players.filter(p => p.isLeader).length === 0) {
-          this.players[0].isLeader = true;
-          console.log(`${this.players[0].name} is now the leader of: ${this.id}`);
-        }
-        if (this.players.length) {
-            this.sendUpdateParty();
-        } else {
-
-            this.removalTimer = setTimeout(() => {
-                GameServer.getInstance().removeParty(this);
-                console.log(`Party ${this.id} removed due to no players`);
-            }, 60000);
-        }
-    }
-
-    findPlayerById(id: string): Player | undefined {
-        return this.players.find(p => p.id === id);
-    } 
-
-    sendUpdateParty(isEval: boolean = false) {
-        this.players = this.players.sort((a, b) => b.points - a.points);
-        this.players.forEach(p => {
-            p.socket.emit(isEval ? 'evalParty' : 'updateParty', 
-                this.players.map(player => player.playerData),
-            );
-        p.socket.emit('updatePlayer', p.playerData);
-    });
+  get leader(): Player | undefined {
+    return this.players[0];
   }
 
-  /**
-   * Loads the proposed playlist's tracks from Deezer and starts the game. The proposal stays set
-   * while loading, so nobody can propose another game in the meantime.
-   */
-  async startGame() {
-    const proposal = this.gameProposal;
-    if (!proposal) return;
-    const settings = proposal.settings;
+  has(player: Player): boolean {
+    return this.players.includes(player);
+  }
+
+  // --- Membership ----------------------------------------------------------------------------
+
+  /** Why nobody can join right now, or null if they can. */
+  joinError(): string | null {
+    if (GAME_PHASES.includes(this.phase)) return 'A game is in progress in this party, try again when it is over!';
+    if (this.players.length >= MAX_PARTY_SIZE) return 'This party is full!';
+    return null;
+  }
+
+  addPlayer(player: Player): void {
+    this.players.push(player);
+    if (this.emptyTimer) {
+      clearTimeout(this.emptyTimer);
+      this.emptyTimer = null;
+    }
+    this.broadcast();
+  }
+
+  removePlayer(player: Player): void {
+    if (!this.has(player)) return;
+    this.players = this.players.filter(p => p !== player);
+
+    if (!this.players.length) {
+      this.clearTimer();
+      this.proposal = null;
+      this.game = null;
+      this.phase = 'lobby';
+      if (this.emptyTimer) clearTimeout(this.emptyTimer);
+      this.emptyTimer = setTimeout(() => {
+        if (!this.players.length) this.onEmpty(this);
+      }, EMPTY_PARTY_TTL_MS);
+      return;
+    }
+
+    if (this.phase === 'proposal') {
+      if (this.proposal?.by === player) {
+        this.cancelProposal(`${player.name} left, the game proposal was cancelled.`);
+        return;
+      }
+      if (this.startIfAllAccepted()) return;
+    }
+    if (this.phase === 'round' && this.endRoundIfAllAnswered()) return;
+    this.broadcast();
+  }
+
+  playerDisconnected(): void {
+    if (this.phase === 'round' && this.endRoundIfAllAnswered()) return;
+    this.broadcast();
+  }
+
+  playerReconnected(): void {
+    this.broadcast();
+  }
+
+  /** Only the leader can kick, and not themselves. Returns the kicked player. */
+  kick(by: Player, playerId: string): Player | null {
+    if (by !== this.leader) return null;
+    const target = this.players.find(p => p.id === playerId);
+    if (!target || target === by) return null;
+    target.socket?.emit('kicked');
+    this.notice(`${target.name} was removed from the party!`, target);
+    this.removePlayer(target);
+    return target;
+  }
+
+  // --- Proposal ------------------------------------------------------------------------------
+
+  /** Returns an error message, or null if the proposal was made. */
+  propose(player: Player, settings: Settings): string | null {
+    if (this.phase === 'proposal' && this.proposal) return `${this.proposal.by.name} has already selected a playlist!`;
+    if (this.phase !== 'lobby' && this.phase !== 'gameOver') return 'A game is already starting!';
+    if (settings.playlist.source === 'custom' && this.customPlaylist.length < MIN_PLAYLIST_TRACKS) {
+      return `You need at least ${MIN_PLAYLIST_TRACKS} tracks to start a game!`;
+    }
+    this.proposal = { by: player, settings };
+    this.players.forEach(p => (p.accepted = p === player));
+    this.phase = 'proposal';
+    if (!this.startIfAllAccepted()) {
+      this.schedule(PROPOSAL_TIMEOUT_MS, () => this.cancelProposal('Not everyone accepted the game in time!'));
+      this.broadcast();
+    }
+    return null;
+  }
+
+  respond(player: Player, accept: boolean): void {
+    if (this.phase !== 'proposal' || !this.proposal || player.accepted) return;
+    if (!accept) {
+      this.cancelProposal(`${player.name} has declined the game! Pick a new playlist to start!`, player);
+      return;
+    }
+    player.accepted = true;
+    if (!this.startIfAllAccepted()) this.broadcast();
+  }
+
+  /** Lets the proposer take their proposal back. */
+  withdraw(player: Player): void {
+    if (this.phase === 'proposal' && this.proposal?.by === player) {
+      this.cancelProposal(`${player.name} cancelled the game proposal.`, player);
+    }
+  }
+
+  private startIfAllAccepted(): boolean {
+    if (!this.proposal || !this.players.every(p => p.accepted)) return false;
+    void this.startGame(this.proposal).catch(e => this.logError('startGame', e));
+    return true;
+  }
+
+  private cancelProposal(message: string, except?: Player): void {
+    this.clearTimer();
+    this.proposal = null;
+    this.players.forEach(p => (p.accepted = false));
+    this.phase = this.game?.endReason ? 'gameOver' : 'lobby';
+    this.notice(message, except);
+    this.broadcast();
+  }
+
+  // --- Game ----------------------------------------------------------------------------------
+
+  private async startGame(proposal: Proposal): Promise<void> {
+    this.clearTimer();
+    this.phase = 'loading';
+    this.broadcast();
 
     let tracks: Track[];
     try {
-      tracks = await this.loadTracks(settings.playlist);
+      tracks = await this.loadTracks(proposal.settings.playlist);
     } catch (e) {
-      console.error(this.id, 'could not load playlist', settings.playlist, e);
-      this.cancelProposal('Could not load the playlist. Try again or pick another one!');
+      this.logError(`could not load playlist ${JSON.stringify(proposal.settings.playlist)}`, e);
+      if (this.proposal === proposal) this.cancelProposal('Could not load the playlist. Try again or pick another one!');
       return;
     }
-    if (this.gameProposal !== proposal) return;
-    if (tracks.length < MIN_PLAYLIST_TRACKS) {
-      this.cancelProposal('This playlist does not have enough playable tracks!');
+    if (this.proposal !== proposal) return; // cancelled while loading (e.g. everyone left)
+
+    const mode = proposal.settings.gameMode;
+    const answerPool = Array.from(new Set(tracks.map(track => track[mode])));
+    if (tracks.length < MIN_PLAYLIST_TRACKS || answerPool.length < ANSWER_COUNT) {
+      this.cancelProposal(
+        mode === 'artist' && tracks.length >= MIN_PLAYLIST_TRACKS
+          ? `This playlist needs at least ${ANSWER_COUNT} different artists for artist mode!`
+          : 'This playlist does not have enough playable tracks!',
+      );
       return;
     }
 
-    this.gameId++;
-    this.currentRound = 0;
-    this.maxLives = settings.health;
-    this.speed = settings.speed;
-    this.gameMode = settings.gameMode;
-    this.maxRounds = settings.rounds;
-    this.vibeMode = settings.vibeMode;
-    this.playlistTitle = settings.playlist.title;
-    this.tracks = tracks;
-    this.gameProposal = undefined;
-    this.answers = Array.from(new Set(tracks.map(song => song[this.gameMode])));
-
-    this.players.forEach(p => {
-        p.reset(this.maxLives);
-        p.socket.emit('gameStarts', this.speed, this.maxRounds, this.vibeMode);
-        p.socket.emit('updatePlayer', p.playerData);
-    });
-    this.sendUpdateParty();
-    this.countdown(3);
-    console.log(this.id, 'game starts with settings: \n', 
-        this.maxLives, 'lives\n', this.speed, 'speed\n', 
-        this.maxRounds, 'rounds\n', this.gameMode, 'gamemode\n', 'on:', this.playlistTitle);
-    if (this.vibeMode) console.log('with vibe mode');
+    const settings = { ...proposal.settings, rounds: Math.min(proposal.settings.rounds, tracks.length) };
+    this.proposal = null;
+    this.players.forEach(p => p.startGame(settings.health));
+    const game: Game = {
+      settings,
+      pool: [...tracks],
+      answerPool,
+      multiplayer: this.players.length > 1,
+      round: null,
+      next: null,
+      nextResolved: null,
+      lookupFailed: false,
+      endReason: null,
+    };
+    this.game = game;
+    this.prefetchNext(game);
+    this.phase = 'countdown';
+    this.schedule(COUNTDOWN_MS, () => this.run(this.startRound()));
+    this.broadcast();
+    console.log(this.code, 'game starts:', JSON.stringify({ ...settings, playlist: settings.playlist.title }));
   }
 
   private async loadTracks(ref: PlaylistRef): Promise<Track[]> {
     if (ref.source === 'custom') {
       return this.customPlaylist.map(({ id, title, artist, cover }) => ({ id, title, artist, cover }));
     }
-    if (!isDeezerId(ref.id)) throw new Error(`Invalid playlist id: ${ref.id}`);
-    // Copy: the cached array is shared, and rounds splice played tracks out of it.
-    return [...await getPlaylistTracks(ref.id)];
+    // Copy: the cached array is shared, and rounds take played tracks out of the pool.
+    return [...(await this.source.getPlaylistTracks(ref.id))];
   }
 
-  private cancelProposal(message: string) {
-    this.gameProposal = undefined;
-    this.players.forEach(p => {
-      p.accepted = false;
-      p.socket.emit('startFailed', message);
+  private prefetchNext(game: Game): void {
+    game.nextResolved = null;
+    game.next = this.nextPlayableTrack(game).then(next => {
+      if (this.game === game) {
+        game.nextResolved = next;
+        // Let clients preload the audio while they look at the countdown / round results.
+        if (next && (this.phase === 'countdown' || this.phase === 'reveal' || this.phase === 'roundOver')) {
+          this.broadcast();
+        }
+      }
+      return next;
     });
-    this.sendUpdateParty();
   }
 
-  /** Removes random tracks from the pool until one has a playable preview, with a fresh URL. */
-  private async nextPlayableTrack(): Promise<{ track: Track; preview: string } | undefined> {
+  /** Takes random tracks out of the pool until one has a playable preview. Never rejects. */
+  private async nextPlayableTrack(game: Game): Promise<PlayableTrack | null> {
     let failures = 0;
-    while (this.tracks.length && failures < MAX_PREVIEW_FAILURES) {
-      const idx = Math.floor(Math.random() * this.tracks.length);
-      const [track] = this.tracks.splice(idx, 1);
+    let skips = 0;
+    while (game.pool.length && failures < MAX_LOOKUP_FAILURES && skips < MAX_UNPLAYABLE_SKIPS) {
+      const [track] = game.pool.splice(randomInt(game.pool.length), 1);
       try {
-        const playable = await getTrack(track.id);
+        const playable = await this.source.getTrack(track.id);
+        if (this.game !== game) return null;
         if (playable) return { track, preview: playable.preview };
-        console.log(this.id, 'skipping unplayable track', track.id, track.title);
+        skips++;
       } catch (e) {
         failures++;
-        console.error(this.id, 'preview lookup failed for', track.id, e);
+        game.pool.push(track); // a Deezer hiccup is not the track's fault
+        this.logError(`preview lookup failed for ${track.id}`, e);
       }
     }
-    return undefined;
+    if (failures >= MAX_LOOKUP_FAILURES) game.lookupFailed = true;
+    return null;
   }
 
-  async nextRound() {
-    this.currentRound++;
-    if(this.currentRound > this.maxRounds) {
-      this.gameOver();
-      return;
-    }
-    if(this.players.length > 1 && this.players.filter(p => p.isAlive()).length === 1) {
-      this.gameOver();
-      return;
-    }
-    if(this.players.length === 1 && this.players.filter(p => p.isAlive()).length === 0) {
-      this.gameOver();
-      return;
-    }
-    if(this.players.length === 0) {
-      this.gameOver();
-      return;
-    }
-    this.sendUpdateParty();
-    this.remainingTime = this.speed;
+  private async startRound(): Promise<void> {
+    const game = this.game;
+    if (!game || !game.next) return;
+    this.clearTimer();
+    if (!game.nextResolved) this.broadcast(); // still waiting for Deezer: clients show a spinner
 
-    const gameId = this.gameId;
-    const next = await this.nextPlayableTrack();
-    if (gameId !== this.gameId) return; // the game ended or restarted while we were waiting
+    const next = await game.next;
+    if (this.game !== game || (this.phase !== 'countdown' && this.phase !== 'roundOver')) return;
     if (!next) {
-      this.gameOver();
+      this.endGame(game.lookupFailed ? 'deezerError' : 'noTracks');
       return;
     }
-    this.currentSong = next.track;
 
-    const answers = this.getAnswers();
-    this.players.forEach(player=>{
-      player.currentPoints = 0;
-      player.answered = false;
-      player.socket.emit('nextRound', answers, next.preview, this.currentRound);
+    const number = (game.round?.number ?? 0) + 1;
+    const correct = next.track[game.settings.gameMode];
+    const wrong = shuffle(game.answerPool.filter(answer => answer !== correct)).slice(0, ANSWER_COUNT - 1);
+    game.round = {
+      number,
+      track: next.track,
+      preview: next.preview,
+      correct,
+      answers: shuffle([correct, ...wrong]),
+      startedAt: Date.now(),
+    };
+    game.next = null;
+    game.nextResolved = null;
+    if (number < game.settings.rounds) this.prefetchNext(game);
 
-    });
-    this.startTimer();
-
+    this.players.forEach(p => p.clearAnswer());
+    this.phase = 'round';
+    this.schedule(game.settings.speed * 1000, () => this.endRound());
+    this.broadcast();
   }
 
-  gameOver() {
-    this.gameId++;
-    console.log(this.id, 'game is over');
-    this.sendUpdateParty();
-    this.players.forEach(p => p.socket.emit('gameOver'));
+  answer(player: Player, roundNumber: number, answer: string): AckResult<AnswerResult> {
+    const game = this.game;
+    const round = game?.round;
+    if (this.phase !== 'round' || !game || !round || round.number !== roundNumber) return fail('This round is over!');
+    if (!player.isPlaying()) return fail('You are out of this game!');
+    if (player.answered) return fail('You have already answered!');
+    if (!round.answers.includes(answer)) return fail('Invalid answer!');
 
-  }
+    const timeLimit = game.settings.speed * 1000;
+    const elapsed = Date.now() - round.startedAt;
+    if (elapsed > timeLimit) return fail('Time is up!');
 
-  getAnswers(): string[] {
-    const filteredArray = this.answers.filter(item => item !== this.currentSong[this.gameMode]);
-    for (let i = filteredArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [filteredArray[i], filteredArray[j]] = [filteredArray[j], filteredArray[i]];
-    }
-    const wrongAnswers = filteredArray.slice(0, 3);
-    return [this.currentSong[this.gameMode], ...wrongAnswers];
-}
-
-startTimer() {
-    this.timer = setInterval(() => {
-      if (this.remainingTime > 0) {
-        this.remainingTime--;
-        this.players.forEach(p => p.socket.emit('countdown', this.remainingTime));
-      } else {
-        this.stopTimer();
-      }
-    }, 1000);
-  }
-
-  stopTimer() {
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-      this.players.filter(p => p.isAlive() && !p.answered).forEach(p => {
-        p.lives--;
-        p.currentPoints = 0;
-        p.streak = 1;
-      });
-      setTimeout(() => {
-        setTimeout(() => {
-          this.sendUpdateParty(true);
-          setTimeout(() => {
-            this.nextRound();
-        }, 3000);
-      }, 3000);
-      }, this.vibeMode ? ((27 - this.speed + this.remainingTime) * 1000) : 0);
-    }
-  }
-  checkRoundOver() {
-    if(this.players.filter(p => p.isAlive() && !p.answered).length === 0) this.stopTimer();
-  }
-
-  countdown(number: number) {
-    if (number >= 0) {
-      this.players.forEach(p => p.socket.emit('countdown', number));
-      setTimeout(() => {
-        this.countdown(number - 1);
-      }, 1000);
+    // Scored on the server's clock: faster answers and longer streaks earn more.
+    if (answer === round.correct) {
+      player.scoreRight(answer, Math.round((timeLimit - elapsed) * player.streak));
     } else {
-      this.nextRound();
+      player.scoreWrong(answer);
     }
-  } 
+    const result: AckResult<AnswerResult> = {
+      ok: true,
+      data: { correct: player.correct === true, points: player.roundPoints, correctAnswer: round.correct },
+    };
+    if (!this.endRoundIfAllAnswered()) this.broadcast();
+    return result;
+  }
 
-  kickPlayer(id: string): boolean {
-    const player = this.findPlayerById(id);
-    if (player) {
-      this.players.forEach(p => {
-        p.socket.emit('playerKicked', player.name);
+  /**
+   * Ends the round early once every connected player still in the game answered. Disconnected
+   * players are not waited for, unless nobody is connected (e.g. a solo player reloading).
+   */
+  private endRoundIfAllAnswered(): boolean {
+    if (this.phase !== 'round') return false;
+    const playing = this.players.filter(p => p.isPlaying());
+    const connected = playing.filter(p => p.connected);
+    const done = playing.length === 0 || (connected.length > 0 && connected.every(p => p.answered));
+    if (done) this.endRound();
+    return done;
+  }
+
+  private endRound(): void {
+    const game = this.game;
+    const round = game?.round;
+    if (this.phase !== 'round' || !game || !round) return;
+    this.clearTimer();
+    this.players.filter(p => p.isPlaying() && !p.answered).forEach(p => p.scoreWrong(''));
+
+    // In vibe mode the whole 30 s preview plays before moving on.
+    const elapsed = Date.now() - round.startedAt;
+    const revealMs = game.settings.vibeMode ? Math.max(REVEAL_MS, PREVIEW_LENGTH_MS - elapsed) : REVEAL_MS;
+    this.phase = 'reveal';
+    this.schedule(revealMs, () => {
+      this.phase = 'roundOver';
+      this.schedule(ROUND_OVER_MS, () => {
+        const reason = this.endReason(game);
+        if (reason) this.endGame(reason);
+        else this.run(this.startRound());
       });
-      this.sendUpdateParty();
-      player.socket.emit('getKicked');
-      this.removePlayer(player);
-      return true
-    }
-    return false;
+      this.broadcast();
+    });
+    this.broadcast();
   }
 
-  addCustomTrack(track: CustomPlaylistTrack): true | string {
-    if (this.customPlaylist.find(t => t.id === track.id)) {
-      return `${track.title} by ${track.artist} is already in the playlist!`;
-    }
-    if (this.customPlaylist.length >= MAX_CUSTOM_TRACKS) {
-      return `The playlist is full!`;
-    }
-    this.customPlaylist.push(track);
-    this.players.forEach(p => p.socket.emit('updateCustomPlaylist', this.customPlaylist));
-    return true;
+  private endReason(game: Game): GameEndReason | null {
+    const participants = this.players.filter(p => p.participant);
+    if (!participants.length) return 'abandoned';
+    const alive = participants.filter(p => p.isAlive()).length;
+    if (game.multiplayer ? alive <= 1 : alive === 0) return alive === 1 ? 'lastStanding' : 'allEliminated';
+    if ((game.round?.number ?? 0) >= game.settings.rounds) return 'rounds';
+    return null;
   }
-  
-  removeCustomTrack(trackId: string) {
+
+  private endGame(reason: GameEndReason): void {
+    const game = this.game;
+    if (!game) return;
+    this.clearTimer();
+    game.endReason = reason;
+    game.next = null;
+    game.nextResolved = null;
+    this.phase = 'gameOver';
+    this.players.forEach(p => (p.accepted = false));
+    this.broadcast();
+    console.log(this.code, 'game over:', reason);
+  }
+
+  // --- Custom playlist -----------------------------------------------------------------------
+
+  customTrackError(trackId: string): string | null {
+    if (this.customPlaylist.some(t => t.id === trackId)) return 'This song is already in the playlist!';
+    if (this.customPlaylist.length >= MAX_CUSTOM_TRACKS) return 'The playlist is full!';
+    return null;
+  }
+
+  addCustomTrack(track: Track, by: Player): string | null {
+    const error = this.customTrackError(track.id);
+    if (error) return error;
+    this.customPlaylist.push({ ...track, addedBy: { id: by.id, name: by.name, pfp: by.pfp } });
+    this.broadcast();
+    return null;
+  }
+
+  removeCustomTrack(trackId: string): void {
+    const before = this.customPlaylist.length;
     this.customPlaylist = this.customPlaylist.filter(t => t.id !== trackId);
-    this.players.forEach(p => p.socket.emit('updateCustomPlaylist', this.customPlaylist));
+    if (this.customPlaylist.length !== before) this.broadcast();
+  }
+
+  // --- State ---------------------------------------------------------------------------------
+
+  snapshot(player: Player): PartyState {
+    const game = this.game;
+    const round = game?.round ?? null;
+    const phase = this.phase;
+    const inRound = phase === 'round' || phase === 'reveal';
+    const revealed = phase === 'reveal' || phase === 'roundOver';
+    const showGame = game && phase !== 'lobby' && phase !== 'proposal' && phase !== 'loading';
+    const showAnswer = round && (inRound || phase === 'roundOver');
+    return {
+      code: this.code,
+      phase,
+      phaseEndsIn: this.phaseEndsAt === null ? null : Math.max(0, this.phaseEndsAt - Date.now()),
+      players: this.players.map(p => p.toData(p === this.leader)),
+      proposal: this.proposal
+        ? { byId: this.proposal.by.id, byName: this.proposal.by.name, settings: this.proposal.settings }
+        : null,
+      game: showGame
+        ? {
+            settings: game.settings,
+            round: round?.number ?? 0,
+            answers: inRound && round ? round.answers : [],
+            previewUrl: inRound && round ? round.preview : null,
+            nextPreviewUrl: phase === 'round' ? null : (game.nextResolved?.preview ?? null),
+            correctAnswer: revealed && round ? round.correct : null,
+            song: revealed && round ? round.track : null,
+            endReason: game.endReason,
+          }
+        : null,
+      customPlaylist: this.customPlaylist,
+      you: {
+        id: player.id,
+        answer: showAnswer ? player.answer : null,
+        correct: showAnswer ? player.correct : null,
+        correctAnswer: showAnswer && player.answered ? round.correct : null,
+      },
+    };
+  }
+
+  broadcast(): void {
+    this.players.forEach(p => p.socket?.emit('state', this.snapshot(p)));
+  }
+
+  private notice(message: string, except?: Player): void {
+    this.players.forEach(p => p !== except && p.socket?.emit('notice', message));
+  }
+
+  // --- Timers --------------------------------------------------------------------------------
+
+  /** Runs `action` after `ms`, replacing any pending transition. */
+  private schedule(ms: number, action: () => void): void {
+    this.clearTimer();
+    this.phaseEndsAt = Date.now() + ms;
+    const timer = setTimeout(() => {
+      if (this.timer !== timer) return;
+      this.timer = null;
+      this.phaseEndsAt = null;
+      try {
+        action();
+      } catch (e) {
+        this.logError('timer', e);
+      }
+    }, ms);
+    this.timer = timer;
+  }
+
+  private clearTimer(): void {
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = null;
+    this.phaseEndsAt = null;
+  }
+
+  private run(promise: Promise<void>): void {
+    promise.catch(e => this.logError('async', e));
+  }
+
+  private logError(what: string, e: unknown): void {
+    console.error(this.code, what, e);
+  }
+
+  dispose(): void {
+    this.clearTimer();
+    if (this.emptyTimer) clearTimeout(this.emptyTimer);
+    this.game = null;
+    this.proposal = null;
   }
 }

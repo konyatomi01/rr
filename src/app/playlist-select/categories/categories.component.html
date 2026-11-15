@@ -1,17 +1,10 @@
 <div class="d-flex justify-content-center align-items-center mb-2 gap-3 category-select">
-  <mat-icon [class.disabled]="page() === 1" (click)="categoryMinus()">arrow_circle_left</mat-icon>
-  <div class="category">{{ page() }} / {{ pageCount }}</div>
-  <mat-icon [class.disabled]="page() === pageCount" (click)="categoryPlus()">arrow_circle_right</mat-icon>
+  <button matIconButton class="rr-icon-button pager" [disabled]="page() === 1" (click)="go(-1)" aria-label="Previous page">
+    <mat-icon>arrow_circle_left</mat-icon>
+  </button>
+  <div class="category" aria-live="polite">{{ page() }} / {{ pageCount }}</div>
+  <button matIconButton class="rr-icon-button pager" [disabled]="page() === pageCount" (click)="go(1)" aria-label="Next page">
+    <mat-icon>arrow_circle_right</mat-icon>
+  </button>
 </div>
-<div class="row playlist-displayer">
-  @if (isLoading()) {
-    <rr-spinner />
-  } @else {
-    @for (playlist of playlists(); track playlist.id) {
-      <button class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
-        <img class="cover" [src]="playlist.cover" />
-        <figcaption class="caption">{{ playlist.title }}</figcaption>
-      </button>
-    }
-  }
-</div>
+<rr-playlist-grid [playlists]="playlists()" [loading]="isLoading()" [emptyText]="emptyText()" />

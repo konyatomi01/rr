@@ -1,78 +1,56 @@
 @use '../../../styles/colors' as *;
 
 :host {
-    width: 100%;
+  width: 100%;
 }
 
 .upper-row {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
 }
 
 h2 {
-    font-size: medium;
-    font-weight: bold;
+  font-size: medium;
+  font-weight: bold;
 }
 
 .player-displayer {
-    display: flex;
-    overflow-x: auto;
-    width: 100%;
-    align-items: end;
-    height: 45px;
+  display: flex;
+  overflow-x: auto;
+  width: 100%;
+  align-items: end;
+  height: 52px;
+  padding-top: 6px;
 }
 
 .player {
-    overflow: hidden;
-    color: $text;
-    display: flex;
-    align-items: center;
-    border-radius: 25px;
-    background-color: $red;
-    height: 45px;
-    width: 45px;
-    flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-radius: 25px;
+  background-color: $red;
+  height: 45px;
+  width: 45px;
+  flex-shrink: 0;
 
-    &.accepted {
-        background-color: $green;
-    }
+  &.accepted {
+    background-color: $green;
+  }
+  &.disconnected {
+    opacity: 0.5;
+  }
 
-    .pfp {
-        height: 100%;
-        border-radius: 1000px;
-        border: solid 1px $white; 
-    }
+  .pfp {
+    height: 100%;
+    border-radius: 1000px;
+    border: solid 1px $white;
+  }
 }
 
 .menu {
-    position: relative;
-    height: 42px;
-    width: 42px;
-    align-items: center;
-    display: flex;
-    background-color: $orange;
-    border-radius: 1000px;
-    border: none;
-    justify-content: center;
-
-    .count {
-        position: absolute;
-        top: -3px;
-        right: -8px;
-        background: $red;
-        border-radius: 1000px;
-        font-size: 14px;
-        padding: 0px 8px;
-        color: $text;
-    }
-
-    mat-icon {
-        color: $text;
-        height: 32px;
-        width: 32px;
-        font-size: 32px;
-        flex-shrink: 0;
-    }
+  --rr-icon-button-size: 42px;
+  --rr-icon-size: 32px;
+  flex-shrink: 0;
 }

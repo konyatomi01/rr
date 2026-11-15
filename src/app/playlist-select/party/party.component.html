@@ -1,20 +1,25 @@
 <div class="upper-row mb-2">
   <h2>Joined players:</h2>
-  <rr-button text="Leave Party" color="orange" (click)="leaveParty()" />
+  <button matButton="elevated" class="rr-orange" (click)="leaveParty()">Leave Party</button>
 </div>
 <div class="player-displayer gap-1">
-  @if (party.showParty()) {
-    <button class="menu me-2" (click)="party.toggleShowParty()">
+  @if (party.showPlayerList()) {
+    <button matIconButton class="rr-icon-button rr-filled rr-orange menu me-2" (click)="togglePlayerList()" aria-label="Back to the playlists">
       <mat-icon>arrow_back</mat-icon>
     </button>
   } @else {
-    <button class="menu me-2" (click)="party.toggleShowParty()">
-      <div class="count">{{ party.party().length }}</div>
+    <button
+      matIconButton
+      class="rr-icon-button rr-filled rr-orange rr-badge-red menu me-2"
+      (click)="togglePlayerList()"
+      [matBadge]="party.players().length"
+      aria-label="Show the players"
+    >
       <mat-icon>list</mat-icon>
     </button>
-    @for (player of party.party(); track player.id) {
-      <div class="player p-1" [class.accepted]="player.accepted">
-        <img class="pfp" [src]="player.pfp" />
+    @for (player of party.players(); track player.id) {
+      <div class="player p-1" [class.accepted]="player.accepted" [class.disconnected]="!player.connected">
+        <img class="pfp" [src]="player.pfp" [alt]="player.name" [title]="player.name">
       </div>
     }
   }

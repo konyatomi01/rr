@@ -1,56 +1,59 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { CHART_PAGE_COUNT } from '../../../shared/deezer';
 import { Playlist } from '../../../shared/models';
-import { ProgressSpinnerComponent } from '../../ui/spinner/spinner.component';
-import { PlaylistSelectComponentBase } from '../playlist-select-base.component';
-
-export const PAGE_COUNT = CHART_PAGE_COUNT;
+import { MusicService } from '../../services/music.service';
+import { PlaylistGridComponent } from '../playlist-grid/playlist-grid.component';
 
 @Component({
   selector: 'rr-categories',
-  imports: [MatIcon, ProgressSpinnerComponent],
+  imports: [MatIconButton, MatIcon, PlaylistGridComponent],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CategoriesComponent extends PlaylistSelectComponentBase {
-  protected readonly pageCount = PAGE_COUNT;
+export class CategoriesComponent {
+  private readonly music = inject(MusicService);
+
+  protected readonly pageCount = CHART_PAGE_COUNT;
   readonly page = signal(1);
-  private readonly dataCache = new Map<number, Playlist[]>();
+  /** Loaded pages; a page that failed to load is retried when visited again. */
+  private readonly pages = signal(new Map<number, Playlist[] | 'error'>());
+
+  readonly current = computed(() => this.pages().get(this.page()));
+  readonly playlists = computed(() => (Array.isArray(this.current()) ? (this.current() as Playlist[]) : []));
+  readonly isLoading = computed(() => this.current() === undefined);
+  readonly emptyText = computed(() => (this.current() === 'error' ? 'Could not load the charts, try again later!' : ''));
 
   constructor() {
-    super();
-    this.fetchPlaylists();
+    void this.load(1);
   }
 
-  categoryPlus(): void {
-    if (this.page() >= PAGE_COUNT) return;
-    this.page.update(page => page + 1);
-    this.fetchPlaylists();
+  go(delta: number): void {
+    const page = Math.min(this.pageCount, Math.max(1, this.page() + delta));
+    this.page.set(page);
+    if (this.pages().get(page) === 'error') this.setPage(page, undefined);
+    void this.load(page);
   }
 
-  categoryMinus(): void {
-    if (this.page() <= 1) return;
-    this.page.update(page => page - 1);
-    this.fetchPlaylists();
-  }
-
-  private async fetchPlaylists(): Promise<void> {
-    const page = this.page();
-    const cached = this.dataCache.get(page);
-    if (cached?.length) {
-      this.playlists.set(cached);
-      return;
-    }
-    this.isLoading.set(true);
+  private async load(page: number): Promise<void> {
+    if (this.pages().has(page)) return;
+    let result: Playlist[] | 'error';
     try {
-      const playlists = await this.music.getChartsPlaylists(page);
-      this.dataCache.set(page, playlists);
-      // Ignore responses for pages the user has already navigated away from.
-      if (this.page() === page) this.playlists.set(playlists);
-    } finally {
-      if (this.page() === page) this.isLoading.set(false);
+      result = await this.music.getChartsPlaylists(page);
+    } catch {
+      result = 'error';
     }
+    this.setPage(page, result);
+  }
+
+  private setPage(page: number, value: Playlist[] | 'error' | undefined): void {
+    this.pages.update(pages => {
+      const next = new Map(pages);
+      if (value === undefined) next.delete(page);
+      else next.set(page, value);
+      return next;
+    });
   }
 }

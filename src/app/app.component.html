@@ -1,17 +1,14 @@
 <div class="rr-container">
   <div class="mb-2 text-center">
-    <img src="assets/logo2223.png" class="logo">
+    <img src="assets/logo2223.png" class="logo" alt="Rhythm Royale">
   </div>
 
-  @switch (route.state()) {
-    @case ('launch') { <rr-launch /> }
-    @case ('select') { <rr-playlist-select /> }
-    @case ('game') { <rr-game /> }
-    @case ('gameover') { <rr-game-over /> }
-    @case ('roundover') { <rr-round-over /> }
+  @if (socket.hasConnected() && !socket.connected()) {
+    <div class="connection-banner" role="status">
+      <mat-progress-spinner mode="indeterminate" diameter="18" />
+      Connection lost, reconnecting…
+    </div>
   }
 
-  @if (snackBar.show()) {
-    <div class="snackbar">{{ snackBar.text() }}</div>
-  }
+  <router-outlet />
 </div>

@@ -1,25 +1,38 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogClose } from '@angular/material/dialog';
-import { GameProposalData } from '../../../shared/models';
-import { ServerService } from '../../services/server.service';
-import { ButtonComponent } from '../../ui/button/button.component';
+import { MatButton } from '@angular/material/button';
+import { MatDialog, MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { GameService } from '../../services/game.service';
+import { PartyService } from '../../services/party.service';
 
+/** "X wants to play…": accept or decline the pending game proposal. */
 @Component({
   selector: 'rr-accept',
-  imports: [ButtonComponent, MatDialogClose],
+  imports: [MatButton, MatIcon, MatDialogTitle, MatDialogContent, MatDialogActions],
   templateUrl: './accept.component.html',
-  styleUrl: './accept.component.scss',
+  styles: `
+    .stat {
+      width: 56px;
+      height: 56px;
+    }
+    .cover {
+      width: 50%;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcceptComponent {
-  private readonly server = inject(ServerService);
-  protected readonly data = inject<GameProposalData>(MAT_DIALOG_DATA);
+  private readonly party = inject(PartyService);
+  private readonly dialogRef = inject<MatDialogRef<AcceptComponent>>(MatDialogRef);
+  protected readonly game = inject(GameService);
+  protected readonly proposal = this.party.proposal;
 
-  accept(): void {
-    this.server.acceptProposal();
+  static open(dialog: MatDialog): MatDialogRef<AcceptComponent> {
+    return dialog.open(AcceptComponent, { disableClose: true, width: '340px' });
   }
 
-  decline(): void {
-    this.server.declineProposal();
+  respond(accept: boolean): void {
+    this.party.respondProposal(accept);
+    this.dialogRef.close();
   }
 }

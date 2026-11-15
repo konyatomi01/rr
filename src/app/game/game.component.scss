@@ -1,111 +1,111 @@
 @use '../../styles/colors' as *;
+@use '../../styles/breakpoints' as bp;
 
 .game-full {
-    height: 80dvh;
-    color: $white;
+  height: 80dvh;
+  color: $white;
+}
+
+.leave {
+  --rr-icon-button-size: 32px;
+  --rr-icon-size: 20px;
+  transform: scaleX(-1);
 }
 
 .lowTime {
-    color: #EA4462;
+  color: $red;
 }
 
 .vibe-mode {
-    font-weight: bold;
-    color: $blue;
+  font-weight: bold;
+  color: $blue;
 }
 
 rr-player-display {
-    width: 100%;
-    height: 20%;
-    display: block;
+  width: 100%;
+  height: 20%;
+  display: block;
 }
 
 .main-div {
-    height: 75%;
-    width: 100%;
+  height: 75%;
+  width: 100%;
 }
 
-rr-game-party {
-    width: 100%;
-    max-height: 40%;
-
-    @media (min-width: 1200px) {
-        width: 40%;
-        max-height: none;
-        
-    }
-}
+rr-game-party,
 .singleplayer {
-    width: 100%;
-    max-height: 40%;
-    background: linear-gradient(to top left, #00005d, #00003a);
-    color: $white;
-    border-radius: 25px;
-    display: flex;
-    flex-direction: row-reverse;
-    align-items: center;
-    justify-content: center;
+  width: 100%;
+  max-height: 40%;
 
-    @media (min-width: 1200px) {
-        width: 40%;
-        max-height: none;
-        flex-direction: column;
-        
-    }
+  @include bp.xl {
+    width: 40%;
+    max-height: none;
+  }
+}
+
+.singleplayer {
+  background-image: $card-gradient;
+  color: $white;
+  border-radius: 25px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    height: 75%;
+  }
+
+  @include bp.xl {
+    flex-direction: column;
+  }
 }
 
 .game {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
-    height: 60%;
-    background: linear-gradient(to top left, #00005d, #00003a);
-    border-radius: 25px;
+  position: relative;
+  width: 100%;
+  height: 60%;
+  align-items: center;
+  justify-content: space-evenly;
 
-    @media (min-width: 1200px) {
-        width: 60%;
-        height: 100%;
-      }
-}
-.countdown {
-    width: 100%;
+  @include bp.xl {
+    width: 60%;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: xx-large;
+  }
 }
 
-.game-button {
-    width: 80%;
-    text-wrap: nowrap;
-    overflow: hidden;
-    border-radius: 25px;
-    background: none;
-    padding: 10px;
-    color: $white;
-    border: solid 3px $white;
+.countdown {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 4rem;
+}
 
-    @media (min-width: 1200px) {
-        width: 75%;
-        height: 20%;
-    }
+.rr-answer {
+  width: 80%;
 
-    &:disabled {
-        border-color: $white-shadow;
-        color: $white-shadow;
-    }
-    &.answered.right {
-        background: $green;
-        border: none;
-        color: $text;
-    }
-    &.answered.wrong {
-        background: $red;
-        border: none;
-        color: $text;
-    }
-    
+  @include bp.xl {
+    width: 75%;
+  }
+}
+
+.feedback {
+  min-height: 1.5em;
+  color: $red;
+  text-align: center;
+
+  &.correct {
+    color: $yellow;
+  }
+}
+
+.audio-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  background: rgba(0, 0, 0, 0.6);
 }

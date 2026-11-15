@@ -1,106 +1,98 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogClose } from '@angular/material/dialog';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { GameModes, GameSpeeds, PlaylistDetails, Settings } from '../../../shared/models';
-import { ServerService } from '../../services/server.service';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { ANSWER_COUNT, GameModes, GameSpeeds, MAX_HEALTH, MAX_ROUNDS, PlaylistDetails, Settings } from '../../../shared/models';
+import { PartyService } from '../../services/party.service';
 import { SnackbarService } from '../../services/snackbar.service';
-import { ButtonComponent } from '../../ui/button/button.component';
-import { SlideToggleComponent } from '../../ui/slide-toggle/slide-toggle.component';
-import { ToggleButtonComponent, ToggleDirective } from '../../ui/toggle-button/toggle-button.component';
-
-const MIN_ARTISTS_FOR_ARTIST_MODE = 4;
-const TOOLTIP_TIME_MS = 3500;
+import { SlidingToggleDirective } from '../../sliding-toggle.directive';
 
 @Component({
   selector: 'rr-settings',
   imports: [
     ReactiveFormsModule,
-    MatIcon,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
     MatDialogClose,
-    ButtonComponent,
-    ToggleButtonComponent,
-    ToggleDirective,
-    SlideToggleComponent,
+    MatButton,
+    MatIconButton,
+    MatIcon,
+    MatButtonToggleGroup,
+    MatButtonToggle,
+    MatSlideToggle,
+    SlidingToggleDirective,
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsComponent {
-  private readonly server = inject(ServerService);
+  private readonly party = inject(PartyService);
   private readonly snackBar = inject(SnackbarService);
+  private readonly dialogRef = inject<MatDialogRef<SettingsComponent>>(MatDialogRef);
   protected readonly data = inject<PlaylistDetails>(MAT_DIALOG_DATA);
 
   protected readonly gameModes = GameModes;
   protected readonly gameSpeeds = GameSpeeds;
-  protected readonly hearts = [1, 2, 3];
+  protected readonly hearts = Array.from({ length: MAX_HEALTH }, (_, i) => i + 1);
+  /** One track per round, so a playlist can't have more rounds than tracks. */
+  protected readonly maxRounds = Math.min(MAX_ROUNDS, this.data.tracks.length);
 
   readonly form = new FormGroup({
-    rounds: new FormControl(3, {
+    rounds: new FormControl(Math.min(3, this.maxRounds), {
       nonNullable: true,
-      validators: [Validators.required, Validators.min(1), Validators.max(30)],
+      validators: [Validators.required, Validators.min(1), Validators.max(this.maxRounds)],
     }),
-    mode: new FormControl(GameModes.title, { nonNullable: true, validators: Validators.required }),
-    speed: new FormControl(GameSpeeds.slow, { nonNullable: true, validators: Validators.required }),
+    mode: new FormControl(GameModes.title, { nonNullable: true }),
+    speed: new FormControl(GameSpeeds.slow, { nonNullable: true }),
     vibeMode: new FormControl(false, { nonNullable: true }),
-    lives: new FormControl(3, { nonNullable: true, validators: Validators.required }),
+    lives: new FormControl(MAX_HEALTH, { nonNullable: true }),
   });
+  protected readonly rounds = toSignal(this.form.controls.rounds.valueChanges, { initialValue: this.form.controls.rounds.value });
+  protected readonly lives = toSignal(this.form.controls.lives.valueChanges, { initialValue: this.form.controls.lives.value });
 
   /** Artist mode needs enough distinct artists to generate wrong answers. */
-  readonly enoughArtists =
-    new Set(this.data.tracks.map(track => track.artist)).size >= MIN_ARTISTS_FOR_ARTIST_MODE;
+  readonly enoughArtists = new Set(this.data.tracks.map(track => track.artist)).size >= ANSWER_COUNT;
 
-  readonly showVibeModeTooltip = signal(false);
-  private tooltipTimer?: ReturnType<typeof setTimeout>;
+  readonly showVibeInfo = signal(false);
+  readonly starting = signal(false);
 
-  constructor() {
-    inject(DestroyRef).onDestroy(() => clearTimeout(this.tooltipTimer));
+  static open(dialog: MatDialog, data: PlaylistDetails): void {
+    dialog.closeAll();
+    dialog.open(SettingsComponent, { data, width: '420px' });
   }
 
-  toggleVibeModeTooltip(): void {
-    clearTimeout(this.tooltipTimer);
-    if (this.showVibeModeTooltip()) {
-      this.showVibeModeTooltip.set(false);
-    } else {
-      this.showVibeModeTooltip.set(true);
-      this.tooltipTimer = setTimeout(() => this.showVibeModeTooltip.set(false), TOOLTIP_TIME_MS);
-    }
-  }
-
-  setMode(): void {
+  explainArtistMode(): void {
     if (!this.enoughArtists) {
-      this.snackBar.message(
-        `Only available when there are at least ${MIN_ARTISTS_FOR_ARTIST_MODE} different artists in the playlist!`,
-      );
-      this.form.controls.mode.setValue(GameModes.title);
+      this.snackBar.message(`Only available when there are at least ${ANSWER_COUNT} different artists in the playlist!`);
     }
   }
 
-  plusRounds(): void {
+  changeRounds(delta: number): void {
     const rounds = this.form.controls.rounds;
-    if (rounds.value + 1 <= this.data.tracks.length) {
-      rounds.setValue(rounds.value + 1);
-    }
+    rounds.setValue(Math.min(this.maxRounds, Math.max(1, rounds.value + delta)));
   }
 
-  minusRounds(): void {
-    const rounds = this.form.controls.rounds;
-    if (rounds.value - 1 >= 1) {
-      rounds.setValue(rounds.value - 1);
-    }
-  }
-
-  start(): void {
+  async start(): Promise<void> {
+    if (this.form.invalid || this.starting()) return;
     const { rounds, mode, speed, vibeMode, lives } = this.form.getRawValue();
-    const settings: Settings = {
-      rounds,
-      gameMode: mode,
-      speed,
-      vibeMode,
-      health: lives,
-      playlist: this.data.ref,
-    };
-    this.server.startGame(settings);
+    const settings: Settings = { rounds, gameMode: mode, speed, vibeMode, health: lives, playlist: this.data.ref };
+    this.starting.set(true);
+    const proposed = await this.party.propose(settings);
+    this.starting.set(false);
+    if (proposed) this.dialogRef.close();
   }
 }

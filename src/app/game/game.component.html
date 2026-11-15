@@ -1,40 +1,69 @@
-<div class="game-full">
-  <div class="d-flex justify-content-between w-100 mb-2">
-    <div class="fw-bold">Rounds: {{ game.currentRound() }}/{{ game.maxRounds() }}</div>
-    @if (game.vibeMode()) {
-      <div class="vibe-mode">Vibe Mode</div>
-    }
-    <div class="fw-bold" [class.lowTime]="game.isLowTime()">Remaining: {{ game.remainingTime() }}s</div>
-  </div>
-  <rr-player-display class="mb-2" />
-  <div class="w-100 main-div d-flex flex-column flex-xl-row">
-    <div class="game mb-2 me-xl-2">
-      @if (game.currentRound() > 0) {
-        @if (game.showCountDown()) {
-          <div class="countdown">{{ game.remainingTime() }}</div>
+@if (game.phase() === 'roundOver') {
+  <rr-round-over />
+} @else {
+  <div class="game-full">
+    <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+      <div class="d-flex align-items-center">
+        <button matIconButton class="rr-icon-button leave" (click)="leave()" aria-label="Leave the game">
+          <mat-icon>logout</mat-icon>
+        </button>
+        <div class="fw-bold">Rounds: {{ game.round() }}/{{ game.maxRounds() }}</div>
+      </div>
+      @if (game.vibeMode()) {
+        <div class="vibe-mode">Vibe Mode</div>
+      }
+      <div class="fw-bold" [class.lowTime]="game.isLowTime()" role="timer">Remaining: {{ game.remainingSeconds() ?? '–' }}s</div>
+    </div>
+    <rr-player-display class="mb-2" />
+    <div class="w-100 main-div d-flex flex-column flex-xl-row">
+      <mat-card class="rr-card rr-compact game mb-2 me-xl-2">
+        @if (game.phase() === 'countdown') {
+          <div class="countdown" aria-live="polite">
+            @if (game.remainingSeconds() !== null) {
+              {{ game.remainingSeconds() }}
+            } @else {
+              <mat-progress-spinner mode="indeterminate" diameter="40" aria-label="Loading the round" />
+            }
+          </div>
         } @else {
           @for (answer of game.answers(); track answer) {
             <button
-              class="game-button"
-              [disabled]="party.player()?.lives === 0"
-              [class.answered]="game.roundFinished()"
-              [class.right]="answer === game.rightAnswer()"
-              [class.wrong]="answer !== game.rightAnswer()"
-              (click)="answerButtonClicked(answer)"
+              matButton="outlined"
+              class="rr-answer"
+              [disabled]="game.isOut()"
+              [class.right]="game.roundFinished() && answer === game.correctAnswer()"
+              [class.wrong]="game.roundFinished() && answer !== game.correctAnswer()"
+              [class.picked]="game.roundFinished() && answer === game.myAnswer()"
+              (click)="game.answer(answer)"
             >{{ answer }}</button>
           }
+          <div class="feedback" [class.correct]="game.feedback()?.correct" aria-live="assertive">
+            @if (game.feedback(); as feedback) {
+              {{ feedback.text }}
+            } @else if (game.isOut()) {
+              You are out of lives, watch the others play!
+            }
+          </div>
         }
+        @if (game.audioBlocked()) {
+          <div class="audio-overlay">
+            <button matButton="elevated" class="rr-orange" (click)="game.resumeAudio()">
+              <mat-icon>volume_up</mat-icon>Tap to play the music
+            </button>
+          </div>
+        }
+      </mat-card>
+      @if (party.players().length > 1) {
+        <rr-game-party />
+      } @else {
+        <div class="singleplayer p-3">
+          <img src="assets/group.svg" class="m-2" alt="">
+          <div>
+            <div class="text-center">Don't miss out on the real fun!</div>
+            <div class="text-center">Invite your friends and play together!</div>
+          </div>
+        </div>
       }
     </div>
-    @if (party.party().length > 1) {
-      <rr-game-party />
-    }
-    <div [hidden]="party.party().length > 1" class="singleplayer p-3">
-      <img src="assets/group.svg" class="h-75 m-2">
-      <div>
-        <div class="text-center">Don't miss out on the real fun!</div>
-        <div class="text-center">Invite your friends and play together!</div>
-      </div>
-    </div>
   </div>
-</div>
+}

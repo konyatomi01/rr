@@ -1,0 +1,72 @@
+@use '../../../styles/colors' as *;
+@use '../../../styles/breakpoints' as bp;
+
+:host {
+  display: block;
+  flex-grow: 1;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 4px;
+  align-items: start;
+
+  @include bp.lg {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.pl-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: $white;
+  overflow: hidden;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  &:focus-visible {
+    outline: 3px solid $white;
+    outline-offset: 2px;
+  }
+}
+
+.cover-wrapper {
+  position: relative;
+  width: 95%;
+}
+
+.cover {
+  width: 100%;
+  display: block;
+}
+
+.cover-spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+
+.caption {
+  width: 100%;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.state {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  text-align: center;
+}

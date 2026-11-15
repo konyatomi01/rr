@@ -1,56 +1,23 @@
 @use '../../../styles/colors' as *;
 
 :host {
-    display: contents;
-}
-
-.playlist-displayer {
-    flex-grow: 1;
-    overflow-y: auto;
-}
-
-h2 {
-    font-size: medium;
-    font-weight: bold;
-    width: 100%;
+  display: contents;
 }
 
 .category-select {
-    color: $blue;
+  color: $blue;
+}
+
+.pager {
+  --rr-icon-button-size: 40px;
+  --rr-icon-size: 32px;
 }
 
 .category {
-    font-weight: bold;
-    border-radius: 45px;
-    padding: 5px 25px;
-    font-size: medium;
-    display: flex;
-    white-space: nowrap;
-    background: $blue;
-    color: $text;
-}
-
-.cover {
-    width: 95%;
-}
-
-.pl-button {
-    background: none;
-    border: none;
-    padding: 0%;
-    display: flex;
-    flex-direction: column;
-    color: $white;
-}
-
-.mat-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 32px;
-    cursor: pointer;
-
-    &.disabled {
-        pointer-events: none;
-        opacity: 0.5;
-    }
+  font-weight: bold;
+  border-radius: 45px;
+  padding: 5px 25px;
+  white-space: nowrap;
+  background: $blue;
+  color: $text;
 }

@@ -1,28 +1,30 @@
-<div class="d-flex w-100">
-  <div class="col-6 p-1">
-    <button class="action add" (click)="dialog.openAddToPlaylistDialog()">
-      <mat-icon class="flex-shrink-0 me-2">add</mat-icon>
-      <span>Add song</span>
-    </button>
-  </div>
-  <div class="col-6 p-1">
-    <button class="action start" (click)="start()" [class.disabled]="party.customPlaylist().length < minTracks">
-      <mat-icon class="flex-shrink-0 me-2">play_arrow</mat-icon>
-      <span>Start</span>
-    </button>
-  </div>
+<div class="d-flex w-100 gap-2 p-1">
+  <button matButton="filled" class="rr-action rr-red" (click)="addSong()">
+    <mat-icon>add</mat-icon>Add song
+  </button>
+  <button matButton="filled" class="rr-action rr-green" (click)="start()" [disabled]="party.customPlaylist().length < minTracks">
+    <mat-icon>play_arrow</mat-icon>
+    Start
+    @if (party.customPlaylist().length < minTracks) {
+      ({{ party.customPlaylist().length }}/{{ minTracks }})
+    }
+  </button>
 </div>
 @if (party.customPlaylist().length) {
-  <div class="song-displayer mt-2" [class.isMd]="display.isMd()">
+  <div class="song-displayer mt-2">
     @for (song of party.customPlaylist(); track song.id) {
       <div class="song p-1">
-        <img class="cover" [src]="song.cover" />
-        <span class="ms-2">{{ song.title }}</span>
-        <div class="flex-grow-1"></div>
+        <img class="cover" [src]="song.cover" alt="">
+        <span class="ms-2 flex-grow-1 overflow-hidden">
+          <span class="rr-clamp-2">{{ song.title }}</span>
+          <span class="artist text-truncate d-block">{{ song.artist }}</span>
+        </span>
         @if (ownSong(song)) {
-          <button (click)="removeSong(song)"><mat-icon>clear</mat-icon></button>
+          <button matIconButton class="rr-icon-button rr-filled rr-translucent remove" (click)="removeSong(song)" [attr.aria-label]="'Remove ' + song.title">
+            <mat-icon>clear</mat-icon>
+          </button>
         } @else {
-          <img [src]="song.player?.pfp" class="player" />
+          <img [src]="song.addedBy?.pfp" class="player" [alt]="'Added by ' + song.addedBy?.name" [title]="'Added by ' + song.addedBy?.name">
         }
       </div>
     }

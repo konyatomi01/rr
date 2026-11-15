@@ -1,34 +1,56 @@
-<div class="rr-card select-card">
+<mat-card class="rr-card select-card">
   <rr-party />
-  @if (party.showParty()) {
+  @if (party.showPlayerList()) {
     <rr-party-list />
-  } @else if (waitingToAccept()) {
-    <div class="waiting d-flex justify-content-center align-items-center flex-grow-1">
-      Waiting for other players!
+  } @else if (waiting()) {
+    <div class="waiting d-flex flex-column justify-content-center align-items-center flex-grow-1 gap-3 text-center">
+      @if (party.phase() === 'loading') {
+        <mat-progress-spinner mode="indeterminate" diameter="40" />
+        Loading the playlist…
+      } @else {
+        <div>Waiting for other players!</div>
+        @if (game.remainingSeconds() !== null) {
+          <div class="expires">The proposal expires in {{ game.remainingSeconds() }}s</div>
+        }
+        @if (isProposer()) {
+          <button matButton="elevated" class="rr-orange" (click)="party.withdrawProposal()">
+            <mat-icon>close</mat-icon>Cancel
+          </button>
+        }
+      }
     </div>
   } @else {
-    <rr-toggle-button class="my-2" [form]="tabControl" color="red">
-      <button toggle-button [value]="tabs.charts">Charts</button>
-      <button toggle-button [value]="tabs.search">Search</button>
-      <button toggle-button [value]="tabs.custom">
-        <div class="warning">{{ party.customPlaylist().length }}</div>
-        Custom
-      </button>
-    </rr-toggle-button>
+    <mat-button-toggle-group
+      class="rr-toggle rr-red my-2"
+      rrSlidingToggle
+      [formControl]="tabControl"
+      hideSingleSelectionIndicator
+      aria-label="Playlist source"
+    >
+      <mat-button-toggle [value]="tabs.charts">Charts</mat-button-toggle>
+      <mat-button-toggle [value]="tabs.search">Search</mat-button-toggle>
+      <mat-button-toggle
+        [value]="tabs.custom"
+        [matBadge]="party.customPlaylist().length"
+        [matBadgeDescription]="party.customPlaylist().length + ' songs'"
+      >Custom</mat-button-toggle>
+    </mat-button-toggle-group>
 
     @switch (selectedTab()) {
       @case (tabs.search) {
-        <rr-search class="px-3" />
         <h1>SELECT A PLAYLIST TO START!</h1>
+        <rr-search class="px-3" />
       }
       @case (tabs.charts) {
-        <rr-categories class="px-3" />
         <h1>SELECT A PLAYLIST TO START!</h1>
+        <rr-categories class="px-3" />
       }
       @case (tabs.custom) {
         <rr-custom-playlist class="px-3" />
       }
     }
   }
-  <rr-button color="orange" text="Join code:" (click)="copyCode()">{{ server.partyId() }}</rr-button>
-</div>
+  <button matButton="elevated" class="rr-orange join-code" (click)="invite()" aria-label="Share the invite link">
+    <mat-icon>share</mat-icon>Join code: {{ party.code() }}
+  </button>
+</mat-card>

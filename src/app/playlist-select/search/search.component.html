@@ -1,23 +1,10 @@
-<div class="input-field my-2 d-flex justify-content-center">
-  <mat-icon class="flex-shrink-0">search</mat-icon>
-  <input id="search" [formControl]="search" type="text" class="form-control" placeholder="Search for any playlist!">
-  <button class="clear-button" [class.inactive]="!search.dirty" (click)="reset()">
-    <mat-icon>clear</mat-icon>
-  </button>
-</div>
-<div class="row playlist-displayer">
-  @if (isLoading()) {
-    <rr-spinner />
-  } @else {
-    @for (playlist of playlists(); track playlist.id) {
-      <button class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
-        <img class="cover" [src]="playlist.cover" />
-        <figcaption class="caption">{{ playlist.title }}</figcaption>
-      </button>
-    } @empty {
-      <div class="d-flex align-items-center text-center">
-        Use the searchbar to find any public playlist available on Deezer!
-      </div>
-    }
+<mat-form-field appearance="outline" class="rr-field rr-search search-field my-2" subscriptSizing="dynamic">
+  <mat-icon matPrefix>search</mat-icon>
+  <input matInput [formControl]="search" placeholder="Search for any playlist!" aria-label="Search playlists" type="search">
+  @if (search.value) {
+    <button matIconButton matSuffix class="rr-icon-button rr-filled rr-dark clear" (click)="search.setValue('')" aria-label="Clear search">
+      <mat-icon>clear</mat-icon>
+    </button>
   }
-</div>
+</mat-form-field>
+<rr-playlist-grid [playlists]="playlists()" [loading]="state().status === 'loading'" [emptyText]="emptyText()" />
