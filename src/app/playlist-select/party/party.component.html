@@ -1,23 +1,26 @@
-
 <div class="upper-row mb-2">
-    <h2>Joined players:</h2>
-    <rr-button text="Leave Party" color="orange" (click)="leaveParty()"></rr-button>
-
+  <h2>Joined players:</h2>
+  <button matButton="elevated" class="rr-orange" (click)="leaveParty()">Leave Party</button>
 </div>
-<div *ngIf="party.party" class="player-displayer gap-1">
-    <ng-container *ngIf="party.showParty">
-        <button class="menu me-2" (click)="party.showParty = !party.showParty">
-            <mat-icon>arrow_back</mat-icon>
-        </button>
-    </ng-container>
-    <ng-container *ngIf="!party.showParty">
-        <button class="menu me-2" (click)="party.showParty = !party.showParty">
-            <div class="count">{{ party.party.length }}</div>
-            <mat-icon>list</mat-icon>
-        </button>
-        <div *ngFor="let player of party.party" class="player p-1" [class.accepted]="player.accepted">
-            <img  class="pfp" [src]="player.pfp">
-        </div>
-    </ng-container>
-    
+<div class="player-displayer gap-1">
+  @if (party.showPlayerList()) {
+    <button matIconButton class="rr-icon-button rr-filled rr-orange menu me-2" (click)="togglePlayerList()" aria-label="Back to the playlists">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  } @else {
+    <button
+      matIconButton
+      class="rr-icon-button rr-filled rr-orange rr-badge-red menu me-2"
+      (click)="togglePlayerList()"
+      [matBadge]="party.players().length"
+      aria-label="Show the players"
+    >
+      <mat-icon>list</mat-icon>
+    </button>
+    @for (player of party.players(); track player.id) {
+      <div class="player p-1" [class.accepted]="player.accepted" [class.disconnected]="!player.connected">
+        <img class="pfp" [src]="player.pfp" [alt]="player.name" [title]="player.name">
+      </div>
+    }
+  }
 </div>

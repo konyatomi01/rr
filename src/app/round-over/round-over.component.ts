@@ -1,24 +1,20 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { MatCard } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
+import { rankPlayers } from '../ranking';
 import { GameService } from '../services/game.service';
 import { PartyService } from '../services/party.service';
 
+/** Between rounds: the song that played and everyone's score for the round. */
 @Component({
   selector: 'rr-round-over',
+  imports: [MatCard, MatIcon],
   templateUrl: './round-over.component.html',
-  styleUrl: './round-over.component.scss'
+  styleUrl: './round-over.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoundOverComponent {
-  constructor(
-    readonly party: PartyService,
-  ) {}
-
-  tesztparty: any[] = [
-    { name: 'xd', pfp: 'assets/player-icons/player-icon-1.svg', points: 121122, rightRounds: 1},
-    { name: 'xdfshjvfuzsvf', pfp: 'assets/player-icons/player-icon-2.svg', points: 121122, rightRounds: 3},
-    { name: 'xdjksdbfdbfbshjbfj', pfp: 'assets/player-icons/player-icon-4.svg', points: 121122, rightRounds: 12},
-    { name: 'xddsjhfvjd', pfp: 'assets/player-icons/player-icon-3.svg', points: 121122, rightRounds: 12},
-    { name: 'xdvsvs', pfp: 'assets/player-icons/player-icon-5.svg', points: 121122111, rightRounds: 69},
-    { name: 'xdsfs', pfp: 'assets/player-icons/player-icon-1.svg', points: 12112313, rightRounds: 43},
-    { name: 'xdsfsfsf', pfp: 'assets/player-icons/player-icon-6.svg', points: 12213123122, rightRounds: 0},
-  ]
+  private readonly party = inject(PartyService);
+  protected readonly game = inject(GameService);
+  protected readonly ranked = computed(() => rankPlayers(this.party.players().filter(p => p.participant)));
 }

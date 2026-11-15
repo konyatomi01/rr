@@ -1,0 +1,437 @@
+// Material 3 theme and the app-wide component overrides that keep the original Rhythm Royale look.
+// Components only use the classes defined here (rr-*); colors and shapes live in one place.
+@use '@angular/material' as mat;
+@use 'colors' as *;
+
+$font: 'Concert One', sans-serif;
+
+@mixin button-color($background, $label) {
+  @include mat.button-overrides((
+    protected-container-color: $background,
+    protected-label-text-color: $label,
+    protected-state-layer-color: $label,
+    protected-ripple-color: rgba($label, 0.2),
+    protected-disabled-container-color: rgba($background, 0.5),
+    protected-disabled-label-text-color: rgba($label, 0.7),
+    filled-container-color: $background,
+    filled-label-text-color: $label,
+    filled-state-layer-color: $label,
+    filled-ripple-color: rgba($label, 0.2),
+    filled-disabled-container-color: rgba($background, 0.5),
+    filled-disabled-label-text-color: rgba($label, 0.7),
+  ));
+}
+
+html {
+  color-scheme: dark;
+  @include mat.theme((
+    color: (primary: mat.$orange-palette, tertiary: mat.$red-palette, theme-type: dark),
+    typography: (brand-family: $font, plain-family: $font),
+    density: 0,
+  ));
+  @include mat.theme-overrides((
+    primary: $orange,
+    on-primary: $text,
+    error: $red,
+    surface: $text,
+    on-surface: $white,
+  ));
+  @include mat.strong-focus-indicators((border-color: $white));
+
+  // Buttons: the pill buttons with a drop shadow (`matButton="elevated"`), red unless a color class is set.
+  @include mat.button-overrides((
+    protected-container-height: 34px,
+    protected-horizontal-padding: 25px,
+    protected-container-shape: 45px,
+    protected-container-elevation-shadow: $shadow,
+    protected-hover-container-elevation-shadow: $shadow,
+    protected-focus-container-elevation-shadow: $shadow,
+    protected-pressed-container-elevation-shadow: $shadow,
+    protected-disabled-container-elevation-shadow: none,
+    protected-label-text-font: $font,
+    protected-label-text-size: 1rem,
+    protected-label-text-weight: bold,
+    protected-label-text-tracking: normal,
+    protected-icon-spacing: 4px,
+    protected-icon-offset: 0,
+    filled-label-text-font: $font,
+    filled-label-text-size: 1rem,
+    filled-label-text-tracking: normal,
+    outlined-label-text-font: $font,
+    outlined-label-text-size: 1rem,
+    outlined-label-text-tracking: normal,
+    text-label-text-font: $font,
+  ));
+  @include button-color($red, $white);
+
+  @include mat.icon-button-overrides((
+    icon-color: currentColor,
+    disabled-icon-color: currentColor,
+    state-layer-color: currentColor,
+    ripple-color: rgba(255, 255, 255, 0.2),
+  ));
+
+  @include mat.slide-toggle-overrides((
+    track-width: 44px,
+    track-height: 24px,
+    track-shape: 25px,
+    track-outline-width: 1px,
+    track-outline-color: $white,
+    selected-track-outline-width: 1px,
+    selected-track-outline-color: $orange,
+    unselected-track-color: $button-group-background,
+    unselected-hover-track-color: $button-group-background,
+    unselected-focus-track-color: $button-group-background,
+    unselected-pressed-track-color: $button-group-background,
+    selected-track-color: $button-group-background,
+    selected-hover-track-color: $button-group-background,
+    selected-focus-track-color: $button-group-background,
+    selected-pressed-track-color: $button-group-background,
+    unselected-handle-color: $white,
+    unselected-hover-handle-color: $white,
+    unselected-focus-handle-color: $white,
+    unselected-pressed-handle-color: $white,
+    selected-handle-color: $orange,
+    selected-hover-handle-color: $orange,
+    selected-focus-handle-color: $orange,
+    selected-pressed-handle-color: $orange,
+    unselected-handle-size: 18px,
+    selected-handle-size: 18px,
+    pressed-handle-size: 18px,
+    with-icon-handle-size: 18px,
+    handle-elevation-shadow: none,
+    label-text-color: $white,
+    label-text-font: $font,
+    label-text-size: 1.25rem,
+  ));
+
+  @include mat.card-overrides((
+    elevated-container-color: $navy,
+    elevated-container-shape: 45px,
+    elevated-container-elevation: $shadow,
+  ));
+
+  @include mat.dialog-overrides((
+    container-color: $text,
+    container-shape: 45px,
+    container-elevation-shadow: $shadow,
+    container-max-width: 92vw,
+    container-small-max-width: 92vw,
+    subhead-color: $white,
+    subhead-font: $font,
+    subhead-size: x-large,
+    subhead-weight: normal,
+    supporting-text-color: $white,
+    supporting-text-font: $font,
+    supporting-text-size: 1rem,
+    supporting-text-tracking: normal,
+    headline-padding: 30px 30px 12px,
+    content-padding: 0 30px 30px,
+    with-actions-content-padding: 0 30px,
+    actions-padding: 16px 30px 24px,
+    actions-alignment: center,
+  ));
+
+  @include mat.snack-bar-overrides((
+    container-color: $text-shadow,
+    container-shape: 15px,
+    supporting-text-color: $white,
+    supporting-text-font: $font,
+    supporting-text-size: 1rem,
+  ));
+
+  @include mat.badge-overrides((
+    background-color: $orange,
+    text-color: $text,
+    text-font: $font,
+    text-size: 14px,
+    text-weight: normal,
+    container-shape: 1000px,
+    container-size: 20px,
+    container-padding: 0 7px,
+  ));
+
+  @include mat.progress-spinner-overrides((
+    active-indicator-color: $blue,
+    active-indicator-width: 4px,
+  ));
+}
+
+// --- Buttons -------------------------------------------------------------------------------
+
+// Icons in the pill buttons at their original 24px (Material's default is 18px; no token for it).
+.mat-mdc-button-base.mat-mdc-raised-button > .mat-icon {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+}
+
+.rr-orange { @include button-color($orange, $white); }
+.rr-green { @include button-color($green, $white); }
+.rr-blue { @include button-color($blue, $white); }
+
+// The big square-ish actions of the custom playlist (dark label, icon in a bubble).
+.rr-action {
+  @include mat.button-overrides((
+    filled-container-shape: 10px,
+    filled-container-height: 56px,
+    filled-horizontal-padding: 10px,
+    filled-icon-spacing: 8px,
+    filled-icon-offset: 0,
+  ));
+  width: 100%;
+  justify-content: flex-start;
+
+  &.rr-red { @include button-color($red, $text); }
+  &.rr-green { @include button-color($green, $text); }
+
+  &.mat-mdc-button-base > .mat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 36px;
+    border-radius: 1000px;
+    background: rgba(0, 0, 0, 0.3);
+  }
+}
+
+// The answer buttons of a round.
+.rr-answer {
+  @include mat.button-overrides((
+    outlined-container-shape: 25px,
+    outlined-container-height: 46px,
+    outlined-outline-color: $white,
+    outlined-outline-width: 3px,
+    outlined-label-text-color: $white,
+    outlined-disabled-outline-color: $white-shadow,
+    outlined-disabled-label-text-color: $white-shadow,
+    outlined-state-layer-color: $white,
+  ));
+
+  &.right,
+  &.wrong {
+    @include mat.button-overrides((
+      outlined-outline-color: transparent,
+      outlined-label-text-color: $text,
+      outlined-disabled-outline-color: transparent,
+      outlined-disabled-label-text-color: $text,
+    ));
+  }
+  .mdc-button__label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &.right { background-color: $green; }
+  &.wrong { background-color: $red; }
+  // The player's own pick stays recognizable after the reveal.
+  &.picked { box-shadow: 0 0 0 3px $navy, 0 0 0 6px $white; }
+}
+
+// Icon buttons. Size them with --rr-icon-button-size / --rr-icon-size.
+.rr-icon-button {
+  @include mat.icon-button-overrides((
+    state-layer-size: var(--rr-icon-button-size, 40px),
+    icon-size: var(--rr-icon-size, 24px),
+  ));
+
+  &.mat-mdc-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .mat-icon {
+    width: var(--rr-icon-size, 24px);
+    height: var(--rr-icon-size, 24px);
+    font-size: var(--rr-icon-size, 24px);
+    line-height: 1;
+  }
+
+  &.rr-filled { background-color: var(--rr-icon-button-background); color: var(--rr-icon-button-color, #{$white}); }
+  &.rr-orange { --rr-icon-button-background: #{$orange}; --rr-icon-button-color: #{$text}; }
+  &.rr-dark { --rr-icon-button-background: #{$text}; }
+  &.rr-translucent { --rr-icon-button-background: rgba(255, 255, 255, 0.1); }
+  &:disabled { opacity: 0.5; }
+}
+
+.rr-badge-red {
+  @include mat.badge-overrides((background-color: $red));
+}
+
+// --- Toggle groups ---------------------------------------------------------------------------
+
+// The pill switches (tabs, game mode, speed) with a sliding indicator (rrSlidingToggle).
+.rr-toggle.mat-button-toggle-group {
+  @include mat.button-toggle-overrides((
+    shape: 25px,
+    height: 32px,
+    background-color: transparent,
+    text-color: $orange,
+    selected-state-text-color: $text,
+    selected-state-background-color: transparent,
+    state-layer-color: $orange,
+    divider-color: transparent,
+    disabled-state-text-color: rgba($orange, 0.65),
+    disabled-state-background-color: transparent,
+    label-text-font: $font,
+    label-text-size: 1rem,
+    label-text-line-height: 32px,
+  ));
+  --rr-toggle-indicator: #{$orange};
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+  padding: 4px;
+  border: none;
+  overflow: visible;
+  background: $button-group-background;
+
+  &.rr-red {
+    @include mat.button-toggle-overrides((
+      text-color: $red,
+      selected-state-text-color: $white,
+      state-layer-color: $red,
+    ));
+    --rr-toggle-indicator: #{$red};
+  }
+
+  .mat-button-toggle {
+    z-index: 1;
+    overflow: visible;
+    border-radius: 100px;
+    --mat-focus-indicator-border-radius: 100px;
+  }
+  .mat-button-toggle-ripple {
+    border-radius: inherit;
+  }
+  .mat-button-toggle-checked .mat-button-toggle-focus-overlay {
+    background-color: $white;
+  }
+  .mat-button-toggle-label-content {
+    padding: 0 20px;
+  }
+}
+
+.rr-toggle-indicator {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  height: 32px;
+  border-radius: 100px;
+  background: var(--rr-toggle-indicator);
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+// Toggle groups used as pickers of images (avatars, hearts): no pill, just the content.
+.rr-picker.mat-button-toggle-group {
+  @include mat.button-toggle-overrides((
+    background-color: transparent,
+    selected-state-background-color: transparent,
+    divider-color: transparent,
+    state-layer-color: $white,
+    text-color: $white,
+    selected-state-text-color: $white,
+    height: auto,
+    shape: 1000px,
+  ));
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+
+  .mat-button-toggle,
+  .mat-button-toggle-ripple {
+    border-radius: 1000px;
+    --mat-focus-indicator-border-radius: 1000px;
+  }
+
+  .mat-button-toggle-label-content {
+    padding: 0;
+    line-height: normal;
+  }
+}
+
+// --- Form fields -----------------------------------------------------------------------------
+
+// The white pill inputs.
+.rr-field {
+  @include mat.form-field-overrides((
+    container-height: 46px,
+    container-vertical-padding: 10px,
+    container-text-font: $font,
+    container-text-size: 1rem,
+    // Half the height: a full pill. (Material also derives the side padding from this.)
+    outlined-container-shape: 23px,
+    outlined-outline-width: 3px,
+    outlined-focus-outline-width: 3px,
+    outlined-outline-color: $text,
+    outlined-hover-outline-color: $text,
+    outlined-focus-outline-color: $red,
+    outlined-error-outline-color: $red,
+    outlined-error-hover-outline-color: $red,
+    outlined-error-focus-outline-color: $red,
+    outlined-input-text-color: $text,
+    outlined-caret-color: $text,
+    outlined-error-caret-color: $text,
+    outlined-input-text-placeholder-color: #6c757d,
+    leading-icon-color: $text,
+    trailing-icon-color: $text,
+    error-trailing-icon-color: $text,
+    error-text-color: $red,
+    subscript-text-font: $font,
+    subscript-text-size: 0.9rem,
+  ));
+  width: 100%;
+  // Focus ring of the clear button inside the white field (white would be invisible).
+  --mat-focus-indicator-border-color: #{$search-border};
+
+  .mat-mdc-text-field-wrapper {
+    background: #fff;
+    border-radius: 23px;
+  }
+  .mdc-text-field--outlined:not(.mdc-text-field--with-leading-icon) {
+    padding-left: 14px;
+  }
+  .mat-mdc-form-field-error-wrapper {
+    padding: 0 14px;
+  }
+  .mat-mdc-form-field-icon-prefix > .mat-icon {
+    padding: 0 6px 0 12px;
+  }
+
+  &.rr-search {
+    @include mat.form-field-overrides((
+      outlined-outline-color: $search-border,
+      outlined-hover-outline-color: $search-border,
+      outlined-focus-outline-color: $search-border,
+    ));
+  }
+}
+
+.mat-mdc-slide-toggle .mdc-label {
+  padding-left: 12px;
+}
+
+// --- Containers ------------------------------------------------------------------------------
+
+.mat-mdc-card.rr-card {
+  background-image: $card-gradient;
+  color: $white;
+  padding: 30px;
+  margin-bottom: 2dvh;
+}
+
+// Smaller cards inside a screen (game area, own player card).
+.mat-mdc-card.rr-compact {
+  @include mat.card-overrides((elevated-container-shape: 25px, elevated-container-elevation: none));
+  padding: 8px;
+  margin-bottom: 0;
+}
+
+.rr-dialog .mat-mdc-dialog-surface {
+  background-image: $dialog-gradient;
+}
+
+.rr-snackbar .mat-mdc-snack-bar-label {
+  text-align: center;
+}

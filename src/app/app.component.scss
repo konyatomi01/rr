@@ -1,11 +1,28 @@
+@use '../styles/colors' as *;
+
 .logo {
-    max-height: 15dvh;
-    max-width: 100%;
+  max-height: 15dvh;
+  max-width: 100%;
 }
 
 .rr-container {
-    height: 100%;
-    width: 100%;
-    padding-left: 7vw;
-    padding-right: 7vw;
+  width: 100%;
+  padding-left: 7vw;
+  padding-right: 7vw;
+}
+
+.connection-banner {
+  position: sticky;
+  top: 8px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 800px;
+  margin: 0 auto 8px;
+  padding: 6px 12px;
+  border-radius: 15px;
+  background: $text-shadow;
+  color: $white;
 }

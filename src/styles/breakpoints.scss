@@ -1,0 +1,16 @@
+// Same breakpoints as Bootstrap's layout utilities.
+$md: 768px;
+$lg: 992px;
+$xl: 1200px;
+
+@mixin md {
+  @media (min-width: $md) { @content; }
+}
+
+@mixin lg {
+  @media (min-width: $lg) { @content; }
+}
+
+@mixin xl {
+  @media (min-width: $xl) { @content; }
+}

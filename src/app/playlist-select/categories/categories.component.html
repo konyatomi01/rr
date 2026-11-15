@@ -1,20 +1,10 @@
-<ng-container *ngIf="playlists">
-    <div class="d-flex justify-content-center align-items-center mb-2 gap-3 category-select">
-        <mat-icon [class.disabled]="page === 1" (click)="categoryMinus()">arrow_circle_left</mat-icon>
-        <div class="category">
-        {{ page }} / 10
-        </div>
-        <mat-icon [class.disabled]="page === 10" (click)="categoryPlus()">arrow_circle_right</mat-icon>
-    </div>
-    <div class="row playlist-displayer">
-        <ng-container *ngIf="!isLoading">
-            <button *ngFor="let playlist of playlists" class="col-3 col-lg-2 pl-button" (click)="playlistClicked(playlist)">
-                <img class="cover" [src]="playlist.image"/>
-                <figcaption class="caption">{{ playlist.name }}</figcaption>
-            </button>
-        </ng-container>
-        <ng-container *ngIf="isLoading">
-            <rr-spinner></rr-spinner>
-        </ng-container>
-    </div>
-</ng-container>
+<div class="d-flex justify-content-center align-items-center mb-2 gap-3 category-select">
+  <button matIconButton class="rr-icon-button pager" [disabled]="page() === 1" (click)="go(-1)" aria-label="Previous page">
+    <mat-icon>arrow_circle_left</mat-icon>
+  </button>
+  <div class="category" aria-live="polite">{{ page() }} / {{ pageCount }}</div>
+  <button matIconButton class="rr-icon-button pager" [disabled]="page() === pageCount" (click)="go(1)" aria-label="Next page">
+    <mat-icon>arrow_circle_right</mat-icon>
+  </button>
+</div>
+<rr-playlist-grid [playlists]="playlists()" [loading]="isLoading()" [emptyText]="emptyText()" />

@@ -1,22 +1,32 @@
-<div class="w-100 h-100 d-flex justify-content-center"> 
-    <div class="main-div mb-3">
-        <div *ngFor="let player of party.party" class="player-row mb-3">
-            <img [src]="player.pfp" class="pfp mx-2">
-            <div class="d-flex h-100 details justify-content-between px-1 align-items-center">
-                <div>
-                    {{player.name}}
-                </div>
-                <div>
-                    <div class="evalPoints me-3">
-                        +{{player.currentPoints}}p
-                    </div>
-                    <div class="evalStreak me-3">
-                        <mat-icon>local_fire_department</mat-icon>
-                        {{player.streak.toFixed(1)}}x
-                    </div>  
-                </div> 
-            </div>  
+<div class="w-100 d-flex flex-column align-items-center">
+  @if (game.game()?.song; as song) {
+    <mat-card class="rr-card rr-compact song mb-3">
+      <img [src]="song.cover" class="cover" alt="">
+      <div class="overflow-hidden">
+        <div class="round">Round {{ game.round() }}/{{ game.maxRounds() }}</div>
+        <div class="title rr-clamp-2">{{ song.title }}</div>
+        <div class="text-truncate">{{ song.artist }}</div>
+      </div>
+    </mat-card>
+  }
+  <div class="main-div mb-3">
+    @for (entry of ranked(); track entry.player.id) {
+      <div class="rr-player-row player-row mb-3" [class.disconnected]="!entry.player.connected">
+        <img [src]="entry.player.pfp" class="rr-pfp pfp mx-2" alt="">
+        <div class="d-flex h-100 details justify-content-between px-1 align-items-center">
+          <div class="text-truncate">{{ entry.player.name }}</div>
+          <div class="text-end">
+            <div class="evalPoints me-3">+{{ entry.player.roundPoints }}p</div>
+            <div class="evalStreak me-3">
+              <mat-icon>local_fire_department</mat-icon>
+              {{ entry.player.streak.toFixed(1) }}x
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
+    }
+  </div>
+  @if (game.remainingSeconds() !== null) {
+    <div class="next" aria-live="polite">Next up in {{ game.remainingSeconds() }}s</div>
+  }
 </div>
-

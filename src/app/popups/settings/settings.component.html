@@ -1,63 +1,76 @@
-<ng-container *ngIf="form && data">
-    <div class="d-flex flex-column rr-card dark">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="title-div">GAME SETTINGS</div>
-            <button class="back-button" mat-dialog-close>
-                <mat-icon>cancel</mat-icon>
-            </button>
-        </div>
-        <div class="details mb-3">
-            <img [src]="data.cover" class="cover">
-            <div class="w-auto">
-                <p class="playlist-title">{{data.title}}</p>
-                <p>{{data.tracks.length}} tracks</p>
-            </div>
-        </div>
-        <div [formGroup]="form" class="settings-options w-100">
-            <div class="setting-row">
-                <h2>Number of rounds:</h2>
-                <div class="rounds-buttons h-50">
-                    <button class="round" (click)="minusRounds()">
-                        <img class="h-100" src="assets/minus.svg">
-                    </button>
-                    <div class="px-3">{{form.controls.rounds.value }}</div>
-                    <button class="round" (click)="plusRounds()">
-                        <img class="h-100" src="assets/plus.svg">
-                    </button>
-                </div>
-            </div>
-            <h2>Game Mode:</h2>
-            <rr-toggle-button [form]="form.controls.mode" class="mb-2">
-                <button toggle-button [value]="gameModes.title">Title</button>
-                <button toggle-button [value]="gameModes.artist" [disabled]="!enoughArtist" (click)="setMode()">Artist</button>
-            </rr-toggle-button>
-            <h2>Speed:</h2>
-            <rr-toggle-button [form]="form.controls.speed" class="mb-3">
-                <button toggle-button [value]="gameSpeeds.slow">Slow</button>
-                <button toggle-button [value]="gameSpeeds.normal">Normal</button>
-                <button toggle-button [value]="gameSpeeds.fast">Fast</button>
-            </rr-toggle-button>
-            <div class="d-flex gap-3 mb-2">
-                <rr-slide-toggle [form]="form.controls.vibeMode"></rr-slide-toggle>
-                <h2 (click)="toggleVibeModeTooltip()">
-                    vibe mode
-                    <button class="icon-button"><mat-icon>info</mat-icon></button>
-                </h2>
-            </div>
-            <div class="vibe-mode-info p-2" *ngIf="showVibeModeTooltip">
-                Vibe mode lets you listen to the 30-second music previews at any speed—even if everyone has already answered, the music still plays for the full 30 seconds.
-            </div>
-            <div class="setting-row">
-                <h2>Max health:</h2>
-                <div class="row health-buttons">
-                    <button *ngFor="let heart of [1, 2, 3]" (click)="form.controls.lives.setValue(heart)" class="heart col-4">
-                        <img src="{{ heart <= form.controls.lives.value ? 'assets/heart-filled.svg' : 'assets/heart.svg' }}" class="h-100 w-100">
-                    </button>
-                </div>
-            </div>    
-        </div>
-        <div class="d-flex justify-content-evenly mt-3">
-            <rr-button text="Start" color="blue" icon="play_arrow" (click)="start()" mat-dialog-close></rr-button>
-        </div>
+<h2 mat-dialog-title class="d-flex align-items-center">
+  GAME SETTINGS
+  <button matIconButton class="rr-icon-button ms-auto" mat-dialog-close aria-label="Close">
+    <mat-icon>cancel</mat-icon>
+  </button>
+</h2>
+<mat-dialog-content>
+  <div class="details mb-3">
+    <img [src]="data.ref.cover" class="cover" alt="">
+    <div>
+      <p class="playlist-title rr-clamp-2">{{ data.ref.title }}</p>
+      <p>{{ data.tracks.length }} tracks</p>
     </div>
-</ng-container>
+  </div>
+  <form [formGroup]="form" class="w-100" (ngSubmit)="start()">
+    <h3 id="rounds-label">Number of rounds:</h3>
+    <div class="rounds-buttons mb-2" role="group" aria-labelledby="rounds-label">
+      <button matIconButton type="button" class="rr-icon-button round" (click)="changeRounds(-1)" [disabled]="rounds() <= 1" aria-label="Fewer rounds">
+        <mat-icon svgIcon="minus" />
+      </button>
+      <div class="px-3" aria-live="polite">{{ rounds() }}</div>
+      <button matIconButton type="button" class="rr-icon-button round" (click)="changeRounds(1)" [disabled]="rounds() >= maxRounds" aria-label="More rounds">
+        <mat-icon svgIcon="plus" />
+      </button>
+    </div>
+
+    <h3 id="mode-label">Game Mode:</h3>
+    <mat-button-toggle-group class="rr-toggle mb-2" rrSlidingToggle formControlName="mode" hideSingleSelectionIndicator aria-labelledby="mode-label">
+      <mat-button-toggle [value]="gameModes.title">Title</mat-button-toggle>
+      <mat-button-toggle [value]="gameModes.artist" [disabled]="!enoughArtists" disabledInteractive (click)="explainArtistMode()">
+        Artist
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <h3 id="speed-label">Speed:</h3>
+    <mat-button-toggle-group class="rr-toggle mb-3" rrSlidingToggle formControlName="speed" hideSingleSelectionIndicator aria-labelledby="speed-label">
+      <mat-button-toggle [value]="gameSpeeds.slow">Slow</mat-button-toggle>
+      <mat-button-toggle [value]="gameSpeeds.normal">Normal</mat-button-toggle>
+      <mat-button-toggle [value]="gameSpeeds.fast">Fast</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <div class="d-flex align-items-center gap-1 mb-2">
+      <mat-slide-toggle formControlName="vibeMode" hideIcon>vibe mode</mat-slide-toggle>
+      <button
+        matIconButton
+        type="button"
+        class="rr-icon-button"
+        (click)="showVibeInfo.set(!showVibeInfo())"
+        [attr.aria-expanded]="showVibeInfo()"
+        aria-controls="vibe-info"
+        aria-label="What is vibe mode?"
+      >
+        <mat-icon>info</mat-icon>
+      </button>
+    </div>
+    @if (showVibeInfo()) {
+      <p id="vibe-info" class="vibe-mode-info p-2">
+        Vibe mode lets you listen to the 30-second music previews at any speed—even if everyone has already answered, the music still plays for the full 30 seconds.
+      </p>
+    }
+
+    <h3 id="health-label">Max health:</h3>
+    <mat-button-toggle-group class="rr-picker health-buttons" formControlName="lives" hideSingleSelectionIndicator aria-labelledby="health-label">
+      @for (heart of hearts; track heart) {
+        <mat-button-toggle [value]="heart" [attr.aria-label]="heart + (heart === 1 ? ' life' : ' lives')">
+          <mat-icon class="heart" [svgIcon]="heart <= lives() ? 'heart-filled' : 'heart'" />
+        </mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button matButton="elevated" class="rr-blue" (click)="start()" [disabled]="starting()">
+    <mat-icon>play_arrow</mat-icon>Start
+  </button>
+</mat-dialog-actions>

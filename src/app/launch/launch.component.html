@@ -1,54 +1,74 @@
 <div class="d-flex justify-content-center">
-
-    <div class="rr-card join-card icons" *ngIf="!accountCreated" [formGroup]="form">
-        
-            <h1>SELECT YOUR AVATAR:</h1>
-            <div class="mb-4 row flex-grow-1 overflow-y-auto">
-                <div *ngFor="let icon of icons" class="col-4 icon-div" [class.selected]="form.controls.icon.value === icon">
-                    <img
-                        class="player-icon img-fluid"
-                        (click)="form.controls.icon.setValue(icon)"
-                        [src]="icon" alt="icon">
-                    <mat-icon>check_circle</mat-icon>
-                </div>
-            </div>
-            <h1 class="w-100">YOUR NAME:</h1>
-            <input id="name" formControlName="name" type="text" class="form-control" placeholder="Enter your name">
-            <div *ngIf="form.controls.name.invalid  && form.controls.name.touched" class="w-100 text-danger d-flex">
-                <mat-icon class="me-1">error_outline</mat-icon>
-                <ng-container *ngIf="form.controls.name.errors?.['maxlength']">
-                    Name cannot exceed 16 characters.
-                </ng-container>
-            </div>
-        
-        <div class="d-flex justify-content-center mt-4" (click)="next()">
-            <rr-button text="PLAY" icon="play_arrow" color="red"></rr-button>
+  @if (!accountCreated()) {
+    <mat-card class="rr-card join-card icons">
+      <form [formGroup]="form" (ngSubmit)="next()" class="d-flex flex-column align-items-center overflow-hidden">
+        <h1 id="avatar-label">SELECT YOUR AVATAR:</h1>
+        <mat-button-toggle-group
+          class="rr-picker avatar-grid mb-4"
+          formControlName="icon"
+          aria-labelledby="avatar-label"
+          hideSingleSelectionIndicator
+        >
+          @for (icon of icons; track icon; let i = $index) {
+            <mat-button-toggle [value]="icon" [attr.aria-label]="'Avatar ' + (i + 1)">
+              <img class="player-icon" [src]="icon" alt="">
+              <mat-icon class="check">check_circle</mat-icon>
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+        <h1 class="w-100"><label for="name">YOUR NAME:</label></h1>
+        <mat-form-field appearance="outline" class="rr-field" subscriptSizing="dynamic">
+          <input matInput id="name" formControlName="name" placeholder="Enter your name" autocomplete="nickname">
+          @if (form.controls.name.hasError('maxlength')) {
+            <mat-error>Name cannot exceed {{ maxNameLength }} characters.</mat-error>
+          }
+        </mat-form-field>
+        <div class="d-flex justify-content-center mt-4">
+          <button matButton="elevated" type="submit"><mat-icon>play_arrow</mat-icon>PLAY</button>
         </div>
-    </div>
-
-    <div class="rr-card join-card text-center" *ngIf="accountCreated">
-        <h1 class="or">HOST A GAME!</h1>
-        <h2>Create a new party and invite your friends to join!</h2>
-        <div class="row justify-content-center mt-2">
-            <img src="assets/host-game.svg" class="col-4">
-        </div>
+      </form>
+    </mat-card>
+  } @else {
+    <mat-card class="rr-card join-card text-center">
+      <h1 class="or">HOST A GAME!</h1>
+      <h2>Create a new party and invite your friends to join!</h2>
+      <div class="row justify-content-center mt-2">
+        <img src="assets/host-game.svg" class="col-4" alt="">
+      </div>
+      <div class="d-flex justify-content-center mt-2">
+        <button matButton="elevated" class="rr-orange" (click)="hostGame()" [disabled]="busy() || !socket.connected()">
+          <mat-icon>group</mat-icon>CREATE PARTY
+        </button>
+      </div>
+      <div class="or w-100 my-3 d-flex align-items-center">
+        <hr class="col">
+        <span class="col-3">or</span>
+        <hr class="col">
+      </div>
+      <h1>JOIN GAME!</h1>
+      <h2>Join an existing party with the join code!</h2>
+      <form [formGroup]="joinForm" (ngSubmit)="joinGame()">
+        <h2><label for="code">Enter the join code here:</label></h2>
+        <mat-form-field appearance="outline" class="rr-field" subscriptSizing="dynamic">
+          <input
+            matInput
+            id="code"
+            formControlName="code"
+            placeholder="Join code"
+            inputmode="numeric"
+            autocomplete="off"
+            maxlength="6"
+          >
+          @if (joinCode.invalid && joinCode.touched) {
+            <mat-error>The join code has 6 digits.</mat-error>
+          }
+        </mat-form-field>
         <div class="d-flex justify-content-center mt-2">
-            <rr-button text="CREATE PARTY" icon="group" color="orange" (click)="hostGame()"></rr-button>
+          <button matButton="elevated" class="rr-orange" type="submit" [disabled]="busy() || !socket.connected()">
+            <mat-icon>meeting_room</mat-icon>JOIN
+          </button>
         </div>
-        <div class="or m-3 d-flex align-items-center">
-            <hr class="col">
-            <span class="col-3">or</span>
-            <hr class="col">
-        </div>
-        <h1>JOIN GAME!</h1>
-        <h2>Join an existing party with the join code!</h2>
-        <h2>Paste the join code here:</h2>
-        <div>
-            <input id="code" [formControl]="code" type="text" class="form-control" placeholder="Join code">
-        </div>
-        <div class="d-flex justify-content-center mt-2">
-            <rr-button text="JOIN" icon="meeting_room" color="orange" (click)="joinGame()"></rr-button>
-        </div>
-    </div>
+      </form>
+    </mat-card>
+  }
 </div>
-

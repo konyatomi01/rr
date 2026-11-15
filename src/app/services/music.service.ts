@@ -1,91 +1,49 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { lastValueFrom } from 'rxjs';
-import { Track } from '../popups/settings/settings.component';
-import { CustomPlaylistTrack } from './party.service';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { firstValueFrom, timeout } from 'rxjs';
+import {
+  checkDeezerBody,
+  DEEZER_API_URL,
+  DEEZER_TIMEOUT_MS,
+  DeezerGet,
+  fetchChartPlaylists,
+  fetchPlaylistSearch,
+  fetchPlaylistTracks,
+  fetchTrackSearch,
+} from '../../shared/deezer';
+import { Playlist, Track } from '../../shared/models';
 
-export interface Playlist {
-  name: string;
-  id: string;
-  image: string;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+/**
+ * Browses and searches Deezer straight from the browser, so charts, search results and track
+ * availability follow the player's region. Deezer sends no CORS headers, hence JSONP.
+ * (Running games is the server's job: it loads tracks and resolves previews itself.)
+ */
+@Injectable({ providedIn: 'root' })
 export class MusicService {
+  private readonly http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {
-    }
+  private readonly get: DeezerGet = async <T>(path: string, params: Record<string, string | number> = {}) => {
+    const query = new HttpParams({ fromObject: { ...params, output: 'jsonp' } });
+    const body = await firstValueFrom(
+      this.http.jsonp<unknown>(`${DEEZER_API_URL}${path}?${query}`, 'callback').pipe(timeout(DEEZER_TIMEOUT_MS)),
+    );
+    return checkDeezerBody<T>(path, body);
+  };
 
-  private get token(): string {
-    return sessionStorage.getItem('token') || '';
+  /** `page` is 1-based. Rejects if Deezer can't be reached, so callers can tell errors from empty results. */
+  getChartsPlaylists(page: number): Promise<Playlist[]> {
+    return fetchChartPlaylists(this.get, page);
   }
 
-  getArtworkUrl(link: string): string {
-		return link.replace('{w}', '300').replace('{h}', '300');
-	}
-
-  public async getChartsPlaylists(offset: number): Promise<Playlist[]> {
-    if (this.token) {
-      const apiUrl = `https://api.music.apple.com/v1/catalog/us/charts?types=playlists&limit=20&offset=${offset-20}`;
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
-      const lists: any[] = (await lastValueFrom(this.http.get<any>(apiUrl, { headers }))).results.playlists[0].data;
-      return lists.map(item => ({
-        name: item.attributes.name,
-        id: item.attributes.playParams.id,
-        image: this.getArtworkUrl(item.attributes.artwork.url)
-      })); 
-    }
-    return [];
-  }
-  public async getPlaylistBySearch(searchTerm: string): Promise<Playlist[]> {
-    if (this.token) {
-      const apiUrl = `https://api.music.apple.com/v1/catalog/us/search?types=playlists&limit=10&term=${searchTerm}`;
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
-      const lists: any = await lastValueFrom(this.http.get<any>(apiUrl, { headers }));
-      if (lists.results.playlists) {
-        const data: any[] = lists.results.playlists.data;
-        return data.map(item => ({
-          name: item.attributes.name,
-          id: item.attributes.playParams.id,
-          image: this.getArtworkUrl(item.attributes.artwork.url)
-        }));
-      }
-    }
-    return [];
+  getPlaylistBySearch(searchTerm: string): Promise<Playlist[]> {
+    return fetchPlaylistSearch(this.get, searchTerm);
   }
 
-  public async getSongsBySearch(searchTerm: string): Promise<CustomPlaylistTrack[]> {
-    if (this.token) {
-      const apiUrl = `https://api.music.apple.com/v1/catalog/us/search?types=songs&limit=10&term=${searchTerm}`;
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
-      const lists: any = await lastValueFrom(this.http.get<any>(apiUrl, { headers }));
-      if (lists.results.songs) {
-        const data: any[] = lists.results.songs.data;
-        return data.map(item => ({
-          url: item.attributes.previews[0].url,
-          title: item.attributes.name,
-          artist: item.attributes.artistName,
-          cover: this.getArtworkUrl(item.attributes.artwork.url),
-        }));
-      }
-    }
-    return [];
+  getSongsBySearch(searchTerm: string): Promise<Track[]> {
+    return fetchTrackSearch(this.get, searchTerm);
   }
 
-  public async getTracksFromPlaylist(playlistId: string): Promise<Track[]> {
-    if (this.token) {
-      const apiUrl = `https://api.music.apple.com/v1/catalog/us/playlists/${playlistId}`;
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
-      const data: any[] = (await lastValueFrom(this.http.get<any>(apiUrl, { headers }))).data[0].relationships.tracks.data;
-      return data.filter((item: any) => item.attributes.previews.length)
-        .map(item => ({
-          url: item.attributes.previews[0].url,
-          title: item.attributes.name,
-          artist: item.attributes.artistName
-        }));
-    }
-    return [];
+  getTracksFromPlaylist(playlistId: string): Promise<Track[]> {
+    return fetchPlaylistTracks(this.get, playlistId);
   }
 }

@@ -1,29 +1,51 @@
-<div class="d-flex flex-column rr-card dark h-auto">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="title-div">ADD SONGS</div>
-        <button class="back-button" mat-dialog-close>
-            <mat-icon>cancel</mat-icon>
-        </button>
-    </div>
-    <div class="input-field my-2 d-flex justify-content-center">
-        <mat-icon matPrefix class="flex-shrink-0">search</mat-icon>
-        <input id="search" [formControl]="search" type="text" class="form-control" placeholder="Search for any songs!">
-        <button class="clear-button" matSuffix [ngClass]="{'inactive': !search.dirty}" (click)="reset()">
-          <mat-icon>clear</mat-icon>
-        </button>
-      </div>
-      <div class="song-displayer">
-        <ng-container *ngIf="!isLoading">
-          <div *ngFor="let song of songs" class="song p-1 mb-1">
-            <img [src]="song.cover"/>
-            <span class="ms-2">{{ song.title }}</span>
-            <div class="flex-grow-1"></div>
-            <button (click)="addSong(song)"><mat-icon>add</mat-icon></button>
+<h2 mat-dialog-title class="d-flex align-items-center">
+  ADD SONGS
+  <button matIconButton class="rr-icon-button ms-auto" mat-dialog-close aria-label="Close">
+    <mat-icon>cancel</mat-icon>
+  </button>
+</h2>
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="rr-field rr-search my-2" subscriptSizing="dynamic">
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput [formControl]="search" placeholder="Search for any songs!" aria-label="Search songs" type="search">
+    @if (search.value) {
+      <button matIconButton matSuffix class="rr-icon-button rr-filled rr-dark clear" (click)="search.setValue('')" aria-label="Clear search">
+        <mat-icon>clear</mat-icon>
+      </button>
+    }
+  </mat-form-field>
+  <div class="song-displayer">
+    @switch (state().status) {
+      @case ('loading') {
+        <mat-progress-spinner class="m-auto" mode="indeterminate" diameter="50" aria-label="Searching" />
+      }
+      @case ('error') {
+        <div class="m-auto text-center">Could not reach Deezer, please try again!</div>
+      }
+      @default {
+        @for (song of songs(); track song.id) {
+          <div class="song p-1 mb-1">
+            <img [src]="song.cover" alt="">
+            <span class="ms-2 flex-grow-1 overflow-hidden">
+              <span class="rr-clamp-2">{{ song.title }}</span>
+              <span class="artist text-truncate d-block">{{ song.artist }}</span>
+            </span>
+            <button
+              matIconButton
+              class="rr-icon-button rr-filled rr-translucent add"
+              (click)="addSong(song)"
+              [disabled]="isAdded(song) || adding() === song.id"
+              [attr.aria-label]="(isAdded(song) ? 'Already added: ' : 'Add ') + song.title"
+            >
+              <mat-icon>{{ isAdded(song) ? 'check' : 'add' }}</mat-icon>
+            </button>
           </div>
-        </ng-container>
-        <ng-container *ngIf="isLoading">
-            <rr-spinner></rr-spinner>
-        </ng-container>
-    </div>
-
-</div>
+        } @empty {
+          @if (state().status === 'done') {
+            <div class="m-auto text-center">No songs found.</div>
+          }
+        }
+      }
+    }
+  </div>
+</mat-dialog-content>

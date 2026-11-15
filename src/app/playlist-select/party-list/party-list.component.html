@@ -1,16 +1,20 @@
-
-<div class="overflow-y-auto row w-100 my-2 flex-grow-1">
-    <div class="col-12 col-md-6 col-lg-4 h-min-content"  *ngFor="let player of party.party" >
-        <div class="player p-1 w-100 m-1" [class.accepted]="player.accepted">
-            <div class="d-flex align-items-center gap-1 h-100">
-                <img class="pfp" [src]="player.pfp">
-                <img *ngIf="player.isLeader" class="h-50" src="assets/crown.svg">
-                <span class="name">{{ player.name }}</span>
-            </div>
-            <button class="kick-button me-2"  *ngIf="!player.isLeader && party.player?.isLeader" (click)="kickPlayer(player)">
-                <mat-icon>cancel</mat-icon>
-            </button>
+<div class="overflow-y-auto row w-100 my-2 flex-grow-1 align-content-start">
+  @for (player of party.players(); track player.id) {
+    <div class="col-12 col-md-6 col-lg-4 h-min-content">
+      <div class="player p-1 w-100 m-1" [class.accepted]="player.accepted" [class.disconnected]="!player.connected">
+        <div class="d-flex align-items-center gap-1 h-100 overflow-hidden">
+          <img class="pfp" [src]="player.pfp" alt="">
+          @if (player.isLeader) {
+            <mat-icon class="crown" svgIcon="crown" aria-label="Leader" />
+          }
+          <span class="text-truncate">{{ player.name }}</span>
         </div>
+        @if (!player.isLeader && party.isLeader()) {
+          <button matIconButton class="rr-icon-button kick me-1" (click)="kickPlayer(player)" [attr.aria-label]="'Kick ' + player.name">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        }
+      </div>
     </div>
-    <div class="filler"></div>
+  }
 </div>

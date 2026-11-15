@@ -1,120 +1,98 @@
-import { Component, Inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ServerService } from '../../services/server.service';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { ANSWER_COUNT, GameModes, GameSpeeds, MAX_HEALTH, MAX_ROUNDS, PlaylistDetails, Settings } from '../../../shared/models';
+import { PartyService } from '../../services/party.service';
 import { SnackbarService } from '../../services/snackbar.service';
-
-interface AnyObject {
-	[key: string]: any;
-}
-
-export enum GameModes {
-	title = 'title',
-	artist = 'artist'
-}
-export enum GameSpeeds {
-	slow = 30,
-	normal = 10,
-	fast = 5
-}
-export interface PlaylistToPlay {
-	title: string,
-	cover: string,
-	tracks: Track[]
-}
-export interface Track {
-	url: string,
-	title: string,
-	artist: string
-}
-
-export interface Settings {
-	rounds: number,
-	gameMode: GameModes,
-	speed: GameSpeeds,
-	vibeMode: boolean,
-	health: number,
-	playlist: PlaylistToPlay
-}
+import { SlidingToggleDirective } from '../../sliding-toggle.directive';
 
 @Component({
-	selector: 'rr-settings',
-	templateUrl: './settings.component.html',
-	styleUrl: './settings.component.scss'
+  selector: 'rr-settings',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    MatButton,
+    MatIconButton,
+    MatIcon,
+    MatButtonToggleGroup,
+    MatButtonToggle,
+    MatSlideToggle,
+    SlidingToggleDirective,
+  ],
+  templateUrl: './settings.component.html',
+  styleUrl: './settings.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsComponent {
+  private readonly party = inject(PartyService);
+  private readonly snackBar = inject(SnackbarService);
+  private readonly dialogRef = inject<MatDialogRef<SettingsComponent>>(MatDialogRef);
+  protected readonly data = inject<PlaylistDetails>(MAT_DIALOG_DATA);
 
-	form = new FormGroup({
-		rounds: new FormControl<number>(3, { validators: [Validators.required, Validators.min(1), Validators.max(30)], nonNullable: true }),
-		mode: new FormControl<GameModes>(GameModes.title, { validators: Validators.required, nonNullable: true }),
-		speed: new FormControl<GameSpeeds>(GameSpeeds.slow, { validators: Validators.required, nonNullable: true }),
-		vibeMode: new FormControl<boolean>(false, { nonNullable: true }),
-		lives: new FormControl<number>(3, { validators: Validators.required, nonNullable: true }),
-	});
-	data?: PlaylistToPlay;
-	showVibeModeTooltip: boolean = false;
+  protected readonly gameModes = GameModes;
+  protected readonly gameSpeeds = GameSpeeds;
+  protected readonly hearts = Array.from({ length: MAX_HEALTH }, (_, i) => i + 1);
+  /** One track per round, so a playlist can't have more rounds than tracks. */
+  protected readonly maxRounds = Math.min(MAX_ROUNDS, this.data.tracks.length);
 
-	constructor(
-		readonly server: ServerService,
-		private snackBar: SnackbarService,
-		@Inject(MAT_DIALOG_DATA) public dialogData: { data: PlaylistToPlay }
-	) {
-		this.data = dialogData.data;
-	}
+  readonly form = new FormGroup({
+    rounds: new FormControl(Math.min(3, this.maxRounds), {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(1), Validators.max(this.maxRounds)],
+    }),
+    mode: new FormControl(GameModes.title, { nonNullable: true }),
+    speed: new FormControl(GameSpeeds.slow, { nonNullable: true }),
+    vibeMode: new FormControl(false, { nonNullable: true }),
+    lives: new FormControl(MAX_HEALTH, { nonNullable: true }),
+  });
+  protected readonly rounds = toSignal(this.form.controls.rounds.valueChanges, { initialValue: this.form.controls.rounds.value });
+  protected readonly lives = toSignal(this.form.controls.lives.valueChanges, { initialValue: this.form.controls.lives.value });
 
-	get enoughArtist(): boolean {
-		return this.countDistinctPropertyValues(this.data!.tracks, "artist") > 3;
-	}
+  /** Artist mode needs enough distinct artists to generate wrong answers. */
+  readonly enoughArtists = new Set(this.data.tracks.map(track => track.artist)).size >= ANSWER_COUNT;
 
-	toggleVibeModeTooltip(): void {
-		if (!this.showVibeModeTooltip) {
-			this.showVibeModeTooltip = !this.showVibeModeTooltip;
-			setTimeout(() => {
-				this.showVibeModeTooltip = false;
-			}, 3500);
-		}
-		else this.showVibeModeTooltip = false;
-	}
+  readonly showVibeInfo = signal(false);
+  readonly starting = signal(false);
 
-	countDistinctPropertyValues(arr: AnyObject[], propertyName: string): number {
-		const distinctValues = new Set<any>();
-		arr.forEach(obj => distinctValues.add(obj[propertyName]));
-		return distinctValues.size;
-	}
+  static open(dialog: MatDialog, data: PlaylistDetails): void {
+    dialog.closeAll();
+    dialog.open(SettingsComponent, { data, width: '420px' });
+  }
 
-	public gameModes = GameModes;
+  explainArtistMode(): void {
+    if (!this.enoughArtists) {
+      this.snackBar.message(`Only available when there are at least ${ANSWER_COUNT} different artists in the playlist!`);
+    }
+  }
 
-	setMode(): void {
-		if (!this.enoughArtist) {
-			this.snackBar.message("Only available when there are at least 4 different artists in the playlist!");
-			this.form.controls.mode.setValue(GameModes.title);
-		}
-	}
+  changeRounds(delta: number): void {
+    const rounds = this.form.controls.rounds;
+    rounds.setValue(Math.min(this.maxRounds, Math.max(1, rounds.value + delta)));
+  }
 
-	plusRounds(): void {
-		if (this.form.controls.rounds.value + 1 <= this.data!.tracks.length) {
-			this.form.controls.rounds.setValue(this.form.controls.rounds.value + 1);
-		}
-	}
-
-	minusRounds(): void {
-		if (this.form.controls.rounds.value - 1 >= 1) {
-			this.form.controls.rounds.setValue(this.form.controls.rounds.value - 1);
-		}
-	}
-
-	public gameSpeeds = GameSpeeds;
-
-	start(): void {
-
-		const settings: Settings = { 
-			rounds: this.form.controls.rounds.value,
-			gameMode: this.form.controls.mode.value,
-			speed: this.form.controls.speed.value,
-			vibeMode: this.form.controls.vibeMode.value,
-			health: this.form.controls.lives.value,
-			playlist: this.data!
-		}
-		this.server.startGame(settings);
-	}
+  async start(): Promise<void> {
+    if (this.form.invalid || this.starting()) return;
+    const { rounds, mode, speed, vibeMode, lives } = this.form.getRawValue();
+    const settings: Settings = { rounds, gameMode: mode, speed, vibeMode, health: lives, playlist: this.data.ref };
+    this.starting.set(true);
+    const proposed = await this.party.propose(settings);
+    this.starting.set(false);
+    if (proposed) this.dialogRef.close();
+  }
 }

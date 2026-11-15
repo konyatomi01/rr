@@ -1,3 +1,6 @@
 node_modules
 .angular
 .env
+dist
+test-results
+playwright-report

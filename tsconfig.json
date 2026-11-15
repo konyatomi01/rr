@@ -1,6 +1,5 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
+/* To learn more about Angular compiler options see: https://angular.dev/reference/configs/angular-compiler-options */
 {
-  "type": "module",
   "compileOnSave": false,
   "compilerOptions": {
     "outDir": "./dist",
@@ -14,23 +13,15 @@
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "useDefineForClassFields": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ],
-    
+    "useDefineForClassFields": false
   },
-  "ts-node": {
-    "compilerOptions": {
-      "module": "commonjs"
-    }
-  },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts"
+  ],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

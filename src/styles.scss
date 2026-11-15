@@ -1,178 +1,49 @@
-@import 'styles/colors.scss';
+@use 'styles/colors' as *;
+@use 'styles/material';
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Concert+One&display=swap');
-
-
-$breakpoints: (
-	xs: 0,
-	sm: 576px,
-	md: 768px,
-	lg: 992px,
-	xl: 1200px
-);
-
-@function breakpoint($key) {
-	@return map-get($breakpoints, $key);
+html {
+  min-height: 100%;
+  // On <html> so the background also covers pages taller than the viewport.
+  background: linear-gradient(to bottom right, $navy, #018681) no-repeat;
+  background-size: cover;
 }
 
-@mixin isMd {
-	@media (min-width: breakpoint(md)) {
-		@content;
-	}
-}
-
-@mixin isLg {
-	@media (min-width: breakpoint(lg)) {
-		@content;
-	}
-}
-
-@mixin isXl {
-	@media (min-width: breakpoint(xl)) {
-		@content;
-	}
+body {
+  min-height: 100dvh;
+  margin: 0;
+  background: transparent;
+  color: $white;
+  font-family: 'Concert One', sans-serif;
 }
 
 .h-min-content {
   height: min-content;
 }
 
-body {
-    background: linear-gradient(to bottom right, #00005d, #018681);
-    background-repeat: no-repeat;
-    background-size: cover;
-    height: 100dvh;
-    font-family: "Concert One", sans-serif !important;
+// Two-line clamp for playlist and song titles.
+.rr-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
-.rr-card {
-  background: linear-gradient(to top left, #00005d, #00003a);
-    color: $white;
-    border-radius: 45px;
-    padding: 30px;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 4.1);
-    margin-bottom: 2dvh;
-
-    &.dark {
-        background: linear-gradient(to top, $text, $text-shadow);
-        color: $white;
-    }
-}
-
-html, body { height: 100%; }
-
-.icon-button {
-  background: none;
-  border: none;
-  color: inherit;
-  width: max-content;
-  height: max-content;
-  padding: 0px;
-  margin: 0px;
-  cursor: pointer;
-  vertical-align: middle;
-}
-
-.snackbar {
-  position: fixed;
-  bottom: 15px;
-  width: 86dvw;
-  background: $text-shadow;
+// A row of a player list (in game, round over).
+.rr-player-row {
+  display: flex;
+  align-items: center;
+  background-image: $card-gradient;
   color: $white;
-  padding: 10px;
-  text-align: center;
-  border-radius: 15px;
-  z-index: 100000;
-}
-
-rr-toggle-button {
-  position: relative;
-  height: auto;
-  padding: 4px;
-  background: $button-group-background;
   border-radius: 25px;
-  display: flex;
-  align-items: center;
-  width: max-content;
 
-  .indicator {
-    position: absolute;
-    background: $orange;
-    height: 32px;
-    border-radius: 100px;
-    transition: transform 0.3s ease;
-  }
-
-  button {
-    z-index: 1;
-    border-radius: 28px;
-    height: 100%;
-    background: none;
-    color: $orange;
-    border: none;
-    padding: 3px 20px;
-    position: relative;
-
-    .warning {
-      position: absolute;
-      top: -3px;
-      right: -8px;
-      background: $orange;
-      border-radius: 1000px;
-      font-size: 14px;
-      padding: 0px 8px;
-      color: $text;
-  }
-
-    &.selected {
-        color: $text;
-    }
-    &.disabled {
-        opacity: 0.8;
-    }
-  }
-  &.red {
-    .indicator {
-      background: $red;
-    }
-    button {
-      color: $red;
-      &.selected {
-        color: $white;
-      }
-    }
+  &.disconnected {
+    opacity: 0.5;
   }
 }
 
-.cdk-overlay-container {
-  top: 0;
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.cdk-overlay-backdrop {
-  background: rgba(0, 0, 0, 0.5);
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100vw;
-  height: 100vh;
-}
-
-.cdk-global-overlay-wrapper {
-  align-items: center;
-  width: 100vw;
-  height: 100vh;
-  justify-content: center;
-  display: flex
-;
-}
-
-.mat-mdc-dialog-surface.mdc-dialog__surface {
-  background-color: transparent !important;
-  box-shadow: none !important;
-  z-index: 1;
+.rr-pfp {
+  border: solid 3px $white;
+  border-radius: 1000px;
 }

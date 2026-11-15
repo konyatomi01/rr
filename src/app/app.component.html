@@ -1,13 +1,14 @@
 <div class="rr-container">
   <div class="mb-2 text-center">
-    <img src="assets/logo2223.png" class="logo">
+    <img src="assets/logo2223.png" class="logo" alt="Rhythm Royale">
   </div>
-  
-  <ng-container *ngIf="route.state === 'launch'"><rr-launch></rr-launch></ng-container>
-  <ng-container *ngIf="route.state === 'select'"><rr-playlist-select></rr-playlist-select></ng-container>
-  <ng-container *ngIf="route.state === 'game'"><rr-game></rr-game></ng-container>
-  <ng-container *ngIf="route.state === 'gameover'"><rr-game-over></rr-game-over></ng-container>
-  <ng-container *ngIf="route.state === 'roundover'"><rr-round-over></rr-round-over></ng-container>
-  
-  <div class="snackbar" *ngIf="snackBar.show">{{ snackBar.text }}</div>
+
+  @if (socket.hasConnected() && !socket.connected()) {
+    <div class="connection-banner" role="status">
+      <mat-progress-spinner mode="indeterminate" diameter="18" />
+      Connection lost, reconnecting…
+    </div>
+  }
+
+  <router-outlet />
 </div>

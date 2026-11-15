@@ -1,46 +1,41 @@
-import { Component } from '@angular/core';
-import { PlaylistToPlay } from '../../popups/settings/settings.component';
-import { DialogService } from '../../services/dialog.service';
-import { CustomPlaylistTrack, PartyService } from '../../services/party.service';
-import { SnackbarService } from '../../services/snackbar.service';
-import { ServerService } from '../../services/server.service';
-import { DisplayService } from '../../services/display.service';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { CUSTOM_PLAYLIST_COVER, CustomPlaylistTrack, MIN_PLAYLIST_TRACKS } from '../../../shared/models';
+import { AddSongComponent } from '../../popups/add-song/add-song.component';
+import { SettingsComponent } from '../../popups/settings/settings.component';
+import { PartyService } from '../../services/party.service';
 
 @Component({
   selector: 'rr-custom-playlist',
+  imports: [MatButton, MatIconButton, MatIcon],
   templateUrl: './custom-playlist.component.html',
-  styleUrl: './custom-playlist.component.scss'
+  styleUrl: './custom-playlist.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomPlaylistComponent {
+  protected readonly party = inject(PartyService);
+  private readonly dialog = inject(MatDialog);
 
-  constructor(
-    public party: PartyService,
-    public dialog: DialogService,
-    private snackbar: SnackbarService,
-    private server: ServerService,
-    readonly display: DisplayService
-  ) {}
+  protected readonly minTracks = MIN_PLAYLIST_TRACKS;
+
+  addSong(): void {
+    AddSongComponent.open(this.dialog);
+  }
 
   start(): void {
-    if (this.party.customPlaylist.length < 4) 
-      this.snackbar.message("You need at least 4 tracks to start a game");
-    else {
-      const data: PlaylistToPlay = {
-        title: 'Custom Playlist',
-        cover: 'assets/custom-playlist.jpg',
-        tracks: this.party.customPlaylist
-      }
-      this.dialog.openSettingsDialog(data);
-    }
+    SettingsComponent.open(this.dialog, {
+      ref: { source: 'custom', title: 'Custom Playlist', cover: CUSTOM_PLAYLIST_COVER },
+      tracks: this.party.customPlaylist(),
+    });
   }
 
   removeSong(song: CustomPlaylistTrack): void {
-    this.server.removeCustomPlaylistTrack(song);
-    this.snackbar.message(`Removed ${song.title} from custom playlist`);
+    this.party.removeCustomTrack(song.id);
   }
 
   ownSong(song: CustomPlaylistTrack): boolean {
-    return this.party.player?.id === song.player?.id;
+    return song.addedBy?.id === this.party.self()?.id;
   }
 }
-

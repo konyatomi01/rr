@@ -1,25 +1,24 @@
-import { Component } from '@angular/core';
-import { PartyService, PlayerData } from '../../services/party.service';
-import { ServerService } from '../../services/server.service';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { PlayerData } from '../../../shared/models';
 import { DialogService } from '../../services/dialog.service';
+import { PartyService } from '../../services/party.service';
 
 @Component({
   selector: 'rr-party-list',
+  imports: [MatIconButton, MatIcon],
   templateUrl: './party-list.component.html',
-  styleUrl: './party-list.component.scss'
+  styleUrl: './party-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PartyListComponent {
-
-  constructor(
-    readonly server: ServerService,
-    public party: PartyService,
-    private dialog: DialogService,
-  ) {}
+  protected readonly party = inject(PartyService);
+  private readonly dialog = inject(DialogService);
 
   async kickPlayer(player: PlayerData): Promise<void> {
-    const res = await this.dialog.openKickPlayerDialog(player.name);
-    if (res) {
-      this.server.kickPlayer(player.id);
+    if (await this.dialog.confirm(`Are you sure you want to kick ${player.name}?`, 'Kick')) {
+      this.party.kick(player.id);
     }
-  } 
+  }
 }

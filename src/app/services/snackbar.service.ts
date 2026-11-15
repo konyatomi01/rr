@@ -1,18 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-@Injectable({
-  providedIn: 'root'
-})
+const DISPLAY_TIME_MS = 3000;
+
+@Injectable({ providedIn: 'root' })
 export class SnackbarService {
-  public show: boolean = false;
-  public text: string = ''; 
+  private readonly snackBar = inject(MatSnackBar);
 
   message(message: string): void {
-    this.text = message;
-    this.show = true;
-
-    setTimeout(() => {
-      this.show = false;
-    }, 3000);
+    this.snackBar.open(message, undefined, { duration: DISPLAY_TIME_MS });
   }
 }
